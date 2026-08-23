@@ -103,7 +103,16 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export async function register(name: string, email: string, password: string, accountType: 'client' | 'provider' = 'client') {
-  return request<{ user: AuthUser; token?: string; pendingVerification?: boolean; email?: string; message?: string }>('/api/auth/register', {
+  return request<{
+    user: AuthUser
+    token?: string
+    pendingVerification?: boolean
+    email?: string
+    message?: string
+    code?: string
+    verifyUrl?: string
+    delivered?: boolean
+  }>('/api/auth/register', {
     method: 'POST',
     body: JSON.stringify({ name, email, password, accountType }),
   })
@@ -130,7 +139,13 @@ export async function verifyEmail(payload: { email?: string; code?: string; toke
 }
 
 export async function resendVerificationEmail(email: string) {
-  return request<{ ok: boolean; message: string }>('/api/auth/resend-verification', {
+  return request<{
+    ok: boolean
+    message: string
+    code?: string
+    verifyUrl?: string
+    delivered?: boolean
+  }>('/api/auth/resend-verification', {
     method: 'POST',
     body: JSON.stringify({ email }),
   })

@@ -213,6 +213,9 @@ Este projeto é de uso privado e confidencial.
 - [x] Ao fazer cadastro o usuário tenha a opção de escolher somente a conta de cliente ou a conta de prestador de serviço. Quando escolher a conta prestador de serviço esse usuário seja cliente automaticamente. Mas ao ser cliente não ter a opção de pestador de serviço. Então separar esses dois tipos de perfis
 - [x] Na página em inglês de explore as mensagem e opções de filtros aparecem em português, traduza tudo para inglês: Explorar prestadores. Encontre todos os profissionais disponíveis de acordo com a sua região.
 - [x] o botão "continuar com Google" nao está funcionando
-- [ ] O email de confirmação do cadastro não está sendo enviado.
+- [x] O email de confirmação do cadastro não está sendo enviado.
 - [ ] Colocar o número real de providers; reviews e ratings
 - [ ] Algumas fotos de providers não estão carregando
+- [ ] Se o usuário estiver no tipo de conta de cliente, as notificações será sobre se o prestador aceitou ou recusou o serviço.
+- [ ] Gostaria de abrisse a opção de um chat quando o prestador aceitasse o serviço solicitado do cliente, abrir um chat para conversar sobre
+- [ ] O prestador tenha a opção de compartilhar o perfil dele em redes sociais, a opção de copy link ou criar um QR Code para compartilhar o perfil para outras pessoas

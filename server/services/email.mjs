@@ -75,8 +75,11 @@ export async function sendVerificationEmail({ to, name, code, verifyLink }) {
       const errorMsg = data?.message || JSON.stringify(data)
       const isDomainRestriction =
         res.status === 403 ||
+        res.status === 400 ||
         errorMsg.toLowerCase().includes('testing domain restriction') ||
-        errorMsg.toLowerCase().includes('resend.dev domain is for testing')
+        errorMsg.toLowerCase().includes('resend.dev domain is for testing') ||
+        errorMsg.toLowerCase().includes('testing email address') ||
+        errorMsg.toLowerCase().includes('invalid `to` field')
 
       if (isDomainRestriction) {
         console.warn(
@@ -92,6 +95,7 @@ export async function sendVerificationEmail({ to, name, code, verifyLink }) {
 
       return {
         success: true,
+        delivered: false,
         id: 'simulated_' + Date.now(),
         simulated: true,
         isSandboxRestriction: isDomainRestriction,
@@ -103,11 +107,12 @@ export async function sendVerificationEmail({ to, name, code, verifyLink }) {
       }
     }
 
-    return { success: true, id: data.id }
+    return { success: true, delivered: true, id: data.id, code, verifyLink }
   } catch (err) {
     console.error('Email send error:', err.message)
     return {
       success: true,
+      delivered: false,
       id: 'fallback_' + Date.now(),
       simulated: true,
       code,

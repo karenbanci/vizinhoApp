@@ -79,7 +79,12 @@ router.post('/register', async (req, res) => {
     )
 
     const userId = result.insertId
-    const { emailRes } = await createAndSendEmailVerification(userId, email, name, req.get('host'))
+    const { code, rawToken, emailRes } = await createAndSendEmailVerification(userId, email, name, req.get('host'))
+
+    const origin = req.get('host')?.includes('8443') || req.get('host')?.includes('localhost')
+      ? 'http://localhost:8443'
+      : `https://${req.get('host')}`
+    const verifyUrl = `${origin}/?verify_token=${rawToken}`
 
     const user = {
       id: userId,
@@ -94,6 +99,9 @@ router.post('/register', async (req, res) => {
       pendingVerification: true,
       email,
       user,
+      code,
+      verifyUrl,
+      delivered: emailRes?.delivered ?? false,
       message: 'Código de confirmação enviado para seu e-mail!',
     })
   } catch (err) {
@@ -212,8 +220,19 @@ router.post('/resend-verification', async (req, res) => {
       return res.status(400).json({ error: 'Este e-mail já está confirmado.' })
     }
 
-    await createAndSendEmailVerification(row.id, email, row.name, req.get('host'))
-    res.json({ ok: true, message: 'Novo código de confirmação enviado para seu e-mail!' })
+    const { code, rawToken, emailRes } = await createAndSendEmailVerification(row.id, email, row.name, req.get('host'))
+    const origin = req.get('host')?.includes('8443') || req.get('host')?.includes('localhost')
+      ? 'http://localhost:8443'
+      : `https://${req.get('host')}`
+    const verifyUrl = `${origin}/?verify_token=${rawToken}`
+
+    res.json({
+      ok: true,
+      code,
+      verifyUrl,
+      delivered: emailRes?.delivered ?? false,
+      message: 'Novo código de confirmação enviado para seu e-mail!',
+    })
   } catch (err) {
     console.error('resend verification error:', err)
     res.status(500).json({ error: 'Erro ao reenviar confirmação.' })

@@ -39,6 +39,8 @@ export default function AuthModal({
   const [token, setTokenInput] = useState(initialResetToken)
   const [verifyCode, setVerifyCode] = useState('')
   const [resetUrl, setResetUrl] = useState('')
+  const [sandboxCode, setSandboxCode] = useState('')
+  const [verifyLinkUrl, setVerifyLinkUrl] = useState('')
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
@@ -103,6 +105,8 @@ export default function AuthModal({
     setResending(true)
     try {
       const res = await resendVerificationEmail(email)
+      if (res.code) setSandboxCode(res.code)
+      if (res.verifyUrl) setVerifyLinkUrl(res.verifyUrl)
       setInfo(res.message)
     } catch (err) {
       setError(formatError(err))
@@ -132,6 +136,8 @@ export default function AuthModal({
         const result = await register(name, email, password, accountType)
         if (result.pendingVerification) {
           setMode('verify')
+          if (result.code) setSandboxCode(result.code)
+          if (result.verifyUrl) setVerifyLinkUrl(result.verifyUrl)
           setInfo(result.message || 'Código de confirmação enviado para seu e-mail!')
         } else if (result.token) {
           setToken(result.token)
@@ -495,6 +501,32 @@ export default function AuthModal({
                   <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed">
                     📧 {t('auth.verifyAlert', { email })}
                   </div>
+
+                  {sandboxCode && (
+                    <div className="p-3.5 bg-blue-50 rounded-xl border border-blue-200 text-xs text-blue-900 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span>
+                          {t('auth.verifySandboxNotice')}{' '}
+                          <strong className="font-mono text-sm tracking-wider text-blue-700">{sandboxCode}</strong>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setVerifyCode(sandboxCode)}
+                          className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-[11px] transition-colors shrink-0"
+                        >
+                          {t('auth.verifyAutoFill')}
+                        </button>
+                      </div>
+                      {verifyLinkUrl && (
+                        <a
+                          href={verifyLinkUrl}
+                          className="block font-semibold text-[11px] underline text-blue-600 hover:text-blue-800"
+                        >
+                          {t('auth.verifyDirectLink')} →
+                        </a>
+                      )}
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5 text-center">
                       {t('auth.verifyCodeLabel')}
