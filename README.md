@@ -220,8 +220,3 @@ Este projeto é de uso privado e confidencial.
 - [x] A Bio deixar como obrigatório o preenchimento
 - [x] Nos filtros na aba de explorar refinar as opções de filtro, pois não faz sentido escolher uma nacionalidade Argentina e a opção de cidade ser São Paulo. Melhore isso
 - [x] Adicionar os serviço de: Movers, Massage, Makeup, Cabeleleiro
-[ ]
-[ ]
-[ ]
-[ ]
-[ ]
