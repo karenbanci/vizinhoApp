@@ -9,6 +9,7 @@ import {
   resendVerificationEmail,
   type AuthUser,
 } from '../api'
+import { useLanguage } from '../i18n'
 
 interface Props {
   initialMode?: 'login' | 'register' | 'forgot' | 'reset' | 'verify'
@@ -20,22 +21,6 @@ interface Props {
 
 type Mode = 'login' | 'register' | 'forgot' | 'reset' | 'verify'
 
-const MODE_TITLE: Record<Mode, string> = {
-  login: 'Entrar',
-  register: 'Criar conta',
-  forgot: 'Esqueci a senha',
-  reset: 'Redefinir senha',
-  verify: 'Confirmar E-mail',
-}
-
-const MODE_SUBTITLE: Record<Mode, string> = {
-  login: 'Acesse sua conta para contratar vizinhos.',
-  register: 'Cadastre-se grátis e comece a contratar vizinhos.',
-  forgot: 'Digite seu e-mail e enviaremos um link para redefinir sua senha.',
-  reset: 'Escolha uma nova senha para sua conta.',
-  verify: 'Digite o código de 6 dígitos enviado para seu e-mail via Resend para ativar sua conta.',
-}
-
 export default function AuthModal({
   initialMode = 'login',
   initialResetToken = '',
@@ -43,6 +28,7 @@ export default function AuthModal({
   onClose,
   onSuccess,
 }: Props) {
+  const { t } = useLanguage()
   const [mode, setMode] = useState<Mode>(initialMode)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -148,13 +134,21 @@ export default function AuthModal({
                 <span className="text-white font-bold text-sm" style={{ fontFamily: "'Fraunces', serif" }}>V</span>
               </div>
               <span className="font-bold text-lg tracking-tight" style={{ fontFamily: "'Fraunces', serif", color: '#1A1511' }}>
-                {MODE_TITLE[mode]}
+                {mode === 'login'
+                  ? t('auth.loginTitle')
+                  : mode === 'register'
+                    ? t('auth.registerTitle')
+                    : mode === 'forgot'
+                      ? t('auth.forgotTitle')
+                      : mode === 'reset'
+                        ? t('auth.resetTitle')
+                        : t('auth.verifyTitle')}
               </span>
             </div>
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200/60 transition-colors"
-              aria-label="Fechar"
+              aria-label={t('auth.close')}
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -162,7 +156,17 @@ export default function AuthModal({
             </button>
           </div>
 
-          <p className="text-sm text-gray-600 mb-6">{MODE_SUBTITLE[mode]}</p>
+          <p className="text-sm text-gray-600 mb-6">
+            {mode === 'login'
+              ? t('auth.loginSub')
+              : mode === 'register'
+                ? t('auth.registerSub')
+                : mode === 'forgot'
+                  ? t('auth.forgotSub')
+                  : mode === 'reset'
+                    ? t('auth.resetSub')
+                    : t('auth.verifySub')}
+          </p>
 
           {success && (
             <div className="text-sm text-gray-700 bg-green-50 border border-green-100 rounded-xl px-4 py-3 mb-4 space-y-2">
@@ -189,12 +193,12 @@ export default function AuthModal({
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === 'register' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Nome</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.name')}</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Seu nome completo"
+                    placeholder={t('auth.namePlaceholder')}
                     required
                     className={inputClass}
                   />
@@ -203,12 +207,12 @@ export default function AuthModal({
 
               {(mode === 'login' || mode === 'register' || mode === 'forgot') && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">E-mail</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.email')}</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="voce@email.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     required
                     className={inputClass}
                   />
@@ -217,12 +221,12 @@ export default function AuthModal({
 
               {mode === 'reset' && !initialResetToken && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Link de redefinição</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.resetLinkLabel')}</label>
                   <input
                     type="text"
                     value={token}
                     onChange={(e) => setTokenInput(e.target.value)}
-                    placeholder="Cole o link recebido"
+                    placeholder={t('auth.resetLinkPlaceholder')}
                     required
                     className={inputClass}
                   />
@@ -231,12 +235,12 @@ export default function AuthModal({
 
               {(mode === 'login' || mode === 'register') && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Senha</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.password')}</label>
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : 'Sua senha'}
+                    placeholder={mode === 'register' ? t('auth.passRegPlaceholder') : t('auth.passLoginPlaceholder')}
                     required
                     minLength={mode === 'register' ? 6 : undefined}
                     className={inputClass}
@@ -248,7 +252,7 @@ export default function AuthModal({
                       className="mt-2 text-xs font-semibold hover:underline"
                       style={{ color: '#E8553D' }}
                     >
-                      Esqueci minha senha
+                      {t('auth.forgotPasswordLink')}
                     </button>
                   )}
                 </div>
@@ -257,24 +261,24 @@ export default function AuthModal({
               {mode === 'reset' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Nova senha</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.newPassword')}</label>
                     <input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder={t('auth.passRegPlaceholder')}
                       required
                       minLength={6}
                       className={inputClass}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirmar nova senha</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.confirmNewPassword')}</label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Repita a nova senha"
+                      placeholder={t('auth.repeatNewPassword')}
                       required
                       minLength={6}
                       className={inputClass}
@@ -286,11 +290,11 @@ export default function AuthModal({
               {mode === 'verify' && (
                 <>
                   <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed">
-                    📧 Enviamos um código de confirmação para <strong>{email}</strong> via Resend. Verifique também sua caixa de spam se necessário.
+                    📧 {t('auth.verifyAlert', { email })}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5 text-center">
-                      Código de 6 dígitos
+                      {t('auth.verifyCodeLabel')}
                     </label>
                     <input
                       type="text"
@@ -310,7 +314,7 @@ export default function AuthModal({
                       onClick={handleResend}
                       className="text-xs font-semibold text-[#E8553D] hover:underline disabled:opacity-50"
                     >
-                      {resending ? 'Reenviando...' : 'Não recebeu o código? Reenviar e-mail'}
+                      {resending ? t('auth.resending') : t('auth.resendCode')}
                     </button>
                   </div>
                 </>
@@ -330,16 +334,16 @@ export default function AuthModal({
                   style={{ backgroundColor: '#E8553D' }}
                 >
                   {loading
-                    ? 'Aguarde...'
+                    ? t('auth.waiting')
                     : mode === 'login'
-                      ? 'Entrar'
+                      ? t('auth.loginBtn')
                       : mode === 'register'
-                        ? 'Criar conta'
+                        ? t('auth.registerBtn')
                         : mode === 'verify'
-                          ? 'Confirmar minha conta'
+                          ? t('auth.verifyBtn')
                           : mode === 'forgot'
-                            ? 'Enviar link'
-                            : 'Redefinir senha'}
+                            ? t('auth.forgotBtn')
+                            : t('auth.resetBtn')}
                 </button>
               )}
             </form>
@@ -351,7 +355,7 @@ export default function AuthModal({
               className="w-full text-sm font-semibold text-white px-4 py-2.5 rounded-xl transition-all hover:opacity-90"
               style={{ backgroundColor: '#E8553D' }}
             >
-              Ir para o login
+              {t('auth.goToLogin')}
             </button>
           )}
         </div>
@@ -359,23 +363,23 @@ export default function AuthModal({
         <div className="px-8 py-4 bg-white text-center text-sm text-gray-600 border-t border-gray-100">
           {mode === 'login' && (
             <>
-              Não tem conta?{' '}
+              {t('auth.noAccount')}{' '}
               <button onClick={() => switchMode('register')} className="font-semibold hover:underline" style={{ color: '#E8553D' }}>
-                Cadastre-se grátis
+                {t('auth.signupFree')}
               </button>
             </>
           )}
           {mode === 'register' && (
             <>
-              Já tem conta?{' '}
+              {t('auth.haveAccount')}{' '}
               <button onClick={() => switchMode('login')} className="font-semibold hover:underline" style={{ color: '#E8553D' }}>
-                Entrar
+                {t('auth.loginLink')}
               </button>
             </>
           )}
           {(mode === 'forgot' || mode === 'reset' || mode === 'verify') && (
             <button onClick={() => switchMode('login')} className="font-semibold hover:underline" style={{ color: '#E8553D' }}>
-              Voltar ao login
+              {t('auth.backToLogin')}
             </button>
           )}
         </div>
