@@ -209,7 +209,7 @@ Este projeto é de uso privado e confidencial.
 # Bugs
 - [x] Fazer página em Inglês e que possa mudar de idioma Port/Eng
 - [x] No dados da conta ter a opção de resetar a senha
-[ ] Na página inicial remover a opção de filtros e deixar somente na aba de explorar
+- [x] Na página inicial remover a opção de filtros e deixar somente na aba de explorar
 [ ] quando eu clico no perfil do prestador de serviço, gostaria que abrisse as informações no meio da janela e não na lateral
 [ ] criar uma página de notificações quando o prestador recebe uma solicitação de serviço, deixar o navbar com um ícone de sininho, ao clicar abrir uma página com a lista de todas as solicitações e deixar a opção de aceitar ou rejeitar a solicitação
 [ ] pode criar um chat entre o prestador e o cliente para eles combinarem o serviço

@@ -281,17 +281,11 @@ export default function App() {
             <span className="text-base font-normal text-gray-400 ml-2">({filtered.length})</span>
           </h2>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 bg-white border border-gray-200 px-3 py-1.5 rounded-lg transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              {t('home.filters')}
-            </button>
-            <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 bg-white border border-gray-200 px-3 py-1.5 rounded-lg transition-colors">
-              {t('home.bestRated')}
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
+            <button
+              onClick={() => setView('explorar')}
+              className="flex items-center gap-1 text-sm font-semibold text-[#E8553D] hover:underline"
+            >
+              <span>{lang === 'en' ? 'Explore with filters →' : 'Explorar com filtros →'}</span>
             </button>
           </div>
         </div>
