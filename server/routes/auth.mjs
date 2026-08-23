@@ -47,7 +47,7 @@ async function createAndSendEmailVerification(userId, email, name, host) {
 }
 
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body ?? {}
+  const { name, email, password, accountType = 'client' } = req.body ?? {}
 
   if (!name || !email || !password) {
     return res.status(400).json({ error: 'Preencha nome, e-mail e senha.' })
@@ -57,21 +57,39 @@ router.post('/register', async (req, res) => {
   }
 
   try {
+    try {
+      await pool.execute("ALTER TABLE users ADD COLUMN account_type VARCHAR(20) DEFAULT 'client'")
+    } catch {
+      // Column exists
+    }
+
     const [existing] = await pool.execute('SELECT id, email_verified FROM users WHERE email = ?', [email])
     if (existing.length > 0) {
       return res.status(409).json({ error: 'Este e-mail já está cadastrado.' })
     }
 
+    const isProviderAccount = accountType === 'provider'
+    const isProvider = isProviderAccount ? 1 : 0
+    const resolvedAccountType = isProviderAccount ? 'provider' : 'client'
     const password_hash = await bcrypt.hash(password, 10)
+
     const [result] = await pool.execute(
-      'INSERT INTO users (name, email, password_hash, email_verified) VALUES (?, ?, ?, 0)',
-      [name, email, password_hash]
+      'INSERT INTO users (name, email, password_hash, email_verified, is_provider, account_type) VALUES (?, ?, ?, 0, ?, ?)',
+      [name, email, password_hash, isProvider, resolvedAccountType]
     )
 
     const userId = result.insertId
     const { emailRes } = await createAndSendEmailVerification(userId, email, name, req.get('host'))
 
-    const user = { id: userId, name, email, isProvider: false, emailVerified: false, providerProfile: null }
+    const user = {
+      id: userId,
+      name,
+      email,
+      isProvider: isProviderAccount,
+      accountType: resolvedAccountType,
+      emailVerified: false,
+      providerProfile: null,
+    }
     res.status(201).json({
       pendingVerification: true,
       email,

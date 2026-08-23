@@ -4,6 +4,7 @@ export function cleanUser(row) {
     name: row.name,
     email: row.email,
     isProvider: !!row.is_provider,
+    accountType: row.account_type || (row.is_provider ? 'provider' : 'client'),
     createdAt: row.created_at,
   }
 }

@@ -34,6 +34,7 @@ export default function AuthModal({
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [accountType, setAccountType] = useState<'client' | 'provider'>('client')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [token, setTokenInput] = useState(initialResetToken)
   const [verifyCode, setVerifyCode] = useState('')
@@ -116,7 +117,7 @@ export default function AuthModal({
         setPassword('')
         setConfirmPassword('')
       } else if (mode === 'register') {
-        const result = await register(name, email, password)
+        const result = await register(name, email, password, accountType)
         if (result.pendingVerification) {
           setMode('verify')
           setInfo(result.message || 'Código de confirmação enviado para seu e-mail!')
@@ -234,17 +235,56 @@ export default function AuthModal({
           {!success && !resetDone && (
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === 'register' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.name')}</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder={t('auth.namePlaceholder')}
-                    required
-                    className={inputClass}
-                  />
-                </div>
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.accountTypeLabel')}</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAccountType('client')}
+                        className={`p-3 rounded-xl border text-left transition-all ${
+                          accountType === 'client'
+                            ? 'border-[#E8553D] bg-[#E8553D]/5 text-gray-900 shadow-sm ring-1 ring-[#E8553D]/30'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs text-gray-900 mb-0.5">
+                          <span>👤</span>
+                          <span>{t('auth.roleClient')}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 leading-tight">{t('auth.roleClientDesc')}</p>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setAccountType('provider')}
+                        className={`p-3 rounded-xl border text-left transition-all ${
+                          accountType === 'provider'
+                            ? 'border-[#E8553D] bg-[#E8553D]/5 text-gray-900 shadow-sm ring-1 ring-[#E8553D]/30'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs text-gray-900 mb-0.5">
+                          <span>⭐</span>
+                          <span>{t('auth.roleProvider')}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 leading-tight">{t('auth.roleProviderDesc')}</p>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.name')}</label>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={t('auth.namePlaceholder')}
+                      required
+                      className={inputClass}
+                    />
+                  </div>
+                </>
               )}
 
               {(mode === 'login' || mode === 'register' || mode === 'forgot') && (

@@ -471,12 +471,14 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
               <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ backgroundColor: '#2B9D8F1A', color: '#2B9D8F' }}>
                 ✓ Cliente
               </span>
-              {profile ? (
-                <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ backgroundColor: '#E8553D1A', color: '#E8553D' }}>
-                  ★ Prestador
-                </span>
-              ) : (
-                <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-500">★ Prestador inativo</span>
+              {(user.accountType === 'provider' || user.isProvider) && (
+                profile ? (
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ backgroundColor: '#E8553D1A', color: '#E8553D' }}>
+                    ★ Prestador
+                  </span>
+                ) : (
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-500">★ Prestador inativo</span>
+                )
               )}
             </div>
           </div>
@@ -607,11 +609,12 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
         </section>
 
         {/* ── Modo prestador ── */}
-        {!profile ? (
-          <section className="bg-white rounded-3xl p-6 shadow-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
-              Vire um prestador
-            </h2>
+        {(user.accountType === 'provider' || user.isProvider) && (
+          !profile ? (
+            <section className="bg-white rounded-3xl p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
+                Vire um prestador
+              </h2>
             <p className="text-sm text-gray-500 mb-4">
               Você continua podendo contratar serviços e ainda oferece seu trabalho na vizinhança. É gratuito.
             </p>
@@ -1207,7 +1210,8 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
               </div>
             </form>
           </section>
-        )}
+        )
+      )}
       </main>
     </div>
   )

@@ -3,6 +3,7 @@ export interface AuthUser {
   name: string
   email: string
   isProvider: boolean
+  accountType?: 'client' | 'provider'
   emailVerified?: boolean
   createdAt?: string
   providerProfile?: ProviderProfile | null
@@ -101,10 +102,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return data as T
 }
 
-export async function register(name: string, email: string, password: string) {
+export async function register(name: string, email: string, password: string, accountType: 'client' | 'provider' = 'client') {
   return request<{ user: AuthUser; token?: string; pendingVerification?: boolean; email?: string; message?: string }>('/api/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, password, accountType }),
   })
 }
 
