@@ -211,4 +211,4 @@ Este projeto é de uso privado e confidencial.
 - [x] quando eu crio uma conta nova, aparece esse erro: Something went wrong. Please try again. Teoricamente o email nunca foi cadastrado, é um email de conta nova
 - [x] substituir o logo por essa imagem: src/images/logo.png
 - [x] deixar o logo visível 8px por 8px
-- [ ] as contas verificada, criar uma condição que será verificada depois de 10 serviços prestados
+- [x] as contas verificada, criar uma condição que será verificada depois de 10 serviços prestados

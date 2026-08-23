@@ -23,6 +23,9 @@ export function parseServices(value) {
 }
 
 export function mapProviderRow(row) {
+  const completedServices = Number(row.completed_services || 0)
+  const isVerified = completedServices >= 10
+
   return {
     id: row.user_id + 1000,
     name: row.name,
@@ -32,8 +35,9 @@ export function mapProviderRow(row) {
     country: row.country || 'BR',
     state: row.state || '',
     city: row.city || '',
-    rating: 0,
-    reviews: 0,
+    rating: completedServices > 0 ? 5.0 : 0,
+    reviews: completedServices,
+    completedServices,
     price: row.price || '',
     location: row.location || '',
     description: row.description || '',
@@ -41,8 +45,8 @@ export function mapProviderRow(row) {
     photoId: row.photo_id,
     portfolioIds: parseServices(row.portfolio_ids),
     reviewsList: [],
-    verified: false,
-    badge: null,
+    verified: isVerified,
+    badge: isVerified ? 'Verificado' : null,
     availability: row.availability || '',
     availableNow: !!row.available_now,
     deliveryInfo: '',

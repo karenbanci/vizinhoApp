@@ -56,6 +56,14 @@ export interface Provider {
   availableNow: boolean
   deliveryInfo: string
   services: Array<string | Service>
+  completedServices?: number
+}
+
+export const VERIFIED_MIN_SERVICES = 10
+
+export function isProviderVerified(provider: { reviews?: number; completedServices?: number; verified?: boolean }): boolean {
+  const count = provider.completedServices ?? provider.reviews ?? 0
+  return count >= VERIFIED_MIN_SERVICES
 }
 
 export const DEFAULT_PHOTO_URL =

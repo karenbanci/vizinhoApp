@@ -9,7 +9,8 @@ router.get('/', async (_req, res) => {
     const [rows] = await pool.execute(
       `SELECT u.id AS user_id, u.name, p.category, p.category_label, p.nationality,
               p.country, p.state, p.city, p.description, p.bio,
-              p.price, p.location, p.availability, p.available_now, p.photo_id, p.services
+              p.price, p.location, p.availability, p.available_now, p.photo_id, p.services,
+              (SELECT COUNT(*) FROM service_requests sr WHERE sr.provider_user_id = u.id AND (sr.status = 'accepted' OR sr.status = 'completed')) AS completed_services
        FROM provider_profiles p
        JOIN users u ON u.id = p.user_id
        ORDER BY p.id`

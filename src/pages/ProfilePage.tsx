@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import {
   activateProvider,
   deactivateProvider,
+  fetchServiceRequests,
   updateMe,
   updateMyPassword,
   updateProviderProfile,
@@ -36,39 +37,42 @@ const CATEGORIES = [
 
 const PHOTOS: Record<string, string[]> = {
   manicure: [
-    'photo-1534528741775-53994a69daeb',
-    'photo-1604654894610-df63bc536371',
-    'photo-1604719312566-8912e9667d9f',
+    'photo-1632345031435-8727f6897d53',
+    'photo-1607779097040-26e80aa78e66',
+    'photo-1519014816548-bf5fe059798b',
+    'photo-1522337360788-8b13dee7a37e',
   ],
   dogsitter: [
     'photo-1548199973-03cce0bbc87b',
-    'photo-1548767797-d8c844163c4c',
-    'photo-1543466835-00a7907e9de1',
+    'photo-1587300003388-59208cc962cb',
+    'photo-1583511655857-d19b40a7a54e',
+    'photo-1537151625747-768eb6cf92b2',
   ],
   confeitaria: [
     'photo-1578985545062-69928b1d9587',
-    'photo-1606313564200-e75d5e30476c',
+    'photo-1588195538326-c5b1e9f80a1b',
     'photo-1563729784474-d77dbb933a9e',
+    'photo-1555507036-ab1f4038808a',
   ],
   faxina: [
     'photo-1581578731548-c64695cc6952',
     'photo-1527515637462-cff94eecc1ac',
-    'photo-1556911220-bff31c812dba',
+    'photo-1584820927498-cfe5211fd8bf',
+    'photo-1581578731548-c64695cc6952',
   ],
   helper: [
-    'photo-1581092918056-0c4c3acd3789',
+    'photo-1581244277943-fe4a9c777189',
+    'photo-1504148455328-c376907d081c',
     'photo-1621905251189-08b45d6a269e',
-    'photo-1574359411659-15573a27fd0c',
   ],
   movers: [
     'photo-1600585154340-be6161a56a0c',
+    'photo-1600585154526-990dced4db0d',
     'photo-1581092918056-0c4c3acd3789',
-    'photo-1558618047-3c8c76ca7d13',
   ],
   massage: [
     'photo-1544161515-4ab6ce6db874',
     'photo-1519823551278-64ac92734fb1',
-    'photo-1540555700478-4be289fbecef',
   ],
   makeup: [
     'photo-1487412720507-e7ab37603c6f',
@@ -78,13 +82,44 @@ const PHOTOS: Record<string, string[]> = {
   cabeleleiro: [
     'photo-1560066984-138dadb4c035',
     'photo-1522337360788-8b13dee7a37e',
-    'photo-1562322140-8baeececf3df',
   ],
 }
 
-function makeProviderFromProfile(user: AuthUser, profile: ProviderProfile): Provider {
+function makeProviderFromProfile(
+  user: AuthUser,
+  profile: ProviderProfile | null,
+  completedServices = 0
+): Provider {
+  const isVerified = completedServices >= 10
+  if (!profile) {
+    return {
+      id: user.id,
+      name: user.name,
+      category: 'helper',
+      categoryLabel: 'Helper',
+      nationality: 'BR',
+      country: 'BR',
+      state: '',
+      city: '',
+      rating: completedServices > 0 ? 5.0 : 0,
+      reviews: completedServices,
+      price: '',
+      location: '',
+      description: '',
+      bio: '',
+      photoId: '',
+      portfolioIds: [],
+      reviewsList: [],
+      verified: isVerified,
+      badge: isVerified ? 'Verificado' : undefined,
+      availability: '',
+      availableNow: false,
+      deliveryInfo: '',
+      services: [],
+    }
+  }
   return {
-    id: user.id + 1000,
+    id: user.id,
     name: user.name,
     category: profile.category,
     categoryLabel: profile.categoryLabel,
@@ -195,6 +230,17 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
   const [editingPhotoIndex, setEditingPhotoIndex] = useState<number | null>(null)
   const [editingPhotoValue, setEditingPhotoValue] = useState('')
   const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [completedServicesCount, setCompletedServicesCount] = useState(0)
+
+  useEffect(() => {
+    if (!user.isProvider) return
+    fetchServiceRequests()
+      .then((res) => {
+        const count = res.received.filter((r) => r.status === 'accepted').length
+        setCompletedServicesCount(count)
+      })
+      .catch(() => {})
+  }, [user.isProvider])
 
   function toggleBlockedDate(dateStr: string) {
     setBlockedDates((prev) =>
@@ -668,13 +714,49 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
                 </button>
                 <button
                   type="button"
-                  onClick={() => onViewProvider(makeProviderFromProfile(user, profile))}
+                  onClick={() => onViewProvider(makeProviderFromProfile(user, profile, completedServicesCount))}
                   className="text-xs sm:text-sm font-semibold hover:underline"
                   style={{ color: '#E8553D' }}
                 >
                   Ver como aparece no marketplace →
                 </button>
               </div>
+            </div>
+
+            {/* Status de Verificação da Conta (Condição: 10 serviços prestados) */}
+            <div className={`mb-5 p-4 rounded-2xl border transition-all ${
+              completedServicesCount >= 10
+                ? 'bg-emerald-50/80 border-emerald-200'
+                : 'bg-blue-50/80 border-blue-200'
+            }`}>
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{completedServicesCount >= 10 ? '🛡️' : '⏳'}</span>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900">
+                    {completedServicesCount >= 10 ? 'Conta Verificada' : 'Selo de Prestador Verificado'}
+                  </h3>
+                </div>
+                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                  completedServicesCount >= 10
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                    : 'bg-blue-100 text-blue-800 border border-blue-300'
+                }`}>
+                  {completedServicesCount >= 10 ? '✓ Verificado' : `${completedServicesCount}/10 Serviços`}
+                </span>
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                {completedServicesCount >= 10
+                  ? 'Parabéns! Sua conta atingiu a marca de 10 ou mais serviços concluídos e conquistou o selo oficial de Conta Verificada.'
+                  : `O selo de Verificado é liberado automaticamente após realizar 10 serviços prestados com sucesso. Faltam ${Math.max(0, 10 - completedServicesCount)} serviços para sua verificação.`}
+              </p>
+              {completedServicesCount < 10 && (
+                <div className="w-full bg-blue-100 h-2 rounded-full mt-2.5 overflow-hidden">
+                  <div
+                    className="bg-[#2B9D8F] h-full rounded-full transition-all duration-500"
+                    style={{ width: `${Math.min(100, (completedServicesCount / 10) * 100)}%` }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Divulgação do Perfil */}
