@@ -224,4 +224,4 @@ Este projeto é de uso privado e confidencial.
 - [x] Gostaria que o pagamento fosse feito através do Stripe, então as transações entre clientes fossem feitas dentro.
 - [x] Quando clico em Dogsitter e depois em outro serviço em baixo do serviços oferecidos os serviços de dogsitter aparecem selecionados, eu gostaria de selecionar manualmente e se a caso eu clique em outro tipo de serviço sem ser dogsitter, os serviços de dogsitter sejam removidos automaticamente. Pois o perfil terá que ter somente um tipo de serviço.
 - [x] o login e criar conta nao estão traduzidos para o ingles
-[ ] o usuário está conseguindo fazer login sem confirmação de email na hora do cadastro, não permitir que isso aconteça
+- [x] o usuário está conseguindo fazer login sem confirmação de email na hora do cadastro, não permitir que isso aconteça

@@ -171,6 +171,14 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'E-mail ou senha incorretos.' })
     }
 
+    if (!row.email_verified) {
+      return res.status(403).json({
+        error: 'Por favor, confirme seu e-mail para ativar sua conta antes de fazer login.',
+        needsVerification: true,
+        email: row.email,
+      })
+    }
+
     const user = await getUserContext(row.id)
     res.json({ user, token: signToken(row.id) })
   } catch (err) {

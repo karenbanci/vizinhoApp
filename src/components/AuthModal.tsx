@@ -102,10 +102,20 @@ export default function AuthModal({
         onSuccess(result.user)
         onClose()
       } else {
-        const result = await login(email, password)
-        setToken(result.token)
-        onSuccess(result.user)
-        onClose()
+        try {
+          const result = await login(email, password)
+          setToken(result.token)
+          onSuccess(result.user)
+          onClose()
+        } catch (loginErr) {
+          const msg = loginErr instanceof Error ? loginErr.message : ''
+          if (msg.includes('confirme seu e-mail') || msg.includes('verificado') || msg.includes('confirm your email')) {
+            setMode('verify')
+            setError(msg)
+            return
+          }
+          throw loginErr
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Algo deu errado. Tente novamente.')
