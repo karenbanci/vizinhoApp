@@ -21,7 +21,7 @@ const ERROR_MAP_EN = [
   { pattern: /erro ao reenviar/i, translation: 'Error resending confirmation.' },
   { pattern: /erro ao redefinir/i, translation: 'Error resetting password.' },
   { pattern: /erro ao salvar/i, translation: 'Error saving.' },
-  { pattern: /preencha a sua bio/i, translation: 'Please fill in your bio (required).' },
+  { pattern: /preencha a sua bio|preenchimento da bio/i, translation: 'Please fill in your bio (required).' },
   { pattern: /preencha todos os campos/i, translation: 'Please fill in all required fields.' },
   { pattern: /apenas o cliente solicitante/i, translation: 'Only the requesting client can make the payment.' },
   { pattern: /já foi paga via stripe/i, translation: 'This request has already been paid via Stripe.' },

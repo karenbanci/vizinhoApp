@@ -3,6 +3,7 @@ export function cleanUser(row) {
     id: row.id,
     name: row.name,
     email: row.email,
+    emailVerified: Boolean(row.email_verified),
     isProvider: !!row.is_provider,
     accountType: row.account_type || (row.is_provider ? 'provider' : 'client'),
     createdAt: row.created_at,

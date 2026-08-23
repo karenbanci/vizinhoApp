@@ -109,7 +109,13 @@ export async function register(name: string, email: string, password: string, ac
   })
 }
 
-export async function authWithGoogle(payload: { email: string; name?: string; googleId?: string; picture?: string }) {
+export async function authWithGoogle(payload: {
+  email: string
+  name?: string
+  googleId?: string
+  picture?: string
+  accountType?: 'client' | 'provider'
+}) {
   return request<{ user: AuthUser; token: string; message: string }>('/api/auth/google', {
     method: 'POST',
     body: JSON.stringify(payload),

@@ -103,13 +103,19 @@ router.post('/register', async (req, res) => {
 })
 
 router.post('/google', async (req, res) => {
-  const { email, name, googleId, picture } = req.body ?? {}
+  const { email, name, googleId, picture, accountType } = req.body ?? {}
 
   if (!email) {
     return res.status(400).json({ error: 'E-mail não fornecido pelo Google.' })
   }
 
   try {
+    try {
+      await pool.execute("ALTER TABLE users ADD COLUMN account_type VARCHAR(20) DEFAULT 'client'")
+    } catch {
+      // Column exists
+    }
+
     const cleanEmail = email.trim().toLowerCase()
     const cleanName = (name || cleanEmail.split('@')[0]).trim()
 
@@ -120,11 +126,14 @@ router.post('/google', async (req, res) => {
       userId = rows[0].id
       await pool.execute('UPDATE users SET email_verified = 1 WHERE id = ?', [userId])
     } else {
+      const isProviderAccount = accountType === 'provider'
+      const isProvider = isProviderAccount ? 1 : 0
+      const resolvedAccountType = isProviderAccount ? 'provider' : 'client'
       const randomPassword = crypto.randomBytes(16).toString('hex')
       const passwordHash = await bcrypt.hash(randomPassword, 10)
       const [insertRes] = await pool.execute(
-        'INSERT INTO users (name, email, password_hash, email_verified) VALUES (?, ?, ?, 1)',
-        [cleanName, cleanEmail, passwordHash]
+        'INSERT INTO users (name, email, password_hash, email_verified, is_provider, account_type) VALUES (?, ?, ?, 1, ?, ?)',
+        [cleanName, cleanEmail, passwordHash, isProvider, resolvedAccountType]
       )
       userId = insertRes.insertId
     }
