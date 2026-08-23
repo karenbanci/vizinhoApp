@@ -84,30 +84,57 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
     )
   }, [providers, status, region])
 
+  // 1. Nationalities available
   const countryOptions = useMemo(() => {
-    const s = new Set<string>()
-    for (const p of providers) if (p.nationality) s.add(p.nationality)
-    return [...s].sort()
-  }, [providers])
-
-  const stateOptions = useMemo(() => {
-    const s = new Set<string>()
+    const map = new Map<string, number>()
     for (const p of providers) {
-      if (filterCountry !== '' && p.nationality !== filterCountry) continue
-      if (p.state) s.add(p.state)
+      if (activeCategory !== 'all' && p.category !== activeCategory) continue
+      if (p.nationality) {
+        map.set(p.nationality, (map.get(p.nationality) ?? 0) + 1)
+      }
     }
-    return [...s].sort()
-  }, [providers, filterCountry])
+    return [...map.entries()].map(([code, count]) => ({ code, count }))
+  }, [providers, activeCategory])
 
-  const cityOptions = useMemo(() => {
-    const s = new Set<string>()
+  // 2. States available for selected nationality & category
+  const stateOptions = useMemo(() => {
+    const map = new Map<string, number>()
     for (const p of providers) {
+      if (activeCategory !== 'all' && p.category !== activeCategory) continue
+      if (filterCountry !== '' && p.nationality !== filterCountry) continue
+      if (p.state) {
+        map.set(p.state, (map.get(p.state) ?? 0) + 1)
+      }
+    }
+    return [...map.entries()].map(([state, count]) => ({ state, count }))
+  }, [providers, activeCategory, filterCountry])
+
+  // 3. Cities available for selected nationality, state & category
+  const cityOptions = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const p of providers) {
+      if (activeCategory !== 'all' && p.category !== activeCategory) continue
       if (filterCountry !== '' && p.nationality !== filterCountry) continue
       if (filterState !== '' && p.state !== filterState) continue
-      if (p.city) s.add(p.city)
+      if (p.city) {
+        map.set(p.city, (map.get(p.city) ?? 0) + 1)
+      }
     }
-    return [...s].sort()
-  }, [providers, filterCountry, filterState])
+    return [...map.entries()].map(([city, count]) => ({ city, count }))
+  }, [providers, activeCategory, filterCountry, filterState])
+
+  // Auto-reset stale state / city filter when parent filter changes
+  useEffect(() => {
+    if (filterState && !stateOptions.some((s) => s.state === filterState)) {
+      setFilterState('')
+    }
+  }, [stateOptions, filterState])
+
+  useEffect(() => {
+    if (filterCity && !cityOptions.some((c) => c.city === filterCity)) {
+      setFilterCity('')
+    }
+  }, [cityOptions, filterCity])
 
   const visible = useMemo(() => {
     const base =
@@ -308,9 +335,9 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer"
           >
             <option value="">Nacionalidade: Todas</option>
-            {countryOptions.map((code) => (
+            {countryOptions.map(({ code, count }) => (
               <option key={code} value={code}>
-                {flagEmoji(code)} {countryName(code)}
+                {flagEmoji(code)} {countryName(code)} ({count})
               </option>
             ))}
           </select>
@@ -322,8 +349,10 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer disabled:opacity-50"
           >
             <option value="">Estado: Todos</option>
-            {stateOptions.map((s) => (
-              <option key={s} value={s}>{s}</option>
+            {stateOptions.map(({ state, count }) => (
+              <option key={state} value={state}>
+                {state} ({count})
+              </option>
             ))}
           </select>
 
@@ -334,8 +363,10 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer disabled:opacity-50"
           >
             <option value="">Cidade: Todas</option>
-            {cityOptions.map((c) => (
-              <option key={c} value={c}>{c}</option>
+            {cityOptions.map(({ city, count }) => (
+              <option key={city} value={city}>
+                {city} ({count})
+              </option>
             ))}
           </select>
 
