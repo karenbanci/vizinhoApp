@@ -80,6 +80,7 @@ const locCols = [
   { name: 'country', ddl: `ALTER TABLE provider_profiles ADD COLUMN country VARCHAR(2) NOT NULL DEFAULT 'BR'` },
   { name: 'state', ddl: `ALTER TABLE provider_profiles ADD COLUMN state VARCHAR(80) NOT NULL DEFAULT ''` },
   { name: 'city', ddl: `ALTER TABLE provider_profiles ADD COLUMN city VARCHAR(120) NOT NULL DEFAULT ''` },
+  { name: 'portfolio_ids', ddl: `ALTER TABLE provider_profiles ADD COLUMN portfolio_ids JSON NULL` },
 ]
 for (const { name, ddl } of locCols) {
   const [cols] = await conn.query(

@@ -37,7 +37,7 @@ export function mapProviderRow(row) {
     description: row.description || '',
     bio: row.bio || '',
     photoId: row.photo_id,
-    portfolioIds: [],
+    portfolioIds: parseServices(row.portfolio_ids),
     reviewsList: [],
     verified: false,
     badge: null,
@@ -65,6 +65,7 @@ export function mapProviderDetail(row) {
     availability: row.availability || '',
     availableNow: !!row.available_now,
     photoId: row.photo_id,
+    portfolioIds: parseServices(row.portfolio_ids),
     services: parseServices(row.services),
   }
 }

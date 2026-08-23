@@ -164,6 +164,12 @@ function normalizeServices(
   const [calMonth, setCalMonth] = useState(() => new Date().getMonth())
   const [calYear, setCalYear] = useState(() => new Date().getFullYear())
 
+  // Portfolio photo management state
+  const [portfolioIds, setPortfolioIds] = useState<string[]>(profile?.portfolioIds ?? [])
+  const [newPortfolioPhotoInput, setNewPortfolioPhotoInput] = useState('')
+  const [editingPhotoIndex, setEditingPhotoIndex] = useState<number | null>(null)
+  const [editingPhotoValue, setEditingPhotoValue] = useState('')
+
   function toggleBlockedDate(dateStr: string) {
     setBlockedDates((prev) =>
       prev.includes(dateStr) ? prev.filter((d) => d !== dateStr) : [...prev, dateStr].sort()
@@ -172,6 +178,44 @@ function normalizeServices(
 
   function toggleWorkDay(day: string) {
     setWorkDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]))
+  }
+
+  function addPortfolioPhoto() {
+    let clean = newPortfolioPhotoInput.trim()
+    if (!clean) return
+    if (clean.includes('unsplash.com/')) {
+      const match = clean.match(/(?:photos\/|unsplash\.com\/)(photo-[a-zA-Z0-9-]+)/)
+      if (match) clean = match[1]
+    }
+    setPortfolioIds([...portfolioIds, clean])
+    setNewPortfolioPhotoInput('')
+  }
+
+  function removePortfolioPhoto(index: number) {
+    setPortfolioIds(portfolioIds.filter((_, i) => i !== index))
+  }
+
+  function startEditPhoto(index: number) {
+    setEditingPhotoIndex(index)
+    setEditingPhotoValue(portfolioIds[index])
+  }
+
+  function saveEditPhoto() {
+    if (editingPhotoIndex === null) return
+    let clean = editingPhotoValue.trim()
+    if (clean) {
+      if (clean.includes('unsplash.com/')) {
+        const match = clean.match(/(?:photos\/|unsplash\.com\/)(photo-[a-zA-Z0-9-]+)/)
+        if (match) clean = match[1]
+      }
+      setPortfolioIds((prev) => {
+        const next = [...prev]
+        next[editingPhotoIndex] = clean
+        return next
+      })
+    }
+    setEditingPhotoIndex(null)
+    setEditingPhotoValue('')
   }
 
   useEffect(() => {
@@ -296,6 +340,7 @@ function normalizeServices(
         availability,
         availableNow,
         photoId,
+        portfolioIds,
         services,
       })
       onUpdateUser(updated)
@@ -942,7 +987,7 @@ function normalizeServices(
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Foto do perfil</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Foto de capa / perfil</label>
                 <div className="flex gap-2">
                   {photoOptions.map((id) => (
                     <button
@@ -957,6 +1002,99 @@ function normalizeServices(
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* ── Gerenciador de Fotos do Portfólio (Adicionar, Editar, Remover) ── */}
+              <div className="space-y-3 p-5 bg-gray-50/70 rounded-2xl border border-gray-200/80">
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">Fotos de Serviços do Portfólio</h3>
+                  <p className="text-xs text-gray-500">Adicione, edite ou remova fotos dos seus trabalhos anteriores.</p>
+                </div>
+
+                {/* Input para adicionar nova foto */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newPortfolioPhotoInput}
+                    onChange={(e) => setNewPortfolioPhotoInput(e.target.value)}
+                    placeholder="URL da imagem ou ID Unsplash (ex: photo-1534528741775-53994a69daeb)"
+                    className="flex-1 px-4 py-2 rounded-xl bg-white border border-gray-200 text-xs text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
+                  />
+                  <button
+                    type="button"
+                    onClick={addPortfolioPhoto}
+                    disabled={!newPortfolioPhotoInput.trim()}
+                    className="text-xs font-semibold px-4 py-2 rounded-xl text-white transition-all disabled:opacity-50"
+                    style={{ backgroundColor: '#E8553D' }}
+                  >
+                    + Adicionar Foto
+                  </button>
+                </div>
+
+                {/* Modal inline de edição */}
+                {editingPhotoIndex !== null && (
+                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 flex flex-col sm:flex-row gap-2 items-center">
+                    <span className="text-xs font-bold text-amber-900 flex-shrink-0">Editar Foto #{editingPhotoIndex + 1}:</span>
+                    <input
+                      type="text"
+                      value={editingPhotoValue}
+                      onChange={(e) => setEditingPhotoValue(e.target.value)}
+                      placeholder="Novo ID ou URL"
+                      className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs text-gray-800 outline-none"
+                    />
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={saveEditPhoto}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#E8553D] text-white"
+                      >
+                        Salvar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setEditingPhotoIndex(null); setEditingPhotoValue('') }}
+                        className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gray-200 text-gray-700"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Grade de fotos do portfólio */}
+                {portfolioIds.length === 0 ? (
+                  <p className="text-xs text-gray-400 italic">Nenhuma foto adicionada ao portfólio ainda.</p>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                    {portfolioIds.map((pId, idx) => {
+                      const imgUrl = pId.startsWith('http')
+                        ? pId
+                        : `https://images.unsplash.com/${pId}?w=240&h=240&fit=crop&auto=format&q=75`
+
+                      return (
+                        <div key={`${pId}-${idx}`} className="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-100 group">
+                          <img src={imgUrl} alt={`Portfólio ${idx + 1}`} className="w-full aspect-square object-cover" />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">
+                            <button
+                              type="button"
+                              onClick={() => startEditPhoto(idx)}
+                              className="w-full py-1 text-[11px] font-bold text-white bg-white/30 backdrop-blur-xs rounded-lg hover:bg-white/50"
+                            >
+                              ✏️ Editar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removePortfolioPhoto(idx)}
+                              className="w-full py-1 text-[11px] font-bold text-white bg-rose-600/80 rounded-lg hover:bg-rose-600"
+                            >
+                              🗑️ Remover
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-3 pt-1">

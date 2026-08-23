@@ -28,6 +28,7 @@ export interface ProviderProfile {
   availability: string
   availableNow: boolean
   photoId: string
+  portfolioIds?: string[]
   services: Array<string | ProviderService>
 }
 

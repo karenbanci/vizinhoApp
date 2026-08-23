@@ -131,6 +131,7 @@ router.patch('/provider', authRequired, async (req, res) => {
     availability,
     availableNow,
     photoId,
+    portfolioIds,
     services,
   } = req.body ?? {}
 
@@ -199,6 +200,7 @@ router.patch('/provider', authRequired, async (req, res) => {
         availability = COALESCE(?, availability),
         available_now = COALESCE(?, available_now),
         photo_id = COALESCE(?, photo_id),
+        portfolio_ids = COALESCE(?, portfolio_ids),
         services = COALESCE(?, services)
        WHERE user_id = ?`,
       [
@@ -215,6 +217,7 @@ router.patch('/provider', authRequired, async (req, res) => {
         availability ?? null,
         availableNow === undefined ? null : availableNow ? 1 : 0,
         photoId ?? null,
+        portfolioIds !== undefined ? JSON.stringify(portfolioIds) : null,
         services ? JSON.stringify(normalizedServices) : null,
         req.userId,
       ]
