@@ -3,6 +3,7 @@ export interface AuthUser {
   name: string
   email: string
   isProvider: boolean
+  emailVerified?: boolean
   createdAt?: string
   providerProfile?: ProviderProfile | null
 }
@@ -101,9 +102,23 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export async function register(name: string, email: string, password: string) {
-  return request<{ user: AuthUser; token: string }>('/api/auth/register', {
+  return request<{ user: AuthUser; token?: string; pendingVerification?: boolean; email?: string; message?: string }>('/api/auth/register', {
     method: 'POST',
     body: JSON.stringify({ name, email, password }),
+  })
+}
+
+export async function verifyEmail(payload: { email?: string; code?: string; token?: string }) {
+  return request<{ ok: boolean; user: AuthUser; token: string; message: string }>('/api/auth/verify-email', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function resendVerificationEmail(email: string) {
+  return request<{ ok: boolean; message: string }>('/api/auth/resend-verification', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
   })
 }
 

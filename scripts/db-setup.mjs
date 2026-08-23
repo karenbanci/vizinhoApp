@@ -92,6 +92,28 @@ for (const { name, ddl } of locCols) {
   }
 }
 
+const [verCols] = await conn.query(
+  `SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'users' AND COLUMN_NAME = 'email_verified'`,
+  [DB_NAME]
+)
+if (verCols.length === 0) {
+  await conn.query(`ALTER TABLE users ADD COLUMN email_verified TINYINT(1) NOT NULL DEFAULT 0`)
+}
+
+await conn.query(`
+  CREATE TABLE IF NOT EXISTS email_verification_tokens (
+    id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT UNSIGNED NOT NULL,
+    email      VARCHAR(191) NOT NULL,
+    code       VARCHAR(6) NOT NULL,
+    token_hash VARCHAR(64) NOT NULL UNIQUE,
+    expires_at TIMESTAMP NOT NULL,
+    used_at    TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_verify_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`)
+
 await conn.query(`
   CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

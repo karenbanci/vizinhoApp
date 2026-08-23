@@ -5,10 +5,12 @@ import crypto from 'node:crypto'
 import { pool } from '../db.mjs'
 import { signToken } from '../auth.mjs'
 import { cleanUser, mapProviderDetail } from '../users.mjs'
+import { sendVerificationEmail } from '../services/email.mjs'
 
 const router = Router()
 const JWT_SECRET = process.env.JWT_SECRET || 'vizinho-dev-secret'
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000
+const VERIFY_TOKEN_TTL_MS = 15 * 60 * 1000
 
 function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex')
@@ -23,6 +25,27 @@ export async function getUserContext(userId) {
   return user
 }
 
+async function createAndSendEmailVerification(userId, email, name, host) {
+  const code = Math.floor(100000 + Math.random() * 900000).toString()
+  const rawToken = crypto.randomBytes(32).toString('hex')
+  const tokenHash = hashToken(rawToken)
+  const expiresAt = new Date(Date.now() + VERIFY_TOKEN_TTL_MS)
+
+  await pool.execute(
+    'INSERT INTO email_verification_tokens (user_id, email, code, token_hash, expires_at) VALUES (?, ?, ?, ?, ?)',
+    [userId, email, code, tokenHash, expiresAt]
+  )
+
+  const origin = host?.includes('8443') || host?.includes('localhost') ? 'http://localhost:8443' : `https://${host}`
+  const verifyLink = `${origin}/?verify_token=${rawToken}`
+
+  console.log(`\n📧 [Resend] Código de verificação para ${email}: ${code}`)
+  console.log(`🔗 Link de verificação: ${verifyLink}\n`)
+
+  await sendVerificationEmail({ to: email, name, code, verifyLink })
+  return { code, rawToken }
+}
+
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body ?? {}
 
@@ -34,22 +57,98 @@ router.post('/register', async (req, res) => {
   }
 
   try {
-    const [existing] = await pool.execute('SELECT id FROM users WHERE email = ?', [email])
+    const [existing] = await pool.execute('SELECT id, email_verified FROM users WHERE email = ?', [email])
     if (existing.length > 0) {
       return res.status(409).json({ error: 'Este e-mail já está cadastrado.' })
     }
 
     const password_hash = await bcrypt.hash(password, 10)
     const [result] = await pool.execute(
-      'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
+      'INSERT INTO users (name, email, password_hash, email_verified) VALUES (?, ?, ?, 0)',
       [name, email, password_hash]
     )
 
-    const user = { id: result.insertId, name, email, isProvider: false, providerProfile: null }
-    res.status(201).json({ user, token: signToken(result.insertId) })
+    const userId = result.insertId
+    await createAndSendEmailVerification(userId, email, name, req.get('host'))
+
+    const user = { id: userId, name, email, isProvider: false, emailVerified: false, providerProfile: null }
+    res.status(201).json({
+      pendingVerification: true,
+      email,
+      user,
+      message: 'Código de confirmação enviado para seu e-mail!',
+    })
   } catch (err) {
     console.error('register:', err)
     res.status(500).json({ error: 'Erro ao cadastrar usuário.' })
+  }
+})
+
+router.post('/verify-email', async (req, res) => {
+  const { email, code, token } = req.body ?? {}
+
+  try {
+    let verificationRecord = null
+
+    if (token) {
+      const tHash = hashToken(token)
+      const [rows] = await pool.execute(
+        'SELECT * FROM email_verification_tokens WHERE token_hash = ? AND expires_at > NOW() AND used_at IS NULL',
+        [tHash]
+      )
+      if (rows.length > 0) verificationRecord = rows[0]
+    } else if (email && code) {
+      const [rows] = await pool.execute(
+        'SELECT * FROM email_verification_tokens WHERE email = ? AND code = ? AND expires_at > NOW() AND used_at IS NULL ORDER BY id DESC LIMIT 1',
+        [email.trim(), code.trim()]
+      )
+      if (rows.length > 0) verificationRecord = rows[0]
+    }
+
+    if (!verificationRecord) {
+      return res.status(400).json({ error: 'Código ou link de confirmação inválido ou expirado.' })
+    }
+
+    await pool.execute('UPDATE email_verification_tokens SET used_at = NOW() WHERE id = ?', [verificationRecord.id])
+    await pool.execute('UPDATE users SET email_verified = 1 WHERE id = ?', [verificationRecord.user_id])
+
+    const user = await getUserContext(verificationRecord.user_id)
+    const jwtToken = signToken(verificationRecord.user_id)
+
+    res.json({
+      ok: true,
+      user,
+      token: jwtToken,
+      message: 'E-mail confirmado com sucesso!',
+    })
+  } catch (err) {
+    console.error('verify-email error:', err)
+    res.status(500).json({ error: 'Erro ao verificar e-mail.' })
+  }
+})
+
+router.post('/resend-verification', async (req, res) => {
+  const { email } = req.body ?? {}
+  if (!email) {
+    return res.status(400).json({ error: 'Informe seu e-mail.' })
+  }
+
+  try {
+    const [rows] = await pool.execute('SELECT id, name, email_verified FROM users WHERE email = ?', [email])
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' })
+    }
+
+    const row = rows[0]
+    if (row.email_verified) {
+      return res.status(400).json({ error: 'Este e-mail já está confirmado.' })
+    }
+
+    await createAndSendEmailVerification(row.id, email, row.name, req.get('host'))
+    res.json({ ok: true, message: 'Novo código de confirmação enviado para seu e-mail!' })
+  } catch (err) {
+    console.error('resend verification error:', err)
+    res.status(500).json({ error: 'Erro ao reenviar confirmação.' })
   }
 })
 

@@ -1,20 +1,31 @@
 import { useState, type FormEvent } from 'react'
-import { login, register, setToken, forgotPassword, resetPassword, type AuthUser } from '../api'
+import {
+  login,
+  register,
+  setToken,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+  resendVerificationEmail,
+  type AuthUser,
+} from '../api'
 
 interface Props {
-  initialMode?: 'login' | 'register' | 'forgot' | 'reset'
+  initialMode?: 'login' | 'register' | 'forgot' | 'reset' | 'verify'
   initialResetToken?: string
+  initialVerifyToken?: string
   onClose: () => void
   onSuccess: (user: AuthUser) => void
 }
 
-type Mode = 'login' | 'register' | 'forgot' | 'reset'
+type Mode = 'login' | 'register' | 'forgot' | 'reset' | 'verify'
 
 const MODE_TITLE: Record<Mode, string> = {
   login: 'Entrar',
   register: 'Criar conta',
   forgot: 'Esqueci a senha',
   reset: 'Redefinir senha',
+  verify: 'Confirmar E-mail',
 }
 
 const MODE_SUBTITLE: Record<Mode, string> = {
@@ -22,19 +33,28 @@ const MODE_SUBTITLE: Record<Mode, string> = {
   register: 'Cadastre-se grátis e comece a contratar vizinhos.',
   forgot: 'Digite seu e-mail e enviaremos um link para redefinir sua senha.',
   reset: 'Escolha uma nova senha para sua conta.',
+  verify: 'Digite o código de 6 dígitos enviado para seu e-mail via Resend para ativar sua conta.',
 }
 
-export default function AuthModal({ initialMode = 'login', initialResetToken = '', onClose, onSuccess }: Props) {
+export default function AuthModal({
+  initialMode = 'login',
+  initialResetToken = '',
+  initialVerifyToken = '',
+  onClose,
+  onSuccess,
+}: Props) {
   const [mode, setMode] = useState<Mode>(initialMode)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [token, setTokenInput] = useState(initialResetToken)
+  const [verifyCode, setVerifyCode] = useState('')
   const [resetUrl, setResetUrl] = useState('')
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
 
   const inputClass =
     'w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]'
@@ -43,6 +63,21 @@ export default function AuthModal({ initialMode = 'login', initialResetToken = '
     setMode(next)
     setError('')
     setInfo('')
+  }
+
+  async function handleResend() {
+    if (!email) return
+    setError('')
+    setInfo('')
+    setResending(true)
+    try {
+      const res = await resendVerificationEmail(email)
+      setInfo(res.message)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao reenviar.')
+    } finally {
+      setResending(false)
+    }
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -62,11 +97,26 @@ export default function AuthModal({ initialMode = 'login', initialResetToken = '
         setInfo(result.message)
         setPassword('')
         setConfirmPassword('')
+      } else if (mode === 'register') {
+        const result = await register(name, email, password)
+        if (result.pendingVerification) {
+          setMode('verify')
+          setInfo(result.message || 'Código de confirmação enviado para seu e-mail!')
+        } else if (result.token) {
+          setToken(result.token)
+          onSuccess(result.user)
+          onClose()
+        }
+      } else if (mode === 'verify') {
+        if (!verifyCode.trim() || verifyCode.trim().length !== 6) {
+          throw new Error('Digite o código de 6 dígitos.')
+        }
+        const result = await verifyEmail({ email, code: verifyCode.trim() })
+        setToken(result.token)
+        onSuccess(result.user)
+        onClose()
       } else {
-        const result =
-          mode === 'register'
-            ? await register(name, email, password)
-            : await login(email, password)
+        const result = await login(email, password)
         setToken(result.token)
         onSuccess(result.user)
         onClose()
@@ -233,6 +283,39 @@ export default function AuthModal({ initialMode = 'login', initialResetToken = '
                 </>
               )}
 
+              {mode === 'verify' && (
+                <>
+                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                    📧 Enviamos um código de confirmação para <strong>{email}</strong> via Resend. Verifique também sua caixa de spam se necessário.
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5 text-center">
+                      Código de 6 dígitos
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={verifyCode}
+                      onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="123456"
+                      autoFocus
+                      required
+                      className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 text-2xl font-mono font-extrabold text-center tracking-[0.35em] text-gray-900 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
+                    />
+                  </div>
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      disabled={resending}
+                      onClick={handleResend}
+                      className="text-xs font-semibold text-[#E8553D] hover:underline disabled:opacity-50"
+                    >
+                      {resending ? 'Reenviando...' : 'Não recebeu o código? Reenviar e-mail'}
+                    </button>
+                  </div>
+                </>
+              )}
+
               {error && (
                 <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">
                   {error}
@@ -252,9 +335,11 @@ export default function AuthModal({ initialMode = 'login', initialResetToken = '
                       ? 'Entrar'
                       : mode === 'register'
                         ? 'Criar conta'
-                        : mode === 'forgot'
-                          ? 'Enviar link'
-                          : 'Redefinir senha'}
+                        : mode === 'verify'
+                          ? 'Confirmar minha conta'
+                          : mode === 'forgot'
+                            ? 'Enviar link'
+                            : 'Redefinir senha'}
                 </button>
               )}
             </form>
@@ -288,7 +373,7 @@ export default function AuthModal({ initialMode = 'login', initialResetToken = '
               </button>
             </>
           )}
-          {(mode === 'forgot' || mode === 'reset') && (
+          {(mode === 'forgot' || mode === 'reset' || mode === 'verify') && (
             <button onClick={() => switchMode('login')} className="font-semibold hover:underline" style={{ color: '#E8553D' }}>
               Voltar ao login
             </button>

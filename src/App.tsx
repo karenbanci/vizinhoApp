@@ -7,7 +7,7 @@ import ProfilePage from './pages/ProfilePage'
 import ExplorePage from './pages/ExplorePage'
 import AdminPage from './pages/AdminPage'
 import NotificationsModal from './components/NotificationsModal'
-import { clearToken, fetchMe, fetchProviders, fetchServiceRequests, getToken, type AuthUser } from './api'
+import { clearToken, fetchMe, fetchProviders, fetchServiceRequests, getToken, setToken, verifyEmail, type AuthUser } from './api'
 import { useLanguage } from './i18n'
 
 export default function App() {
@@ -15,7 +15,7 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>('all')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Provider | null>(null)
-  const [authModal, setAuthModal] = useState<'login' | 'register' | 'reset' | null>(null)
+  const [authModal, setAuthModal] = useState<'login' | 'register' | 'reset' | 'verify' | null>(null)
   const [resetToken, setResetToken] = useState('')
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [view, setView] = useState<'home' | 'explorar' | 'profile' | 'admin'>('home')
@@ -29,6 +29,20 @@ export default function App() {
     if (reset) {
       setResetToken(reset)
       setAuthModal('reset')
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+
+    const verifyToken = params.get('verify_token')
+    if (verifyToken) {
+      verifyEmail({ token: verifyToken })
+        .then((res) => {
+          setToken(res.token)
+          setAuthUser(res.user)
+          alert('E-mail confirmado com sucesso! Sua conta está ativada.')
+        })
+        .catch((err) => {
+          alert(err instanceof Error ? err.message : 'Link de confirmação inválido ou expirado.')
+        })
       window.history.replaceState({}, '', window.location.pathname)
     }
 
