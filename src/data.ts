@@ -1,0 +1,552 @@
+export type CategoryId = 'all' | 'manicure' | 'dogsitter' | 'confeitaria' | 'faxina' | 'helper'
+
+export interface Service {
+  name: string
+  price?: string
+}
+
+export function serviceName(s: string | Service): string {
+  return typeof s === 'string' ? s : s.name
+}
+
+export function servicePrice(s: string | Service): string | undefined {
+  return typeof s === 'string' ? undefined : s.price
+}
+
+export interface Review {
+  id: number
+  author: string
+  avatarId: string
+  rating: number
+  date: string
+  text: string
+}
+
+export interface Provider {
+  id: number
+  name: string
+  category: Exclude<CategoryId, 'all'>
+  categoryLabel: string
+  nationality: string
+  rating: number
+  reviews: number
+  price: string
+  location: string
+  state: string
+  city: string
+  description: string
+  bio: string
+  photoId: string
+  portfolioIds: string[]
+  reviewsList: Review[]
+  verified: boolean
+  badge?: string
+  availability: string
+  availableNow: boolean
+  deliveryInfo: string
+  services: Array<string | Service>
+}
+
+export const CATEGORIES: { id: CategoryId; label: string; emoji: string }[] = [
+  { id: 'all', label: 'Todos', emoji: '✨' },
+  { id: 'manicure', label: 'Manicure', emoji: '💅' },
+  { id: 'dogsitter', label: 'Dog Sitter', emoji: '🐕' },
+  { id: 'confeitaria', label: 'Bolos & Salgados', emoji: '🎂' },
+  { id: 'faxina', label: 'Faxina', emoji: '🧹' },
+  { id: 'helper', label: 'Helpers', emoji: '🔧' },
+]
+
+export const CATEGORY_STYLE: Record<string, { pill: string }> = {
+  manicure: { pill: 'bg-rose-50 text-rose-700' },
+  dogsitter: { pill: 'bg-amber-50 text-amber-700' },
+  confeitaria: { pill: 'bg-orange-50 text-orange-700' },
+  faxina: { pill: 'bg-teal-50 text-teal-700' },
+  helper: { pill: 'bg-blue-50 text-blue-700' },
+}
+
+export const PROVIDERS: Provider[] = [
+  {
+    id: 1,
+    name: 'Juliana Ferreira',
+    category: 'manicure',
+    categoryLabel: 'Manicure',
+    nationality: 'BR',
+    rating: 4.9,
+    reviews: 127,
+    price: 'R$ 40 / sessão',
+    location: 'Pinheiros, SP',
+    state: 'SP',
+    city: 'Pinheiros',
+    description: 'Especialista em nail art e unhas em gel. Atendo em domicílio com materiais esterilizados.',
+    bio: 'Olá! Sou manicure há 8 anos e me especializei em nail art e unhas em gel. Atendo em domicílio com kit completo de materiais esterilizados e descartáveis. Trabalho com as melhores marcas do mercado e ofereço um atendimento exclusivo e personalizado para cada cliente.',
+    photoId: 'photo-1534528741775-53994a69daeb',
+    portfolioIds: [
+      'photo-1604654894610-df63bc536371',
+      'photo-1604719312566-8912e9667d9f',
+      'photo-1562322140-8baeececf3df',
+      'photo-1570169139493-3cb9dc6be4c3',
+      'photo-1609587312208-cea54be969e7',
+      'photo-1586363104862-3a5e2ab60d99',
+    ],
+    services: ['Manicure simples', 'Pedicure', 'Unhas em gel', 'Nail art', 'Blindagem', 'Esmaltação em gel'],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Beatriz Lima',
+        avatarId: 'photo-1531746020798-e6953c6e8e04',
+        rating: 5,
+        date: '10 ago 2026',
+        text: 'Juliana é incrível! Fiz nail art pela primeira vez e ficou exatamente como eu queria. Super caprichosa e atenciosa. Já marquei a próxima sessão!',
+      },
+      {
+        id: 2,
+        author: 'Amanda Santos',
+        avatarId: 'photo-1438761681033-6461ffad8d80',
+        rating: 5,
+        date: '28 jul 2026',
+        text: 'Pontual, organizada e muito talentosa. Minhas unhas nunca ficaram tão lindas. Recomendo demais!',
+      },
+      {
+        id: 3,
+        author: 'Rafaela Duarte',
+        avatarId: 'photo-1489424731084-a5d8b219a5bb',
+        rating: 4,
+        date: '15 jul 2026',
+        text: 'Ótimo atendimento em domicílio. Produto de qualidade e muito cuidado com a higiene. Voltarei com certeza.',
+      },
+    ],
+    verified: true,
+    badge: 'Top Prestadora',
+    availability: 'Disponível hoje',
+    availableNow: true,
+    deliveryInfo: 'Atendimento em domicílio. Local e horário a combinar via chat.',
+  },
+  {
+    id: 2,
+    name: 'Marcos Andrade',
+    category: 'dogsitter',
+    categoryLabel: 'Dog Sitter',
+    nationality: 'BR',
+    rating: 4.8,
+    reviews: 89,
+    price: 'R$ 60 / dia',
+    location: 'Vila Madalena, SP',
+    state: 'SP',
+    city: 'Vila Madalena',
+    description: 'Cuido do seu pet com amor. Tenho espaço seguro com jardim. Atendo até 3 cachorros.',
+    bio: 'Sou apaixonado por animais desde criança. Tenho uma casa ampla em Vila Madalena com jardim cercado e seguro. Ofereço hospedagem, passeios diários e acompanhamento com fotos enviadas para os tutores. Atendo cães de todos os portes.',
+    photoId: 'photo-1507003211169-0a1dd7228f2d',
+    portfolioIds: [
+      'photo-1587300003388-59208cc962cb',
+      'photo-1548199973-03cce0bbc87b',
+      'photo-1561037404-61cd46aa615b',
+      'photo-1537151625747-768eb6cf92b2',
+      'photo-1518717758536-85ae29035b6d',
+      'photo-1477884213360-7e9d7dcc1e48',
+    ],
+    services: ['Hospedagem', 'Passeios diários', 'Visita ao pet', 'Banho & tosa', 'Adestramento básico', 'Transporte pet'],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Carolina Melo',
+        avatarId: 'photo-1580489944761-15a19d654956',
+        rating: 5,
+        date: '5 ago 2026',
+        text: 'Minha cachorra Mel ficou 5 dias com o Marcos e foi incrível. Recebi fotos e atualizações todos os dias. Ela voltou super feliz!',
+      },
+      {
+        id: 2,
+        author: 'Rodrigo Farias',
+        avatarId: 'photo-1500648767791-00dcc994a43e',
+        rating: 5,
+        date: '20 jul 2026',
+        text: 'Profissional e muito carinhoso com os pets. Meu Golden ficou ótimo, bem cuidado e alimentado certinho.',
+      },
+      {
+        id: 3,
+        author: 'Isabela Costa',
+        avatarId: 'photo-1494790108377-be9c29b29330',
+        rating: 4,
+        date: '8 jul 2026',
+        text: 'Tudo ocorreu bem, comunicação ótima. Só senti falta de um relatório mais detalhado das atividades.',
+      },
+    ],
+    verified: true,
+    badge: 'Super Host',
+    availability: 'Disponível amanhã',
+    availableNow: false,
+    deliveryInfo: 'Retirada e entrega do pet a combinar. Área de atendimento: SP capital.',
+  },
+  {
+    id: 3,
+    name: 'Carla Mendes',
+    category: 'confeitaria',
+    categoryLabel: 'Confeitaria',
+    nationality: 'PT',
+    rating: 5.0,
+    reviews: 204,
+    price: 'R$ 120 / bolo',
+    location: 'Moema, SP',
+    state: 'SP',
+    city: 'Moema',
+    description: 'Confeiteira profissional. Bolos personalizados, doces finos e salgados para eventos.',
+    bio: 'Formada em gastronomia e especializada em confeitaria francesa. Trabalho com ingredientes premium e faço bolos 100% personalizados. Cada encomenda é tratada com cuidado artesanal. Atendo festas, casamentos e eventos corporativos.',
+    photoId: 'photo-1580489944761-15a19d654956',
+    portfolioIds: [
+      'photo-1578985545062-69928b1d9587',
+      'photo-1464349095431-e9a21285b5f3',
+      'photo-1488477181946-6428a0291777',
+      'photo-1550617931-e17a7b70dce2',
+      'photo-1499636136210-6f4ee915583e',
+      'photo-1563729784474-d77dbb933a9e',
+    ],
+    services: ['Bolos personalizados', 'Naked cake', 'Cupcakes', 'Doces finos', 'Salgados', 'Mesas de doces'],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Mariana Vaz',
+        avatarId: 'photo-1508214751196-bcfd4ca60f91',
+        rating: 5,
+        date: '9 ago 2026',
+        text: 'O bolo da Carla salvou minha festa! Ficou lindo, gostoso e todo mundo perguntou quem fez. Contratarei de novo com certeza absoluta.',
+      },
+      {
+        id: 2,
+        author: 'Priscila Torres',
+        avatarId: 'photo-1438761681033-6461ffad8d80',
+        rating: 5,
+        date: '1 ago 2026',
+        text: 'Perfeita em todos os aspectos. Cumpriu o prazo, entregou lindo e o sabor foi incrível. Melhor confeiteira que já contratei!',
+      },
+      {
+        id: 3,
+        author: 'Camila Ramos',
+        avatarId: 'photo-1534528741775-53994a69daeb',
+        rating: 5,
+        date: '22 jul 2026',
+        text: 'Fiz encomenda de salgados para 80 pessoas e foi um sucesso. Todos elogiaram. Super recomendo!',
+      },
+    ],
+    verified: true,
+    badge: 'Mais Pedido',
+    availability: 'Encomendas abertas',
+    availableNow: true,
+    deliveryInfo: 'Entrega ou retirada em Moema. Frete para outros bairros a combinar. Prazo mínimo: 5 dias úteis.',
+  },
+  {
+    id: 4,
+    name: 'Renata Oliveira',
+    category: 'faxina',
+    categoryLabel: 'Faxina',
+    nationality: 'BR',
+    rating: 4.7,
+    reviews: 63,
+    price: 'R$ 150 / diária',
+    location: 'Itaim Bibi, SP',
+    state: 'SP',
+    city: 'Itaim Bibi',
+    description: 'Faxina completa com produtos de qualidade. Pontual, organizada e de confiança.',
+    bio: 'Ofereço serviços de limpeza doméstica há 6 anos. Sou pontual, organizada e trabalho com produtos de qualidade que não agridem superfícies ou animais de estimação. Tenho referências disponíveis e carteira de trabalho.',
+    photoId: 'photo-1494790108377-be9c29b29330',
+    portfolioIds: [
+      'photo-1558618666-fcd25c85cd64',
+      'photo-1581578731548-c64695cc6952',
+      'photo-1556909114-f6e7ad7d3136',
+      'photo-1527515545081-5db817172677',
+      'photo-1563453392212-326f5e854473',
+      'photo-1596462502278-27bfdc403348',
+    ],
+    services: ['Faxina completa', 'Limpeza pós-obra', 'Organização de ambientes', 'Passadeira', 'Lavagem de janelas', 'Limpeza de estofados'],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Luciana Prado',
+        avatarId: 'photo-1580489944761-15a19d654956',
+        rating: 5,
+        date: '7 ago 2026',
+        text: 'Renata é maravilhosa. Casa impecável, cheirosa e ela ainda organizou os armários sem eu pedir. Super recomendo!',
+      },
+      {
+        id: 2,
+        author: 'Fernanda Alves',
+        avatarId: 'photo-1531746020798-e6953c6e8e04',
+        rating: 4,
+        date: '25 jul 2026',
+        text: 'Bom serviço, pontual e prestativa. Minha casa ficou limpa e organizada. Voltarei a contratar.',
+      },
+      {
+        id: 3,
+        author: 'Diego Castro',
+        avatarId: 'photo-1492562080023-ab3db95bfbce',
+        rating: 5,
+        date: '14 jul 2026',
+        text: 'Excelente faxineira. Fez limpeza pós-obra no meu apartamento e ficou impecável. Muito cuidadosa e honesta.',
+      },
+    ],
+    verified: true,
+    availability: 'Disponível esta semana',
+    availableNow: false,
+    deliveryInfo: 'Atendimento presencial. Zona Sul e Centro de SP. Deslocamento a combinar.',
+  },
+  {
+    id: 5,
+    name: 'Paulo Souza',
+    category: 'helper',
+    categoryLabel: 'Helper',
+    nationality: 'AR',
+    rating: 4.9,
+    reviews: 41,
+    price: 'R$ 80 / hora',
+    location: 'Brooklin, SP',
+    state: 'SP',
+    city: 'Brooklin',
+    description: 'Montagem de móveis, instalações simples, pintura e reparos em geral. Orçamento grátis.',
+    bio: 'Técnico em edificações com 12 anos de experiência. Faço desde pequenos reparos até reformas completas. Pontual, limpo e honesto. Orçamento sem compromisso e garantia de serviço por 90 dias.',
+    photoId: 'photo-1500648767791-00dcc994a43e',
+    portfolioIds: [
+      'photo-1504148455328-c376907d081c',
+      'photo-1581244277943-fe4a9c777189',
+      'photo-1572981779307-38b8cabb2407',
+      'photo-1603796846097-bee99e4a601f',
+      'photo-1562259949-e8e7689d7828',
+      'photo-1558618047-3c8c76ca7d13',
+    ],
+    services: ['Montagem de móveis', 'Instalação elétrica simples', 'Pintura', 'Reparos gerais', 'Instalação de ar-condicionado', 'Reforma de banheiro'],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Thiago Gomes',
+        avatarId: 'photo-1507003211169-0a1dd7228f2d',
+        rating: 5,
+        date: '11 ago 2026',
+        text: 'Paulo montou minha cozinha completa e ficou perfeita. Rápido, limpo e preço justo. Já indiquei para 3 amigos!',
+      },
+      {
+        id: 2,
+        author: 'Juliana Reis',
+        avatarId: 'photo-1534528741775-53994a69daeb',
+        rating: 5,
+        date: '2 ago 2026',
+        text: 'Fez a instalação elétrica do meu escritório home office. Sem gambiarras, tudo certinho e com nota fiscal. Excelente!',
+      },
+      {
+        id: 3,
+        author: 'André Moura',
+        avatarId: 'photo-1500648767791-00dcc994a43e',
+        rating: 4,
+        date: '19 jul 2026',
+        text: 'Bom profissional, cumpriu o prazo e deixou o local limpo. Pintura ficou ótima. Recomendo.',
+      },
+    ],
+    verified: false,
+    availability: 'Disponível hoje',
+    availableNow: true,
+    deliveryInfo: 'Atendimento presencial. Toda São Paulo e Grande SP. Deslocamento incluído até 15km.',
+  },
+  {
+    id: 6,
+    name: 'Tatiane Costa',
+    category: 'manicure',
+    categoryLabel: 'Manicure',
+    nationality: 'BR',
+    rating: 4.6,
+    reviews: 58,
+    price: 'R$ 35 / sessão',
+    location: 'Santana, SP',
+    state: 'SP',
+    city: 'Santana',
+    description: 'Manicure e pedicure a domicílio. Zona Norte. Materiais próprios e descartáveis.',
+    bio: 'Manicure há 5 anos, atendo toda a Zona Norte de São Paulo. Trabalho com kit completo de materiais descartáveis e esterilizados para garantir a segurança de cada cliente. Especialidade em esmaltação em gel e alongamento.',
+    photoId: 'photo-1438761681033-6461ffad8d80',
+    portfolioIds: [
+      'photo-1604654894610-df63bc536371',
+      'photo-1562322140-8baeececf3df',
+      'photo-1609587312208-cea54be969e7',
+      'photo-1604719312566-8912e9667d9f',
+      'photo-1586363104862-3a5e2ab60d99',
+      'photo-1570169139493-3cb9dc6be4c3',
+    ],
+    services: ['Manicure simples', 'Pedicure', 'Gel', 'Alongamento', 'Francesinha', 'Esmaltação em gel'],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Vanessa Lopes',
+        avatarId: 'photo-1489424731084-a5d8b219a5bb',
+        rating: 5,
+        date: '8 ago 2026',
+        text: 'Tatiane é pontual e muito caprichosa. Minhas unhas ficaram perfeitas. Preço ótimo para a qualidade do serviço!',
+      },
+      {
+        id: 2,
+        author: 'Simone Barbosa',
+        avatarId: 'photo-1494790108377-be9c29b29330',
+        rating: 4,
+        date: '30 jul 2026',
+        text: 'Boa atendimento e produto de qualidade. Atendeu no horário combinado e deixou tudo limpo.',
+      },
+    ],
+    verified: true,
+    availability: 'Disponível amanhã',
+    availableNow: false,
+    deliveryInfo: 'Atendimento em domicílio. Zona Norte (Santana, Tucuruvi, Vila Guilherme). Horários a combinar.',
+  },
+  {
+    id: 7,
+    name: 'Diego Lima',
+    category: 'dogsitter',
+    categoryLabel: 'Dog Sitter',
+    nationality: 'CO',
+    rating: 4.7,
+    reviews: 36,
+    price: 'R$ 40 / passeio',
+    location: 'Perdizes, SP',
+    state: 'SP',
+    city: 'Perdizes',
+    description: 'Passeios diários e hospedagem. Formado em comportamento animal. Relatórios diários.',
+    bio: 'Formado em comportamento animal e apaixonado por cães. Ofereço passeios individualizados e com atenção total para cada pet. Envio relatórios fotográficos diários para os tutores. Experiência com cães de todas as raças e temperamentos.',
+    photoId: 'photo-1492562080023-ab3db95bfbce',
+    portfolioIds: [
+      'photo-1561037404-61cd46aa615b',
+      'photo-1587300003388-59208cc962cb',
+      'photo-1477884213360-7e9d7dcc1e48',
+      'photo-1548199973-03cce0bbc87b',
+      'photo-1537151625747-768eb6cf92b2',
+      'photo-1518717758536-85ae29035b6d',
+    ],
+    services: ['Passeios diários', 'Hospedagem', 'Visita domiciliar', 'Adestramento básico', 'Socialização', 'Transporte pet'],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Natália Freitas',
+        avatarId: 'photo-1580489944761-15a19d654956',
+        rating: 5,
+        date: '6 ago 2026',
+        text: 'Diego é ótimo! Meu Labrador adora os passeios com ele. As fotos e vídeos diários me deixam tranquila enquanto trabalho.',
+      },
+      {
+        id: 2,
+        author: 'Gustavo Araujo',
+        avatarId: 'photo-1507003211169-0a1dd7228f2d',
+        rating: 4,
+        date: '24 jul 2026',
+        text: 'Bom profissional, pontual e meu cachorro voltou cansado de tanto passear! Recomendo para quem busca qualidade.',
+      },
+    ],
+    verified: false,
+    availability: 'Disponível hoje',
+    availableNow: true,
+    deliveryInfo: 'Retirada e entrega do pet em casa. Raio de 5km de Perdizes. Horários flexíveis a combinar.',
+  },
+  {
+    id: 8,
+    name: 'Fernanda Rocha',
+    category: 'confeitaria',
+    categoryLabel: 'Confeitaria',
+    nationality: 'BR',
+    rating: 4.8,
+    reviews: 97,
+    price: 'R$ 8 / un (salgados)',
+    location: 'Lapa, SP',
+    state: 'SP',
+    city: 'Lapa',
+    description: 'Salgados fritos e assados, coxinhas e quibes para festas. Entrega em toda São Paulo.',
+    bio: 'Confeiteira e salgadeira artesanal há 7 anos. Trabalho com ingredientes frescos e sem conservantes. Meus salgados são referência na Lapa. Atendo festas de todos os tamanhos, de 50 a 5.000 unidades. Entrego em toda São Paulo.',
+    photoId: 'photo-1489424731084-a5d8b219a5bb',
+    portfolioIds: [
+      'photo-1550617931-e17a7b70dce2',
+      'photo-1578985545062-69928b1d9587',
+      'photo-1488477181946-6428a0291777',
+      'photo-1499636136210-6f4ee915583e',
+      'photo-1464349095431-e9a21285b5f3',
+      'photo-1563729784474-d77dbb933a9e',
+    ],
+    services: ['Coxinha', 'Quibe', 'Esfiha', 'Enroladinho', 'Bolinha de queijo', 'Mini sanduíche'],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Larissa Nunes',
+        avatarId: 'photo-1508214751196-bcfd4ca60f91',
+        rating: 5,
+        date: '10 ago 2026',
+        text: 'Salgados deliciosos! Pedi 300 unidades para meu aniversário e acabaram em 20 minutos. Entrega no horário combinado.',
+      },
+      {
+        id: 2,
+        author: 'Felipe Cardoso',
+        avatarId: 'photo-1492562080023-ab3db95bfbce',
+        rating: 5,
+        date: '3 ago 2026',
+        text: 'A melhor coxinha que já comi! Pedido para evento corporativo, 500 unidades. Tudo perfeito.',
+      },
+      {
+        id: 3,
+        author: 'Monica Silveira',
+        avatarId: 'photo-1438761681033-6461ffad8d80',
+        rating: 4,
+        date: '21 jul 2026',
+        text: 'Ótima qualidade e preço justo. Entrega um pouco atrasada mas avisou com antecedência. Voltarei a pedir!',
+      },
+    ],
+    verified: true,
+    badge: 'Entrega Rápida',
+    availability: 'Encomendas abertas',
+    availableNow: true,
+    deliveryInfo: 'Entrega em toda São Paulo. Frete grátis acima de 200 unidades. Prazo mínimo: 3 dias úteis.',
+  },
+  {
+    id: 9,
+    name: 'Luciana Pires',
+    category: 'faxina',
+    categoryLabel: 'Faxina',
+    nationality: 'UY',
+    rating: 4.9,
+    reviews: 112,
+    price: 'R$ 180 / diária',
+    location: 'Jardins, SP',
+    state: 'SP',
+    city: 'Jardins',
+    description: 'Limpeza profissional pós-obra e organização de ambientes. 10 anos de experiência.',
+    bio: 'Profissional de limpeza com 10 anos de experiência em residências e estabelecimentos comerciais. Especialista em limpeza pós-obra e organização de ambientes. Trabalho com equipe própria quando necessário para entregas mais rápidas.',
+    photoId: 'photo-1508214751196-bcfd4ca60f91',
+    portfolioIds: [
+      'photo-1581578731548-c64695cc6952',
+      'photo-1558618666-fcd25c85cd64',
+      'photo-1527515545081-5db817172677',
+      'photo-1556909114-f6e7ad7d3136',
+      'photo-1563453392212-326f5e854473',
+      'photo-1596462502278-27bfdc403348',
+    ],
+    services: ['Faxina completa', 'Limpeza pós-obra', 'Organização Marie Kondo', 'Lavagem de janelas', 'Limpeza de estofados', 'Higienização de colchões'],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Débora Mendes',
+        avatarId: 'photo-1580489944761-15a19d654956',
+        rating: 5,
+        date: '12 ago 2026',
+        text: 'Luciana transformou meu apartamento pós-reforma. Tudo brilhando! Organização impecável. Vale cada centavo.',
+      },
+      {
+        id: 2,
+        author: 'Roberto Campos',
+        avatarId: 'photo-1500648767791-00dcc994a43e',
+        rating: 5,
+        date: '4 ago 2026',
+        text: 'Melhor serviço de limpeza que já contratei. Cuidado com cada detalhe, até o interior dos armários.',
+      },
+      {
+        id: 3,
+        author: 'Sandra Lima',
+        avatarId: 'photo-1494790108377-be9c29b29330',
+        rating: 5,
+        date: '26 jul 2026',
+        text: 'Profissional exemplar. Chegou no horário, trabalhou com muito cuidado e deixou tudo perfeito. Já é fixinha em casa!',
+      },
+    ],
+    verified: true,
+    badge: 'Top Prestadora',
+    availability: 'Próxima vaga: seg',
+    availableNow: false,
+    deliveryInfo: 'Atendimento presencial. Zona Sul, Centro e Zona Oeste. Data e horário a combinar via chat.',
+  },
+]

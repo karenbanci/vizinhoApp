@@ -1,0 +1,244 @@
+export interface AuthUser {
+  id: number
+  name: string
+  email: string
+  isProvider: boolean
+  createdAt?: string
+  providerProfile?: ProviderProfile | null
+}
+
+export interface ProviderService {
+  name: string
+  price?: string
+}
+
+export interface ProviderProfile {
+  id: number
+  userId: number
+  category: string
+  categoryLabel: string
+  nationality: string
+  country: string
+  state: string
+  city: string
+  description: string
+  bio: string
+  price: string
+  location: string
+  availability: string
+  availableNow: boolean
+  photoId: string
+  services: Array<string | ProviderService>
+}
+
+export interface Provider {
+  id: number
+  name: string
+  category: string
+  categoryLabel: string
+  nationality: string
+  rating: number
+  reviews: number
+  price: string
+  location: string
+  state: string
+  city: string
+  country: string
+  description: string
+  bio: string
+  photoId: string
+  portfolioIds: string[]
+  reviewsList: unknown[]
+  verified: boolean
+  badge?: string
+  availability: string
+  availableNow: boolean
+  deliveryInfo: string
+  services: Array<string | ProviderService>
+}
+
+const TOKEN_KEY = 'vizinho_token'
+
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY)
+}
+
+export function setToken(token: string) {
+  localStorage.setItem(TOKEN_KEY, token)
+}
+
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY)
+}
+
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string>),
+  }
+  const token = getToken()
+  if (token) headers.Authorization = `Bearer ${token}`
+
+  const res = await fetch(path, { ...options, headers })
+
+  let data: unknown = null
+  try {
+    data = await res.json()
+  } catch {
+    data = null
+  }
+
+  if (!res.ok) {
+    const message =
+      data && typeof data === 'object' && 'error' in data
+        ? String((data as { error: string }).error)
+        : 'Algo deu errado. Tente novamente.'
+    throw new Error(message)
+  }
+
+  return data as T
+}
+
+export async function register(name: string, email: string, password: string) {
+  return request<{ user: AuthUser; token: string }>('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ name, email, password }),
+  })
+}
+
+export async function login(email: string, password: string) {
+  return request<{ user: AuthUser; token: string }>('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  })
+}
+
+export async function forgotPassword(email: string) {
+  return request<{ message: string; resetUrl?: string }>('/api/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  })
+}
+
+export async function resetPassword(token: string, password: string) {
+  return request<{ message: string }>('/api/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, password }),
+  })
+}
+
+export async function fetchMe() {
+  return request<{ user: AuthUser }>('/api/auth/me')
+}
+
+export async function updateMe(data: { name?: string; email?: string }) {
+  return request<{ user: AuthUser }>('/api/me', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function activateProvider(category: string) {
+  return request<{ user: AuthUser; providerProfile: ProviderProfile }>('/api/me/provider', {
+    method: 'POST',
+    body: JSON.stringify({ category }),
+  })
+}
+
+export async function updateProviderProfile(data: Partial<ProviderProfile>) {
+  return request<{ user: AuthUser; providerProfile: ProviderProfile }>('/api/me/provider', {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deactivateProvider() {
+  return request<{ user: AuthUser }>('/api/me/provider', {
+    method: 'DELETE',
+  })
+}
+
+export async function fetchProviders() {
+  return request<{ providers: Provider[] }>('/api/providers')
+}
+
+export interface AdminUser {
+  id: number
+  name: string
+  email: string
+  isProvider: boolean
+  createdAt: string
+  profile?: {
+    category: string
+    categoryLabel: string
+    location: string
+  } | null
+  totalResetTokens: number
+  lastResetAt: string | null
+}
+
+export interface AdminResetToken {
+  id: number
+  userId: number
+  userName: string
+  userEmail: string
+  expiresAt: string
+  usedAt: string | null
+  createdAt: string
+  status: 'active' | 'used' | 'expired'
+}
+
+export interface AdminStats {
+  totalUsers: number
+  totalProviders: number
+  totalClients: number
+  activeTokens: number
+  totalTokens: number
+}
+
+export async function fetchAdminUsers(search?: string) {
+  const q = search ? `?search=${encodeURIComponent(search)}` : ''
+  return request<{ users: AdminUser[] }>(`/api/admin/users${q}`)
+}
+
+export async function adminResetPassword(userId: number, newPassword: string) {
+  return request<{ ok: boolean; message: string; user: { id: number; name: string; email: string } }>(
+    '/api/admin/users/reset-password',
+    {
+      method: 'POST',
+      body: JSON.stringify({ userId, newPassword }),
+    }
+  )
+}
+
+export async function adminDirectResetByEmail(email: string, newPassword: string) {
+  return request<{ ok: boolean; message: string; user: { id: number; name: string; email: string } }>(
+    '/api/admin/users/reset-password',
+    {
+      method: 'POST',
+      body: JSON.stringify({ email, newPassword }),
+    }
+  )
+}
+
+export async function adminGenerateResetLink(userId: number) {
+  return request<{
+    ok: boolean
+    token: string
+    resetUrl: string
+    expiresAt: string
+    user: { id: number; name: string; email: string }
+  }>('/api/admin/users/generate-reset-link', {
+    method: 'POST',
+    body: JSON.stringify({ userId }),
+  })
+}
+
+export async function fetchAdminTokens() {
+  return request<{ tokens: AdminResetToken[] }>('/api/admin/tokens')
+}
+
+export async function fetchAdminStats() {
+  return request<AdminStats>('/api/admin/stats')
+}
+
