@@ -132,13 +132,9 @@ function normalizeServices(
   })
 
   if (isDog) {
-    return DOG_FIXED_SERVICES.map((fixedName) => {
-      const existing = list.find((item) => item.name.toLowerCase() === fixedName.toLowerCase())
-      return {
-        name: fixedName,
-        price: existing ? existing.price : '',
-      }
-    })
+    return list.filter((item) =>
+      DOG_FIXED_SERVICES.some((fixed) => fixed.toLowerCase() === item.name.toLowerCase())
+    )
   }
 
   return list
@@ -267,8 +263,34 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
 
   const photoOptions = useMemo(() => PHOTOS[cat as keyof typeof PHOTOS] ?? [], [cat])
 
-  function handlePhotoOption(id: string) {
-    setPhotoId(id)
+  function handleSelectCategory(newCategory: string) {
+    if (newCategory === cat) return
+    setCat(newCategory)
+    // Clear services so other categories do not carry over previous category services
+    setServices([])
+    setServiceNameInput('')
+    setServicePriceInput('')
+  }
+
+  function toggleDogService(fixedName: string) {
+    const existsIndex = services.findIndex((s) => s.name.toLowerCase() === fixedName.toLowerCase())
+    if (existsIndex >= 0) {
+      setServices(services.filter((_, i) => i !== existsIndex))
+    } else {
+      setServices([...services, { name: fixedName, price: '' }])
+    }
+  }
+
+  function updateDogServicePrice(fixedName: string, newPrice: string) {
+    setServices((prev) => {
+      const idx = prev.findIndex((s) => s.name.toLowerCase() === fixedName.toLowerCase())
+      if (idx >= 0) {
+        const next = [...prev]
+        next[idx] = { ...next[idx], price: newPrice }
+        return next
+      }
+      return [...prev, { name: fixedName, price: newPrice }]
+    })
   }
 
   function addCustomService() {
@@ -636,7 +658,7 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
                     <button
                       type="button"
                       key={c.id}
-                      onClick={() => setCat(c.id)}
+                      onClick={() => handleSelectCategory(c.id)}
                       className={`flex items-center gap-2 px-3 py-2 rounded-full border text-sm font-medium transition-all ${
                         cat === c.id
                           ? 'text-white border-transparent'
@@ -929,26 +951,49 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
                 {cat === 'dogsitter' || cat === 'dogwalk' ? (
                   <div className="space-y-3 p-4 bg-amber-50/40 rounded-2xl border border-amber-200/80">
                     <p className="text-xs text-amber-900 font-medium">
-                      🐕 <strong>Serviços fixos para Dog Walking / Pet Care:</strong> defina os valores individuais para cada modalidade oferecida.
+                      🐕 <strong>Serviços para Dog Sitter / Dog Walk:</strong> selecione manualmente quais modalidades você oferece e informe o valor de cada uma.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {services.map((s, idx) => (
-                        <div key={s.name} className="flex items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-gray-200">
-                          <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
-                            <span className="w-2 h-2 rounded-full bg-[#E8553D]" />
-                            {s.name}
-                          </span>
-                          <div className="w-32">
-                            <input
-                              type="text"
-                              value={s.price}
-                              onChange={(e) => updateServicePrice(idx, e.target.value)}
-                              placeholder="Ex: R$ 35/h"
-                              className="w-full px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-xs text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#E8553D]/40"
-                            />
+                      {DOG_FIXED_SERVICES.map((fixedName) => {
+                        const selectedItem = services.find(
+                          (s) => s.name.toLowerCase() === fixedName.toLowerCase()
+                        )
+                        const isSelected = Boolean(selectedItem)
+
+                        return (
+                          <div
+                            key={fixedName}
+                            className={`flex items-center justify-between gap-2 p-2.5 rounded-xl border transition-all ${
+                              isSelected
+                                ? 'bg-white border-amber-300 shadow-xs'
+                                : 'bg-gray-50/70 border-gray-200 opacity-70'
+                            }`}
+                          >
+                            <label className="flex items-center gap-2 cursor-pointer select-none flex-1">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleDogService(fixedName)}
+                                className="w-4 h-4 accent-[#E8553D] rounded cursor-pointer"
+                              />
+                              <span className={`text-xs font-bold ${isSelected ? 'text-gray-900' : 'text-gray-500'}`}>
+                                {fixedName}
+                              </span>
+                            </label>
+                            {isSelected && (
+                              <div className="w-28">
+                                <input
+                                  type="text"
+                                  value={selectedItem?.price ?? ''}
+                                  onChange={(e) => updateDogServicePrice(fixedName, e.target.value)}
+                                  placeholder="Ex: R$ 35/h"
+                                  className="w-full px-2 py-1 rounded-lg bg-gray-50 border border-gray-200 text-xs text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#E8553D]/40"
+                                />
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </div>
                 ) : (
