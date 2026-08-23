@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { CATEGORIES, type CategoryId, type Provider } from '../data'
 import ProviderCard from '../components/ProviderCard'
 import { countryName, flagEmoji } from '../countries'
+import { useLanguage } from '../i18n'
 
 interface Region {
   label: string
@@ -64,6 +65,7 @@ function useLocationRegion(): [Status, Region | null, () => void, () => void] {
 }
 
 export default function ExplorePage({ providers, onViewProvider }: Props) {
+  const { t } = useLanguage()
   const [status, region, share, skip] = useLocationRegion()
   const [activeCategory, setActiveCategory] = useState<CategoryId>('all')
   const [filterCountry, setFilterCountry] = useState('')
@@ -184,10 +186,10 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
       {/* Page header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: "'Fraunces', serif" }}>
-          Explorar prestadores
+          {t('explore.title')}
         </h1>
         <p className="text-gray-600 mt-1">
-          Encontre todos os profissionais disponíveis de acordo com a sua região.
+          {t('explore.subtitle')}
         </p>
       </div>
 
@@ -199,11 +201,10 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
           </div>
           <div className="flex-1 text-center sm:text-left">
             <h3 className="font-bold text-gray-900" style={{ fontFamily: "'Fraunces', serif" }}>
-              Quer compartilhar sua localização?
+              {t('explore.shareTitle')}
             </h3>
             <p className="text-sm text-gray-600 mt-0.5">
-              Assim podemos mostrar os prestadores disponíveis na sua região. Sua localização é usada somente
-              para isso e não é armazenada.
+              {t('explore.shareText')}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
@@ -212,13 +213,13 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
               className="text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90"
               style={{ backgroundColor: '#E8553D' }}
             >
-              Compartilhar localização
+              {t('explore.shareBtn')}
             </button>
             <button
               onClick={skip}
               className="text-sm font-semibold text-gray-700 bg-white border border-gray-200 px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
             >
-              Agora não
+              {t('explore.notNow')}
             </button>
           </div>
         </div>
@@ -231,9 +232,9 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-gray-900" style={{ fontFamily: "'Fraunces', serif" }}>
-              Buscando sua região...
+              {t('explore.locatingTitle')}
             </h3>
-            <p className="text-sm text-gray-600 mt-0.5">Aguarde um instante enquanto localizamos você.</p>
+            <p className="text-sm text-gray-600 mt-0.5">{t('explore.locatingText')}</p>
           </div>
         </div>
       )}
@@ -245,12 +246,12 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
           </div>
           <div className="flex-1 text-center sm:text-left">
             <h3 className="font-bold text-gray-900" style={{ fontFamily: "'Fraunces', serif" }}>
-              Mostrando todos os prestadores
+              {t('explore.allBannerTitle')}
             </h3>
             <p className="text-sm text-gray-600 mt-0.5">
               {status === 'error'
-                ? 'Seu navegador não suporta localização. Ative para ver os prestadores da sua região.'
-                : 'Sem problema! Enquanto você não compartilha, mostramos todos os prestadores disponíveis.'}
+                ? t('explore.allBannerError')
+                : t('explore.allBannerDenied')}
             </p>
           </div>
           <button
@@ -258,7 +259,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             className="flex-shrink-0 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all hover:opacity-90"
             style={{ backgroundColor: '#E8553D', color: '#fff' }}
           >
-            Compartilhar localização
+            {t('explore.shareAgainBtn')}
           </button>
         </div>
       )}
@@ -270,14 +271,14 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
           </div>
           <div className="flex-1 text-center sm:text-left">
             <h3 className="font-bold text-white" style={{ fontFamily: "'Fraunces', serif" }}>
-              Prestadores da sua região · {region.label}
+              {t('explore.regionTitle', { region: region.label })}
             </h3>
             <p className="text-sm text-teal-50 mt-0.5">
               {showingLocalOnly
-                ? `Encontramos ${localProviders!.length} prestador(es) perto de você.`
+                ? t('explore.foundLocal', { n: localProviders!.length })
                 : localProviders !== null && localProviders.length === 0
-                  ? 'Ainda não encontramos prestadores cadastrados na sua região.'
-                  : 'Agora você pode escolher a região para navegar.'}
+                  ? t('explore.noneLocal')
+                  : t('explore.chooseRegion')}
             </p>
           </div>
           {showingLocalOnly && (
@@ -285,7 +286,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
               onClick={() => setShowAll(true)}
               className="flex-shrink-0 text-sm font-semibold px-5 py-2.5 rounded-xl bg-white text-teal-700 hover:bg-teal-50 transition-colors"
             >
-              Ver todos
+              {t('explore.seeAll')}
             </button>
           )}
           {showAll && (
@@ -293,7 +294,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
               onClick={() => setShowAll(false)}
               className="flex-shrink-0 text-sm font-semibold px-5 py-2.5 rounded-xl bg-white text-teal-700 hover:bg-teal-50 transition-colors"
             >
-              Só da minha região
+              {t('explore.onlyMyRegion')}
             </button>
           )}
         </div>
@@ -326,7 +327,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
-            Filtros
+            {t('explore.filters')}
           </span>
 
           <select
@@ -334,7 +335,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             onChange={(e) => { setFilterCountry(e.target.value); setFilterState(''); setFilterCity('') }}
             className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer"
           >
-            <option value="">Nacionalidade: Todas</option>
+            <option value="">{t('explore.countryAll')}</option>
             {countryOptions.map(({ code, count }) => (
               <option key={code} value={code}>
                 {flagEmoji(code)} {countryName(code)} ({count})
@@ -348,7 +349,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             disabled={stateOptions.length === 0}
             className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer disabled:opacity-50"
           >
-            <option value="">Estado: Todos</option>
+            <option value="">{t('explore.stateAll')}</option>
             {stateOptions.map(({ state, count }) => (
               <option key={state} value={state}>
                 {state} ({count})
@@ -362,7 +363,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             disabled={cityOptions.length === 0}
             className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer disabled:opacity-50"
           >
-            <option value="">Cidade: Todas</option>
+            <option value="">{t('explore.cityAll')}</option>
             {cityOptions.map(({ city, count }) => (
               <option key={city} value={city}>
                 {city} ({count})
@@ -377,7 +378,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
               onChange={(e) => setOnlyAvailableNow(e.target.checked)}
               className="w-4 h-4 accent-[#E8553D]"
             />
-            Disponível agora
+            {t('explore.availableNow')}
           </label>
 
           <div className="flex-1" />
@@ -387,9 +388,9 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
             className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer"
           >
-            <option value="relevance">Relevância</option>
-            <option value="rating">Melhor avaliados</option>
-            <option value="reviews">Mais avaliados</option>
+            <option value="relevance">{t('explore.relevance')}</option>
+            <option value="rating">{t('explore.bestRated')}</option>
+            <option value="reviews">{t('explore.mostReviewed')}</option>
           </select>
 
           {hasActiveFilters && (
@@ -397,7 +398,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
               onClick={clearFilters}
               className="text-sm font-semibold px-3 py-2 rounded-xl text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors"
             >
-              Limpar filtros
+              {t('explore.clearFilters')}
             </button>
           )}
         </div>
@@ -406,7 +407,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
       {/* Results header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'Fraunces', serif" }}>
-          {showingLocalOnly ? `Na sua região · ${activeCategory === 'all' ? 'Todas' : activeCat?.label}` : activeCategory === 'all' ? 'Todos os prestadores' : activeCat?.label}
+          {showingLocalOnly ? `${t('explore.resultsRegion')} · ${activeCategory === 'all' ? t('explore.resultsAll') : activeCat?.label}` : activeCategory === 'all' ? t('explore.resultsAll') : activeCat?.label}
           <span className="text-base font-normal text-gray-400 ml-2">({visible.length})</span>
         </h2>
       </div>
@@ -422,14 +423,14 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
         <div className="text-center py-24">
           <div className="text-5xl mb-4">🗺️</div>
           <h3 className="text-xl font-semibold text-gray-700 mb-2">
-            {showingLocalOnly && !hasActiveFilters ? 'Nenhum prestador na sua região ainda' : 'Nenhum prestador encontrado'}
+            {showingLocalOnly && !hasActiveFilters ? t('explore.noneLocal') : t('explore.noResultsTitle')}
           </h3>
           <p className="text-gray-500 mb-5">
             {hasActiveFilters
-              ? 'Nenhum prestador atende aos filtros selecionados. Tente removê-los.'
+              ? t('explore.noResultsFilters')
               : showingLocalOnly
-                ? 'Seja o primeiro a se cadastrar ou veja os prestadores de outras regiões.'
-                : 'Tente outra categoria.'}
+                ? t('explore.noResultsRegion')
+                : t('explore.noResultsOther')}
           </p>
           {hasActiveFilters && (
             <button
@@ -437,7 +438,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
               className="text-sm font-semibold px-5 py-2.5 rounded-xl text-white transition-all hover:opacity-90"
               style={{ backgroundColor: '#E8553D' }}
             >
-              Limpar filtros
+              {t('explore.clearFiltersBtn')}
             </button>
           )}
           {showingLocalOnly && !hasActiveFilters && (
@@ -446,7 +447,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
               className="text-sm font-semibold px-5 py-2.5 rounded-xl text-white transition-all hover:opacity-90"
               style={{ backgroundColor: '#E8553D' }}
             >
-              Ver todos os prestadores
+              {t('explore.seeAllBtn')}
             </button>
           )}
         </div>
