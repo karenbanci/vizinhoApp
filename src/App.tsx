@@ -92,6 +92,18 @@ export default function App() {
 
   const allProviders = useMemo(() => [...PROVIDERS, ...dbProviders], [dbProviders])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const providerParam = params.get('provider')
+    if (providerParam && allProviders.length > 0) {
+      const pId = Number(providerParam)
+      const found = allProviders.find((p) => p.id === pId)
+      if (found) {
+        setSelected(found)
+      }
+    }
+  }, [allProviders])
+
   const totalProvidersCount = allProviders.length
   const totalReviewsCount = useMemo(
     () => allProviders.reduce((acc, p) => acc + (p.reviews || 0), 0),

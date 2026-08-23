@@ -293,6 +293,25 @@ const pt = {
   'notif.send': 'Enviar',
   'notif.payStripe': 'Pagar com Stripe ({price})',
   'notif.paidViaStripe': 'Pago via Stripe 💳',
+
+  'share.title': 'Compartilhar Perfil',
+  'share.subtitle': 'Divulgue nas redes sociais, copie o link ou crie um QR Code',
+  'share.copyLink': 'Copiar Link',
+  'share.linkCopied': 'Link copiado!',
+  'share.qrCodeTitle': 'QR Code do Perfil',
+  'share.qrCodeSubtitle': 'Aponte a câmera do celular para abrir o perfil',
+  'share.downloadQr': 'Baixar QR Code',
+  'share.socialTitle': 'Compartilhar nas Redes Sociais',
+  'share.whatsapp': 'WhatsApp',
+  'share.telegram': 'Telegram',
+  'share.facebook': 'Facebook',
+  'share.twitter': 'Twitter / X',
+  'share.linkedin': 'LinkedIn',
+  'share.native': 'Compartilhar pelo celular',
+  'share.shareText': 'Confira o perfil de {name} no Vizinho ({service})!',
+  'share.button': 'Compartilhar',
+  'share.myProfileCardTitle': 'Divulgar meu perfil de prestador',
+  'share.myProfileCardSubtitle': 'Copie o link direto ou gere um QR Code para atrair mais clientes',
 } as const
 
 export type TranslationKey = keyof typeof pt
@@ -586,6 +605,25 @@ const en: Record<TranslationKey, string> = {
   'notif.send': 'Send',
   'notif.payStripe': 'Pay with Stripe ({price})',
   'notif.paidViaStripe': 'Paid via Stripe 💳',
+
+  'share.title': 'Share Profile',
+  'share.subtitle': 'Share on social media, copy the direct link, or generate a QR Code',
+  'share.copyLink': 'Copy Link',
+  'share.linkCopied': 'Link copied!',
+  'share.qrCodeTitle': 'Profile QR Code',
+  'share.qrCodeSubtitle': 'Point your phone camera to open profile',
+  'share.downloadQr': 'Download QR Code',
+  'share.socialTitle': 'Share on Social Media',
+  'share.whatsapp': 'WhatsApp',
+  'share.telegram': 'Telegram',
+  'share.facebook': 'Facebook',
+  'share.twitter': 'Twitter / X',
+  'share.linkedin': 'LinkedIn',
+  'share.native': 'Share via mobile',
+  'share.shareText': 'Check out {name}\'s profile on Vizinho ({service})!',
+  'share.button': 'Share',
+  'share.myProfileCardTitle': 'Promote my provider profile',
+  'share.myProfileCardSubtitle': 'Copy direct link or generate a QR Code to attract more clients',
 }
 
 const ERROR_MAP_EN: Array<{ pattern: RegExp | string; translation: string }> = [

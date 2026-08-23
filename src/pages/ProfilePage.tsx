@@ -12,6 +12,7 @@ import {
 import { COUNTRY_CODES, countryName, flagEmoji } from '../countries'
 import { DEFAULT_PHOTO_URL, getPhotoUrl } from '../data'
 import { useLanguage } from '../i18n'
+import ShareProfileModal from '../components/ShareProfileModal'
 
 interface Props {
   user: AuthUser
@@ -192,6 +193,7 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
   const [newPortfolioPhotoInput, setNewPortfolioPhotoInput] = useState('')
   const [editingPhotoIndex, setEditingPhotoIndex] = useState<number | null>(null)
   const [editingPhotoValue, setEditingPhotoValue] = useState('')
+  const [shareModalOpen, setShareModalOpen] = useState(false)
 
   function toggleBlockedDate(dateStr: string) {
     setBlockedDates((prev) =>
@@ -653,16 +655,45 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
           </section>
         ) : (
           <section className="bg-white rounded-3xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <h2 className="text-lg font-bold text-gray-900" style={{ fontFamily: "'Fraunces', serif" }}>
                 Perfil de prestador
               </h2>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShareModalOpen(true)}
+                  className="px-3.5 py-1.5 rounded-xl bg-[#E8553D]/10 text-[#E8553D] hover:bg-[#E8553D]/20 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>🔗 {t('share.button')} / QR Code</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onViewProvider(makeProviderFromProfile(user, profile))}
+                  className="text-xs sm:text-sm font-semibold hover:underline"
+                  style={{ color: '#E8553D' }}
+                >
+                  Ver como aparece no marketplace →
+                </button>
+              </div>
+            </div>
+
+            {/* Divulgação do Perfil */}
+            <div className="mb-5 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  📢 {t('share.myProfileCardTitle')}
+                </h3>
+                <p className="text-xs text-gray-600 mt-0.5">
+                  {t('share.myProfileCardSubtitle')}
+                </p>
+              </div>
               <button
-                onClick={() => onViewProvider(makeProviderFromProfile(user, profile))}
-                className="text-sm font-semibold hover:underline"
-                style={{ color: '#E8553D' }}
+                type="button"
+                onClick={() => setShareModalOpen(true)}
+                className="px-4 py-2 bg-[#E8553D] hover:opacity-90 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 flex items-center gap-1.5 cursor-pointer"
               >
-                Ver como aparece no marketplace →
+                <span>📱 {t('share.button')} / QR Code</span>
               </button>
             </div>
 
@@ -1230,6 +1261,20 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
         )
       )}
       </main>
+
+      {/* Share Modal */}
+      {user.isProvider && (
+        <ShareProfileModal
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          provider={{
+            id: user.id,
+            name: user.name,
+            category: profile?.category || 'helper',
+            categoryLabel: profile?.categoryLabel || 'Prestador',
+          }}
+        />
+      )}
     </div>
   )
 }

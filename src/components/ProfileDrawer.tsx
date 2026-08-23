@@ -3,6 +3,7 @@ import { CATEGORIES, CATEGORY_STYLE, DEFAULT_PHOTO_URL, getPhotoUrl, type Provid
 import { countryName, flagUrl } from '../countries'
 import { useLanguage } from '../i18n'
 import { createServiceRequest } from '../api'
+import ShareProfileModal from './ShareProfileModal'
 
 interface Props {
   provider: Provider
@@ -349,7 +350,9 @@ function SolicitarTab({ provider }: { provider: Provider }) {
 }
 
 export default function ProfileDrawer({ provider, canRequest = true, onRequireAuth, onClose }: Props) {
+  const { t } = useLanguage()
   const [tab, setTab] = useState<Tab>('portfolio')
+  const [shareOpen, setShareOpen] = useState(false)
   const cat = CATEGORIES.find((c) => c.id === provider.category)
   const style = CATEGORY_STYLE[provider.category]
 
@@ -394,16 +397,30 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
 
-          {/* Close */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors z-10"
-            aria-label="Fechar perfil"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          {/* Top Actions: Share & Close */}
+          <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+            <button
+              type="button"
+              onClick={() => setShareOpen(true)}
+              className="px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-sm flex items-center gap-1.5 text-xs font-semibold text-white hover:bg-black/60 transition-colors cursor-pointer"
+              aria-label={t('share.button')}
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              <span>{t('share.button')}</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+              aria-label="Fechar perfil"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
 
           {/* Info on image */}
           <div className="absolute bottom-4 left-5 right-5">
@@ -511,6 +528,13 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
           </div>
         )}
       </div>
+
+      {/* Share Modal */}
+      <ShareProfileModal
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+        provider={provider}
+      />
     </div>
   )
 }

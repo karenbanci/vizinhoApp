@@ -218,4 +218,4 @@ Este projeto é de uso privado e confidencial.
 - [x] Algumas fotos de providers não estão carregando
 - [x] Se o usuário estiver no tipo de conta de cliente, as notificações será sobre se o prestador aceitou ou recusou o serviço.
 - [x] Gostaria de abrisse a opção de um chat quando o prestador aceitasse o serviço solicitado do cliente, abrir um chat para conversar sobre
-- [ ] O prestador tenha a opção de compartilhar o perfil dele em redes sociais, a opção de copy link ou criar um QR Code para compartilhar o perfil para outras pessoas
+- [x] O prestador tenha a opção de compartilhar o perfil dele em redes sociais, a opção de copy link ou criar um QR Code para compartilhar o perfil para outras pessoas
