@@ -170,6 +170,10 @@ router.patch('/provider', authRequired, async (req, res) => {
       loc = [nextCity, nextState].filter(Boolean).join(', ')
     }
 
+    if (bio !== undefined && (typeof bio !== 'string' || bio.trim().length < 5)) {
+      return res.status(400).json({ error: 'O preenchimento da Bio é obrigatório (mínimo de 5 caracteres).' })
+    }
+
     const validService = (s) =>
       typeof s === 'string' ||
       (s !== null &&

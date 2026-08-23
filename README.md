@@ -217,7 +217,7 @@ Este projeto é de uso privado e confidencial.
 - [x] Alguns serviços como dogwalk tem serviços fixos como por exemplo: Walking, Drop-in, Sitting, Boarding e Daycare. Deixar essas opçoes de serviços fixas para esse tipo de perfil
 - [x] Melhorar o formulário de disponibilidade, adicionar opções de calendário aonde o usuário possa bloquear algumas datas para não prestar serviços e deixar a opção de editar as datas e horários disponívels.
 - [x] Na foto de serviços do portfólio, deixar a opção de adicionar, editar e remover foto
-[ ] A Bio deixar como obrigatório o preenchimento
+- [x] A Bio deixar como obrigatório o preenchimento
 [ ] Nos filtros na aba de explorar refinar as opções de filtro, pois não faz sentido escolher uma nacionalidade Argentina e a opção de cidade ser São Paulo. Melhore isso
 [ ] Adicionar os serviço de: Movers, Massage, Makeup, Cabeleleiro
 [ ]

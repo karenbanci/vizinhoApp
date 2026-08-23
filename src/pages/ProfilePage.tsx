@@ -327,6 +327,12 @@ function normalizeServices(
     e.preventDefault()
     setError('')
     setSaved(false)
+
+    if (!bio.trim() || bio.trim().length < 5) {
+      setError('O preenchimento da Bio é obrigatório (mínimo de 5 caracteres).')
+      return
+    }
+
     try {
       const { user: updated } = await updateProviderProfile({
         category: cat,
@@ -634,12 +640,16 @@ function normalizeServices(
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Bio</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Bio <span className="text-red-500 font-bold">* (Obrigatório)</span>
+                </label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  placeholder="Conte sua experiência e diferenciais"
+                  placeholder="Conte sua experiência e diferenciais (obrigatório)"
                   rows={4}
+                  required
+                  minLength={5}
                   className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D] resize-none"
                 />
               </div>
