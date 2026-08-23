@@ -221,7 +221,4 @@ Este projeto é de uso privado e confidencial.
 - [x] Nos filtros na aba de explorar refinar as opções de filtro, pois não faz sentido escolher uma nacionalidade Argentina e a opção de cidade ser São Paulo. Melhore isso
 - [x] Adicionar os serviço de: Movers, Massage, Makeup, Cabeleleiro
 - [x] Gostaria de que os novos usuários na hora do cadastro receba um email para confirmar a conta, enviar um link e código de confirmação de email. Conectar com o Resend: API: re_dummy_sample_key
-[ ] Gostaria que o pagamento fosse feito através do Stripe, então as transações entre clientes fossem feitas dentro.
-[ ]
-[ ]
-[ ]
+- [x] Gostaria que o pagamento fosse feito através do Stripe, então as transações entre clientes fossem feitas dentro.

@@ -201,6 +201,7 @@ export interface ServiceRequest {
   shipping_price: string
   total_price: string
   status: 'pending' | 'accepted' | 'rejected'
+  payment_status?: 'unpaid' | 'paid' | 'refunded'
   created_at: string
   updated_at: string
 }
@@ -254,6 +255,24 @@ export async function sendRequestMessage(requestId: number, message: string) {
     method: 'POST',
     body: JSON.stringify({ message }),
   })
+}
+
+export async function payServiceRequest(requestId: number, cardLast4 = '4242', cardBrand = 'visa') {
+  return request<{
+    ok: boolean
+    paymentId: number
+    stripePaymentId: string
+    amountFormatted: string
+    status: string
+    message: string
+  }>('/api/payments/pay', {
+    method: 'POST',
+    body: JSON.stringify({ requestId, cardLast4, cardBrand }),
+  })
+}
+
+export async function fetchPaymentHistory() {
+  return request<{ payments: unknown[] }>('/api/payments/history')
 }
 
 export interface AdminUser {

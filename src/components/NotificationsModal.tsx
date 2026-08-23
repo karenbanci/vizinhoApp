@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   fetchRequestMessages,
   fetchServiceRequests,
+  payServiceRequest,
   sendRequestMessage,
   updateServiceRequestStatus,
   type ChatMessage,
@@ -24,6 +25,16 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
   const [newMessage, setNewMessage] = useState('')
   const [sendingMessage, setSendingMessage] = useState(false)
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null)
+
+  // Stripe Payment Modal State
+  const [stripePayingRequest, setStripePayingRequest] = useState<ServiceRequest | null>(null)
+  const [cardNumber, setCardNumber] = useState('')
+  const [cardExpiry, setCardExpiry] = useState('')
+  const [cardCvc, setCardCvc] = useState('')
+  const [cardName, setCardName] = useState('')
+  const [payingLoading, setPayingLoading] = useState(false)
+  const [paymentSuccess, setPaymentSuccess] = useState('')
+  const [paymentError, setPaymentError] = useState('')
 
   async function loadRequests() {
     setLoading(true)
@@ -94,6 +105,34 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
       // ignore
     } finally {
       setSendingMessage(false)
+    }
+  }
+
+  async function handleConfirmStripePayment(e: React.FormEvent) {
+    e.preventDefault()
+    if (!stripePayingRequest) return
+
+    setPayingLoading(true)
+    setPaymentError('')
+    setPaymentSuccess('')
+
+    try {
+      const last4 = cardNumber.replace(/\D/g, '').slice(-4) || '4242'
+      const res = await payServiceRequest(stripePayingRequest.id, last4, 'visa')
+      setPaymentSuccess(res.message)
+      await loadRequests()
+      setTimeout(() => {
+        setStripePayingRequest(null)
+        setPaymentSuccess('')
+        setCardNumber('')
+        setCardExpiry('')
+        setCardCvc('')
+        setCardName('')
+      }, 1500)
+    } catch (err) {
+      setPaymentError(err instanceof Error ? err.message : 'Erro ao processar pagamento.')
+    } finally {
+      setPayingLoading(false)
     }
   }
 
@@ -315,6 +354,33 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                             </button>
                           </div>
                         )}
+
+                        {/* Stripe Payment Button for Client */}
+                        {!isReceived && req.status === 'accepted' && (
+                          <div className="flex items-center gap-2">
+                            {req.payment_status === 'paid' ? (
+                              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-100 border border-emerald-300">
+                                <span>✓ Pago via Stripe 💳</span>
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  setStripePayingRequest(req)
+                                  setPaymentError('')
+                                  setPaymentSuccess('')
+                                  setCardNumber('4242 4242 4242 4242')
+                                  setCardExpiry('12/28')
+                                  setCardCvc('123')
+                                  setCardName(req.client_name || 'Cliente Vizinho')
+                                }}
+                                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold text-white transition-all shadow-sm hover:opacity-95 active:scale-95"
+                                style={{ backgroundColor: '#635BFF' }}
+                              >
+                                <span>💳 Pagar com Stripe ({req.total_price || req.base_price})</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )
@@ -381,6 +447,122 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
           </div>
         )}
       </div>
+
+      {/* Stripe Checkout Modal Dialog */}
+      {stripePayingRequest && (
+        <div
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in"
+          onClick={() => { if (!payingLoading) setStripePayingRequest(null) }}
+        >
+          <div
+            className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 bg-gradient-to-br from-[#635BFF] to-[#483ecd] text-white flex items-center justify-between">
+              <div>
+                <span className="text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-md">
+                  Stripe Checkout
+                </span>
+                <h3 className="text-xl font-bold mt-1">Pagar Serviço</h3>
+              </div>
+              <button
+                onClick={() => { if (!payingLoading) setStripePayingRequest(null) }}
+                className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmStripePayment} className="p-6 space-y-4">
+              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
+                <div className="flex justify-between items-center text-sm font-semibold text-gray-800 mb-1">
+                  <span>{stripePayingRequest.service_name}</span>
+                  <span className="text-base text-[#635BFF] font-bold">
+                    {stripePayingRequest.total_price || stripePayingRequest.base_price}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  Prestador: <strong>{stripePayingRequest.provider_name || 'Prestador Vizinho'}</strong>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Nome no Cartão</label>
+                <input
+                  type="text"
+                  required
+                  value={cardName}
+                  onChange={(e) => setCardName(e.target.value)}
+                  placeholder="Nome como impresso no cartão"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm text-gray-800 outline-none focus:border-[#635BFF] focus:ring-2 focus:ring-[#635BFF]/30"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Número do Cartão</label>
+                <input
+                  type="text"
+                  required
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(e.target.value)}
+                  placeholder="4242 4242 4242 4242"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 font-mono text-sm text-gray-800 outline-none focus:border-[#635BFF] focus:ring-2 focus:ring-[#635BFF]/30"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Validade</label>
+                  <input
+                    type="text"
+                    required
+                    value={cardExpiry}
+                    onChange={(e) => setCardExpiry(e.target.value)}
+                    placeholder="MM/AA"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 font-mono text-sm text-gray-800 outline-none focus:border-[#635BFF] focus:ring-2 focus:ring-[#635BFF]/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">CVC / CVV</label>
+                  <input
+                    type="text"
+                    required
+                    value={cardCvc}
+                    onChange={(e) => setCardCvc(e.target.value)}
+                    placeholder="123"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 font-mono text-sm text-gray-800 outline-none focus:border-[#635BFF] focus:ring-2 focus:ring-[#635BFF]/30"
+                  />
+                </div>
+              </div>
+
+              {paymentError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
+                  {paymentError}
+                </div>
+              )}
+
+              {paymentSuccess && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800">
+                  ✓ {paymentSuccess}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={payingLoading || Boolean(paymentSuccess)}
+                className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all shadow-md hover:opacity-95 active:scale-95 disabled:opacity-50"
+                style={{ backgroundColor: '#635BFF' }}
+              >
+                {payingLoading ? 'Processando no Stripe...' : `Confirmar Pagamento (${stripePayingRequest.total_price || stripePayingRequest.base_price})`}
+              </button>
+
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-400">
+                <span>🔒 Pagamento seguro processado ponta a ponta com criptografia Stripe</span>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

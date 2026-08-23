@@ -148,6 +148,31 @@ await conn.query(`
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `)
 
+const [payCols] = await conn.query(
+  `SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'service_requests' AND COLUMN_NAME = 'payment_status'`,
+  [DB_NAME]
+)
+if (payCols.length === 0) {
+  await conn.query(`ALTER TABLE service_requests ADD COLUMN payment_status VARCHAR(40) NOT NULL DEFAULT 'unpaid'`)
+}
+
+await conn.query(`
+  CREATE TABLE IF NOT EXISTS payments (
+    id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    request_id         INT UNSIGNED NOT NULL,
+    user_id            INT UNSIGNED NOT NULL,
+    provider_id        INT UNSIGNED NOT NULL,
+    stripe_payment_id  VARCHAR(120) NOT NULL,
+    amount_cents       INT UNSIGNED NOT NULL,
+    currency           VARCHAR(10) NOT NULL DEFAULT 'brl',
+    status             VARCHAR(40) NOT NULL DEFAULT 'paid',
+    payment_method     VARCHAR(40) NOT NULL DEFAULT 'card',
+    created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_pay_request FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE,
+    CONSTRAINT fk_pay_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`)
+
 await conn.query(`
   CREATE TABLE IF NOT EXISTS messages (
     id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -161,7 +186,7 @@ await conn.query(`
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `)
 
-console.log('→ Tabelas "users", "provider_profiles", "password_reset_tokens", "service_requests" e "messages" prontas.')
+console.log('→ Tabelas "users", "provider_profiles", "password_reset_tokens", "service_requests", "messages" e "payments" prontas.\n')
 console.log('\n✅ Banco de dados configurado com sucesso!')
 console.log(`   Banco:  ${DB_NAME}`)
 console.log(`   Usuário: ${DB_USER}`)

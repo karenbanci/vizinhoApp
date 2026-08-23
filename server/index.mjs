@@ -6,6 +6,7 @@ import meRoutes from './routes/me.mjs'
 import providerRoutes from './routes/providers.mjs'
 import adminRoutes from './routes/admin.mjs'
 import requestsRoutes from './routes/requests.mjs'
+import paymentRoutes from './routes/payments.mjs'
 
 const PORT = process.env.PORT || 3001
 
@@ -22,6 +23,7 @@ app.use('/api/me', meRoutes)
 app.use('/api/providers', providerRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/requests', requestsRoutes)
+app.use('/api/payments', paymentRoutes)
 
 app.listen(PORT, '127.0.0.1', () => {
   console.log(`✅ Servidor rodando em http://127.0.0.1:${PORT}`)
