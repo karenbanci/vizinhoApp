@@ -11,6 +11,7 @@ import {
   type AuthUser,
 } from '../api'
 import { useLanguage } from '../i18n'
+import logoImg from '../images/logo.png'
 
 interface Props {
   initialMode?: 'login' | 'register' | 'forgot' | 'reset' | 'verify'
@@ -299,10 +300,8 @@ export default function AuthModal({
 
         <div className="px-8 pt-8 pb-6" style={{ backgroundColor: '#FAF6F0' }}>
           <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E8553D' }}>
-                <span className="text-white font-bold text-sm" style={{ fontFamily: "'Fraunces', serif" }}>V</span>
-              </div>
+            <div className="flex items-center gap-2.5">
+              <img src={logoImg} alt="Vizinho" className="w-8 h-8 rounded-xl object-contain shadow-xs shrink-0" />
               <span className="font-bold text-lg tracking-tight" style={{ fontFamily: "'Fraunces', serif", color: '#1A1511' }}>
                 {mode === 'login'
                   ? t('auth.loginTitle')

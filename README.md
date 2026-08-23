@@ -209,3 +209,4 @@ Este projeto é de uso privado e confidencial.
 
 - [x] Os emails enviados para confirmação no cadastro estão sendo enviados para este email delivered@resend.dev. Eu gostaria que enviasse para o email que está se cadastrando, o email que é preenchido no formulário
 - [x] quando eu crio uma conta nova, aparece esse erro: Something went wrong. Please try again. Teoricamente o email nunca foi cadastrado, é um email de conta nova
+- [x] substituir o logo por essa imagem: src/images/logo.png

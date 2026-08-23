@@ -13,6 +13,7 @@ import { COUNTRY_CODES, countryName, flagEmoji } from '../countries'
 import { DEFAULT_PHOTO_URL, getPhotoUrl } from '../data'
 import { useLanguage } from '../i18n'
 import ShareProfileModal from '../components/ShareProfileModal'
+import logoImg from '../images/logo.png'
 
 interface Props {
   user: AuthUser
@@ -441,10 +442,8 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E8553D' }}>
-              <span className="text-white font-bold text-sm" style={{ fontFamily: "'Fraunces', serif" }}>V</span>
-            </div>
+          <div className="flex items-center gap-2.5">
+            <img src={logoImg} alt="Vizinho" className="w-8 h-8 rounded-xl object-contain shadow-xs shrink-0" />
             <span className="font-bold text-xl tracking-tight" style={{ fontFamily: "'Fraunces', serif", color: '#1A1511' }}>
               Meu perfil
             </span>

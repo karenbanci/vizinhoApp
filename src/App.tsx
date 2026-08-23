@@ -7,6 +7,7 @@ import ProfilePage from './pages/ProfilePage'
 import ExplorePage from './pages/ExplorePage'
 import AdminPage from './pages/AdminPage'
 import NotificationsModal from './components/NotificationsModal'
+import Logo from './components/Logo'
 import { clearToken, fetchMe, fetchProviders, fetchServiceRequests, getToken, setToken, verifyEmail, type AuthUser } from './api'
 import { useLanguage } from './i18n'
 
@@ -137,17 +138,31 @@ export default function App() {
 
   const activeCat = CATEGORIES.find((c) => c.id === activeCategory)
 
-  const goToHowItWorks = () => {
-    setView('home')
-    window.setTimeout(() => {
-      document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 80)
+  function goToHowItWorks() {
+    if (view !== 'home') {
+      setView('home')
+      setTimeout(() => {
+        const el = document.getElementById('como-funciona')
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      }, 50)
+    } else {
+      const el = document.getElementById('como-funciona')
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    }
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FAF6F0', fontFamily: "'Outfit', sans-serif" }}>
+    <div className="min-h-screen flex flex-col font-sans" style={{ backgroundColor: '#FAF6F0' }}>
+      {/* ── Main View Switcher ── */}
       {view === 'admin' ? (
         <AdminPage onBack={() => setView('home')} />
+      ) : view === 'explorar' ? (
+        <ExplorePage
+          providers={allProviders}
+          onViewProvider={(p) => setSelected(p)}
+          canRequest={Boolean(authUser)}
+          onRequireAuth={() => setAuthModal('register')}
+        />
       ) : view === 'profile' && authUser ? (
         <ProfilePage
           user={authUser}
@@ -160,13 +175,8 @@ export default function App() {
       {/* ── Header ── */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-          <button onClick={() => setView('home')} className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E8553D' }}>
-              <span className="text-white font-bold text-sm" style={{ fontFamily: "'Fraunces', serif" }}>V</span>
-            </div>
-            <span className="font-bold text-xl tracking-tight" style={{ fontFamily: "'Fraunces', serif", color: '#1A1511' }}>
-              Vizinho
-            </span>
+          <button onClick={() => { setView('home'); setSelected(null); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center cursor-pointer">
+            <Logo size="md" />
           </button>
 
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
@@ -533,10 +543,7 @@ export default function App() {
       <footer className="border-t border-gray-200 py-8 px-4 sm:px-6" style={{ backgroundColor: '#FAF6F0' }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ backgroundColor: '#E8553D' }}>
-              <span className="text-white font-bold text-xs" style={{ fontFamily: "'Fraunces', serif" }}>V</span>
-            </div>
-            <span className="font-semibold text-gray-700" style={{ fontFamily: "'Fraunces', serif" }}>Vizinho</span>
+            <Logo size="xs" textClassName="text-gray-700 font-semibold" />
             <span className="text-gray-300">·</span>
             <span>© 2026</span>
           </div>
