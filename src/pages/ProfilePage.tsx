@@ -156,6 +156,24 @@ function normalizeServices(
   const [serviceNameInput, setServiceNameInput] = useState('')
   const [servicePriceInput, setServicePriceInput] = useState('')
 
+  // Calendar & Working Hours Schedule
+  const [workDays, setWorkDays] = useState<string[]>(['Seg', 'Ter', 'Qua', 'Qui', 'Sex'])
+  const [startTime, setStartTime] = useState('08:00')
+  const [endTime, setEndTime] = useState('18:00')
+  const [blockedDates, setBlockedDates] = useState<string[]>([])
+  const [calMonth, setCalMonth] = useState(() => new Date().getMonth())
+  const [calYear, setCalYear] = useState(() => new Date().getFullYear())
+
+  function toggleBlockedDate(dateStr: string) {
+    setBlockedDates((prev) =>
+      prev.includes(dateStr) ? prev.filter((d) => d !== dateStr) : [...prev, dateStr].sort()
+    )
+  }
+
+  function toggleWorkDay(day: string) {
+    setWorkDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]))
+  }
+
   useEffect(() => {
     if (!user.providerProfile) return
     setCat(user.providerProfile.category)
@@ -642,27 +660,184 @@ function normalizeServices(
                 A localização aparece no marketplace como "Cidade, Estado" e é usada nos filtros do Explorar.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Disponibilidade</label>
-                  <input
-                    type="text"
-                    value={availability}
-                    onChange={(e) => setAvailability(e.target.value)}
-                    placeholder="Ex.: Disponível hoje"
-                    className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
-                  />
-                </div>
-                <div className="flex items-end pb-1">
-                  <label className="flex items-center gap-2.5 cursor-pointer">
+              {/* ── Disponibilidade, Horários & Calendário de Bloqueio ── */}
+              <div className="space-y-4 p-5 bg-gray-50/70 rounded-2xl border border-gray-200/80">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200/80 pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">Disponibilidade & Calendário</h3>
+                    <p className="text-xs text-gray-500">Configure seus dias de trabalho e bloqueie datas de folga.</p>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-gray-200 shadow-2xs">
                     <input
                       type="checkbox"
                       checked={availableNow}
                       onChange={(e) => setAvailableNow(e.target.checked)}
                       className="w-4 h-4 accent-[#E8553D]"
                     />
-                    <span className="text-sm text-gray-700 font-medium">Disponível agora</span>
+                    <span className="text-xs text-gray-800 font-semibold">🟢 Disponível agora</span>
                   </label>
+                </div>
+
+                {/* Dias da semana */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1.5">Dias da semana que atende</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((d) => {
+                      const active = workDays.includes(d)
+                      return (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => toggleWorkDay(d)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                            active
+                              ? 'bg-[#E8553D] text-white shadow-2xs'
+                              : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                          }`}
+                        >
+                          {d}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Horários */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Horário Início</label>
+                    <input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Horário Término</label>
+                    <input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40"
+                    />
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Texto no Card</label>
+                    <input
+                      type="text"
+                      value={availability}
+                      onChange={(e) => setAvailability(e.target.value)}
+                      placeholder="Ex: Seg a Sex · 8h-18h"
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40"
+                    />
+                  </div>
+                </div>
+
+                {/* Calendário de Bloqueio de Datas */}
+                <div className="pt-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold text-gray-800 flex items-center gap-1">
+                      <span>📅 Bloquear datas (clique no dia para bloquear/desbloquear)</span>
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (calMonth === 0) {
+                            setCalMonth(11)
+                            setCalYear(calYear - 1)
+                          } else {
+                            setCalMonth(calMonth - 1)
+                          }
+                        }}
+                        className="px-2 py-0.5 rounded-lg bg-white border border-gray-200 text-xs text-gray-700 hover:bg-gray-100"
+                      >
+                        ◀
+                      </button>
+                      <span className="text-xs font-bold text-gray-800 min-w-[100px] text-center">
+                        {new Date(calYear, calMonth, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (calMonth === 11) {
+                            setCalMonth(0)
+                            setCalYear(calYear + 1)
+                          } else {
+                            setCalMonth(calMonth + 1)
+                          }
+                        }}
+                        className="px-2 py-0.5 rounded-lg bg-white border border-gray-200 text-xs text-gray-700 hover:bg-gray-100"
+                      >
+                        ▶
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Grid do mês */}
+                  <div className="bg-white p-3 rounded-2xl border border-gray-200 shadow-2xs">
+                    <div className="grid grid-cols-7 gap-1 text-center mb-1">
+                      {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((dw) => (
+                        <span key={dw} className="text-[10px] font-bold text-gray-400">
+                          {dw}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1">
+                      {/* Blank spaces for first day */}
+                      {Array.from({ length: new Date(calYear, calMonth, 1).getDay() }).map((_, i) => (
+                        <div key={`blank-${i}`} className="h-8" />
+                      ))}
+                      {/* Days */}
+                      {Array.from({ length: new Date(calYear, calMonth + 1, 0).getDate() }).map((_, i) => {
+                        const dayNum = i + 1
+                        const dayStr = String(dayNum).padStart(2, '0')
+                        const monthStr = String(calMonth + 1).padStart(2, '0')
+                        const fullDateStr = `${calYear}-${monthStr}-${dayStr}`
+                        const isBlocked = blockedDates.includes(fullDateStr)
+
+                        return (
+                          <button
+                            key={fullDateStr}
+                            type="button"
+                            onClick={() => toggleBlockedDate(fullDateStr)}
+                            className={`h-8 rounded-lg text-xs font-semibold flex items-center justify-center transition-all ${
+                              isBlocked
+                                ? 'bg-rose-500 text-white line-through font-bold shadow-2xs'
+                                : 'bg-gray-50 text-gray-800 hover:bg-emerald-50 hover:text-emerald-700'
+                            }`}
+                            title={isBlocked ? `Bloqueado em ${fullDateStr} (clique para liberar)` : `Disponível em ${fullDateStr} (clique para bloquear)`}
+                          >
+                            {dayNum}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Lista de datas bloqueadas */}
+                  {blockedDates.length > 0 && (
+                    <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                      <span className="text-[11px] font-semibold text-rose-700">🚫 Datas bloqueadas:</span>
+                      {blockedDates.map((bDate) => (
+                        <span
+                          key={bDate}
+                          className="text-[11px] font-medium bg-rose-50 border border-rose-200 text-rose-800 px-2 py-0.5 rounded-lg flex items-center gap-1"
+                        >
+                          {bDate.split('-').reverse().join('/')}
+                          <button
+                            type="button"
+                            onClick={() => toggleBlockedDate(bDate)}
+                            className="text-rose-500 hover:text-rose-900 font-bold ml-0.5"
+                            title="Desbloquear data"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
