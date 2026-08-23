@@ -117,13 +117,44 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
   const [description, setDescription] = useState(profile?.description ?? '')
   const [bio, setBio] = useState(profile?.bio ?? '')
   const [price, setPrice] = useState(profile?.price ?? '')
+export interface ServiceItem {
+  name: string
+  price: string
+}
+
+const DOG_FIXED_SERVICES = ['Walking', 'Drop-in', 'Sitting', 'Boarding', 'Daycare']
+
+function normalizeServices(
+  rawServices?: Array<string | { name: string; price?: string }> | null,
+  category?: string
+): ServiceItem[] {
+  const isDog = category === 'dogsitter' || category === 'dogwalk'
+  const list: ServiceItem[] = (rawServices ?? []).map((s) => {
+    if (typeof s === 'string') return { name: s, price: '' }
+    return { name: s.name, price: s.price ?? '' }
+  })
+
+  if (isDog) {
+    return DOG_FIXED_SERVICES.map((fixedName) => {
+      const existing = list.find((item) => item.name.toLowerCase() === fixedName.toLowerCase())
+      return {
+        name: fixedName,
+        price: existing ? existing.price : '',
+      }
+    })
+  }
+
+  return list
+}
+
   const [availability, setAvailability] = useState(profile?.availability ?? 'Disponível hoje')
   const [availableNow, setAvailableNow] = useState(profile?.availableNow ?? true)
   const [photoId, setPhotoId] = useState(profile?.photoId ?? '')
-  const [services, setServices] = useState<string[]>(
-    (profile?.services ?? []).map((s) => (typeof s === 'string' ? s : s.name))
+  const [services, setServices] = useState<ServiceItem[]>(() =>
+    normalizeServices(profile?.services, profile?.category)
   )
-  const [serviceInput, setServiceInput] = useState('')
+  const [serviceNameInput, setServiceNameInput] = useState('')
+  const [servicePriceInput, setServicePriceInput] = useState('')
 
   useEffect(() => {
     if (!user.providerProfile) return
@@ -138,8 +169,15 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
     setAvailability(user.providerProfile.availability)
     setAvailableNow(user.providerProfile.availableNow)
     setPhotoId(user.providerProfile.photoId)
-    setServices((user.providerProfile.services ?? []).map((s) => (typeof s === 'string' ? s : s.name)))
+    setServices(normalizeServices(user.providerProfile.services, user.providerProfile.category))
   }, [user.providerProfile])
+
+  // If category changes to dogsitter, switch to fixed services
+  useEffect(() => {
+    if (cat === 'dogsitter' || cat === 'dogwalk') {
+      setServices((prev) => normalizeServices(prev, cat))
+    }
+  }, [cat])
 
   const photoOptions = useMemo(() => PHOTOS[cat as keyof typeof PHOTOS] ?? [], [cat])
 
@@ -147,15 +185,25 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
     setPhotoId(id)
   }
 
-  function addService() {
-    const s = serviceInput.trim()
-    if (!s || services.includes(s)) return
-    setServices([...services, s])
-    setServiceInput('')
+  function addCustomService() {
+    const nameTrim = serviceNameInput.trim()
+    if (!nameTrim) return
+    if (services.some((s) => s.name.toLowerCase() === nameTrim.toLowerCase())) return
+    setServices([...services, { name: nameTrim, price: servicePriceInput.trim() }])
+    setServiceNameInput('')
+    setServicePriceInput('')
   }
 
-  function removeService(s: string) {
-    setServices(services.filter((x) => x !== s))
+  function removeService(nameToRemove: string) {
+    setServices(services.filter((x) => x.name !== nameToRemove))
+  }
+
+  function updateServicePrice(index: number, newPrice: string) {
+    setServices((prev) => {
+      const next = [...prev]
+      next[index] = { ...next[index], price: newPrice }
+      return next
+    })
   }
 
   async function handleSaveInfo(e: FormEvent) {
@@ -618,45 +666,102 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
                 </div>
               </div>
 
+              {/* ── Formulário de Serviços & Valores Individuais ── */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Serviços oferecidos</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={serviceInput}
-                    onChange={(e) => setServiceInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        addService()
-                      }
-                    }}
-                    placeholder="Ex.: Faxina geral"
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
-                  />
-                  <button
-                    type="button"
-                    onClick={addService}
-                    className="text-sm font-semibold px-4 py-2.5 rounded-xl border-2 transition-colors"
-                    style={{ borderColor: '#E8553D', color: '#E8553D' }}
-                  >
-                    Adicionar
-                  </button>
-                </div>
-                {services.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2.5">
-                    {services.map((s) => (
-                      <span
-                        key={s}
-                        className="text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5"
-                        style={{ backgroundColor: '#E8553D14', color: '#E8553D' }}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Serviços Oferecidos & Valores Individuais
+                </label>
+
+                {cat === 'dogsitter' || cat === 'dogwalk' ? (
+                  <div className="space-y-3 p-4 bg-amber-50/40 rounded-2xl border border-amber-200/80">
+                    <p className="text-xs text-amber-900 font-medium">
+                      🐕 <strong>Serviços fixos para Dog Walking / Pet Care:</strong> defina os valores individuais para cada modalidade oferecida.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {services.map((s, idx) => (
+                        <div key={s.name} className="flex items-center justify-between gap-2 p-2.5 bg-white rounded-xl border border-gray-200">
+                          <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-[#E8553D]" />
+                            {s.name}
+                          </span>
+                          <div className="w-32">
+                            <input
+                              type="text"
+                              value={s.price}
+                              onChange={(e) => updateServicePrice(idx, e.target.value)}
+                              placeholder="Ex: R$ 35/h"
+                              className="w-full px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-xs text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#E8553D]/40"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        value={serviceNameInput}
+                        onChange={(e) => setServiceNameInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            addCustomService()
+                          }
+                        }}
+                        placeholder="Nome do serviço (Ex: Manicure em Gel)"
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
+                      />
+                      <input
+                        type="text"
+                        value={servicePriceInput}
+                        onChange={(e) => setServicePriceInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            addCustomService()
+                          }
+                        }}
+                        placeholder="Valor (Ex: R$ 80 ou $45)"
+                        className="w-full sm:w-44 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
+                      />
+                      <button
+                        type="button"
+                        onClick={addCustomService}
+                        className="text-sm font-semibold px-5 py-2.5 rounded-xl border-2 transition-colors flex-shrink-0"
+                        style={{ borderColor: '#E8553D', color: '#E8553D' }}
                       >
-                        {s}
-                        <button type="button" onClick={() => removeService(s)} aria-label={`Remover ${s}`} className="hover:text-red-600">
-                          ×
-                        </button>
-                      </span>
-                    ))}
+                        Adicionar
+                      </button>
+                    </div>
+
+                    {services.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {services.map((s) => (
+                          <span
+                            key={s.name}
+                            className="text-xs font-semibold px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-xs"
+                            style={{ backgroundColor: '#E8553D14', color: '#E8553D' }}
+                          >
+                            <span>{s.name}</span>
+                            {s.price && (
+                              <span className="bg-white px-2 py-0.5 rounded-lg text-[11px] font-bold text-gray-800 border border-[#E8553D]/20">
+                                {s.price}
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeService(s.name)}
+                              aria-label={`Remover ${s.name}`}
+                              className="text-gray-400 hover:text-red-600 font-bold ml-0.5 text-sm leading-none"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

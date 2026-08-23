@@ -60,19 +60,29 @@ function PortfolioTab({ provider }: { provider: Provider }) {
 
       <div className="mb-4">
         <h3 className="text-sm font-bold text-gray-900 mb-3" style={{ fontFamily: "'Fraunces', serif" }}>
-          Serviços oferecidos
+          Serviços oferecidos & Valores
         </h3>
-        <div className="flex flex-wrap gap-2">
-          {provider.services.map((s, idx) => {
-            const label = typeof s === 'string' ? s : `${s.name}${s.price ? ` (${s.price})` : ''}`
-            const key = typeof s === 'string' ? `${s}-${idx}` : `${s.name}-${idx}`
-            return (
-              <span key={key} className="text-xs font-medium px-3 py-1.5 rounded-full bg-gray-100 text-gray-700">
-                {label}
-              </span>
-            )
-          })}
-        </div>
+        {provider.services.length === 0 ? (
+          <p className="text-xs text-gray-400">Nenhum serviço individual listado.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {provider.services.map((s, idx) => {
+              const name = typeof s === 'string' ? s : s.name
+              const price = typeof s === 'string' ? '' : s.price
+              const key = typeof s === 'string' ? `${s}-${idx}` : `${s.name}-${idx}`
+              return (
+                <div key={key} className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 border border-gray-100">
+                  <span className="text-xs font-semibold text-gray-800">{name}</span>
+                  {price && (
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-white border border-gray-200 text-gray-900">
+                      {price}
+                    </span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )
