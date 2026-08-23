@@ -114,33 +114,6 @@ function initials(name: string) {
     .join('')
 }
 
-export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider }: Props) {
-  const profile = user.providerProfile
-
-  const [name, setName] = useState(user.name)
-  const [email, setEmail] = useState(user.email)
-  const [saved, setSaved] = useState(false)
-  const [error, setError] = useState('')
-
-  // Password reset state
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [passwordError, setPasswordError] = useState('')
-  const [passwordSuccess, setPasswordSuccess] = useState('')
-  const [passwordLoading, setPasswordLoading] = useState(false)
-  const [showPasswordForm, setShowPasswordForm] = useState(false)
-
-  const [newCat, setNewCat] = useState('')
-
-  const [cat, setCat] = useState(profile?.category ?? '')
-  const [nationality, setNationality] = useState(profile?.nationality ?? 'BR')
-  const [country, setCountry] = useState(profile?.country ?? 'BR')
-  const [state, setState] = useState(profile?.state ?? '')
-  const [city, setCity] = useState(profile?.city ?? '')
-  const [description, setDescription] = useState(profile?.description ?? '')
-  const [bio, setBio] = useState(profile?.bio ?? '')
-  const [price, setPrice] = useState(profile?.price ?? '')
 export interface ServiceItem {
   name: string
   price: string
@@ -171,6 +144,33 @@ function normalizeServices(
   return list
 }
 
+export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider }: Props) {
+  const profile = user.providerProfile
+
+  const [name, setName] = useState(user.name)
+  const [email, setEmail] = useState(user.email)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState('')
+
+  // Password reset state
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+
+  const [newCat, setNewCat] = useState('')
+
+  const [cat, setCat] = useState(profile?.category ?? '')
+  const [nationality, setNationality] = useState(profile?.nationality ?? 'BR')
+  const [country, setCountry] = useState(profile?.country ?? 'BR')
+  const [state, setState] = useState(profile?.state ?? '')
+  const [city, setCity] = useState(profile?.city ?? '')
+  const [description, setDescription] = useState(profile?.description ?? '')
+  const [bio, setBio] = useState(profile?.bio ?? '')
+  const [price, setPrice] = useState(profile?.price ?? '')
   const [availability, setAvailability] = useState(profile?.availability ?? 'Disponível hoje')
   const [availableNow, setAvailableNow] = useState(profile?.availableNow ?? true)
   const [photoId, setPhotoId] = useState(profile?.photoId ?? '')
