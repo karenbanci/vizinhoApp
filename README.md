@@ -214,7 +214,7 @@ Este projeto é de uso privado e confidencial.
 - [x] Na página em inglês de explore as mensagem e opções de filtros aparecem em português, traduza tudo para inglês: Explorar prestadores. Encontre todos os profissionais disponíveis de acordo com a sua região.
 - [x] o botão "continuar com Google" nao está funcionando
 - [x] O email de confirmação do cadastro não está sendo enviado.
-- [ ] Colocar o número real de providers; reviews e ratings
+- [x] Colocar o número real de providers; reviews e ratings
 - [ ] Algumas fotos de providers não estão carregando
 - [ ] Se o usuário estiver no tipo de conta de cliente, as notificações será sobre se o prestador aceitou ou recusou o serviço.
 - [ ] Gostaria de abrisse a opção de um chat quando o prestador aceitasse o serviço solicitado do cliente, abrir um chat para conversar sobre

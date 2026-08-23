@@ -82,6 +82,25 @@ export default function App() {
 
   const allProviders = useMemo(() => [...PROVIDERS, ...dbProviders], [dbProviders])
 
+  const totalProvidersCount = allProviders.length
+  const totalReviewsCount = useMemo(
+    () => allProviders.reduce((acc, p) => acc + (p.reviews || 0), 0),
+    [allProviders]
+  )
+  const averageRating = useMemo(() => {
+    const ratedProviders = allProviders.filter((p) => p.rating && p.rating > 0)
+    if (ratedProviders.length === 0) return '5.0'
+    const totalWeighted = ratedProviders.reduce(
+      (acc, p) => acc + p.rating * Math.max(1, p.reviews || 1),
+      0
+    )
+    const totalWeights = ratedProviders.reduce(
+      (acc, p) => acc + Math.max(1, p.reviews || 1),
+      0
+    )
+    return (totalWeighted / totalWeights).toFixed(1)
+  }, [allProviders])
+
   const filtered = allProviders.filter((p) => {
     const matchCat = activeCategory === 'all' || p.category === activeCategory
     const q = search.toLowerCase()
@@ -288,9 +307,15 @@ export default function App() {
 
           <div className="flex items-center justify-center gap-8 mt-10 text-white/90">
             {[
-              { value: '2.400+', label: t('hero.statProviders') },
-              { value: '18 mil+', label: t('hero.statReviews') },
-              { value: '4.9 ★', label: t('hero.statRating') },
+              { value: `${totalProvidersCount}`, label: t('hero.statProviders') },
+              {
+                value:
+                  totalReviewsCount >= 1000
+                    ? `${(totalReviewsCount / 1000).toFixed(1).replace('.0', '')}k+`
+                    : `${totalReviewsCount}`,
+                label: t('hero.statReviews'),
+              },
+              { value: `${averageRating} ★`, label: t('hero.statRating') },
             ].map((stat, i, arr) => (
               <div key={stat.label} className="flex items-center gap-8">
                 <div className="text-center">
