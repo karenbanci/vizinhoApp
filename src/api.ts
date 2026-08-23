@@ -138,6 +138,13 @@ export async function updateMe(data: { name?: string; email?: string }) {
   })
 }
 
+export async function updateMyPassword(data: { currentPassword?: string; newPassword: string }) {
+  return request<{ ok: boolean; message: string }>('/api/me/password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
 export async function activateProvider(category: string) {
   return request<{ user: AuthUser; providerProfile: ProviderProfile }>('/api/me/provider', {
     method: 'POST',

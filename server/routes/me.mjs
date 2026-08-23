@@ -1,10 +1,40 @@
 import { Router } from 'express'
+import bcrypt from 'bcryptjs'
 import { pool } from '../db.mjs'
 import { authRequired } from '../auth.mjs'
 import { mapProviderDetail } from '../users.mjs'
 import { getUserContext } from './auth.mjs'
 
 const router = Router()
+
+router.post('/password', authRequired, async (req, res) => {
+  const { currentPassword, newPassword } = req.body ?? {}
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+    return res.status(400).json({ error: 'A nova senha precisa ter pelo menos 6 caracteres.' })
+  }
+
+  try {
+    const [rows] = await pool.execute('SELECT password_hash FROM users WHERE id = ?', [req.userId])
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' })
+    }
+
+    if (currentPassword) {
+      const ok = await bcrypt.compare(currentPassword, rows[0].password_hash)
+      if (!ok) {
+        return res.status(400).json({ error: 'A senha atual está incorreta.' })
+      }
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10)
+    await pool.execute('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, req.userId])
+
+    res.json({ ok: true, message: 'Senha atualizada com sucesso!' })
+  } catch (err) {
+    console.error('change password error:', err)
+    res.status(500).json({ error: 'Erro ao alterar a senha.' })
+  }
+})
 
 const CATEGORIES = [
   { id: 'manicure', label: 'Manicure' },

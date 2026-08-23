@@ -3,6 +3,7 @@ import {
   activateProvider,
   deactivateProvider,
   updateMe,
+  updateMyPassword,
   updateProviderProfile,
   type AuthUser,
   type Provider,
@@ -97,6 +98,15 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
 
+  // Password reset state
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+
   const [newCat, setNewCat] = useState('')
 
   const [cat, setCat] = useState(profile?.category ?? '')
@@ -158,6 +168,36 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
       setSaved(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao salvar.')
+    }
+  }
+
+  async function handleChangePassword(e: FormEvent) {
+    e.preventDefault()
+    setPasswordError('')
+    setPasswordSuccess('')
+    if (newPassword.length < 6) {
+      setPasswordError('A nova senha precisa ter pelo menos 6 caracteres.')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('A confirmação de senha não confere.')
+      return
+    }
+    setPasswordLoading(true)
+    try {
+      const res = await updateMyPassword({
+        currentPassword: currentPassword || undefined,
+        newPassword,
+      })
+      setPasswordSuccess(res.message || 'Senha alterada com sucesso!')
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setShowPasswordForm(false)
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : 'Erro ao alterar a senha.')
+    } finally {
+      setPasswordLoading(false)
     }
   }
 
@@ -267,43 +307,128 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
           </div>
         </section>
 
-        {/* ── Dados da conta ── */}
-        <section className="bg-white rounded-3xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-4" style={{ fontFamily: "'Fraunces', serif" }}>
-            Dados da conta
-          </h2>
-          <form onSubmit={handleSaveInfo} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nome</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">E-mail</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
-              />
-            </div>
-            <div className="flex items-center gap-3">
+        {/* ── Dados da conta & Senha ── */}
+        <section className="bg-white rounded-3xl p-6 shadow-sm space-y-6">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900 mb-4" style={{ fontFamily: "'Fraunces', serif" }}>
+              Dados da conta
+            </h2>
+            <form onSubmit={handleSaveInfo} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nome</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">E-mail</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="submit"
+                  className="text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90"
+                  style={{ backgroundColor: '#E8553D' }}
+                >
+                  Salvar dados
+                </button>
+                {saved && <span className="text-sm text-green-600 font-medium">✓ Salvo!</span>}
+              </div>
+            </form>
+          </div>
+
+          <div className="pt-5 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-gray-900">Segurança & Redefinição de Senha</h3>
+                <p className="text-xs text-gray-500">Altere sua senha de acesso a qualquer momento.</p>
+              </div>
               <button
-                type="submit"
-                className="text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90"
-                style={{ backgroundColor: '#E8553D' }}
+                type="button"
+                onClick={() => setShowPasswordForm(!showPasswordForm)}
+                className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                Salvar dados
+                {showPasswordForm ? 'Ocultar' : 'Alterar Senha'}
               </button>
-              {saved && <span className="text-sm text-green-600 font-medium">✓ Salvo!</span>}
             </div>
-          </form>
+
+            {passwordSuccess && (
+              <div className="mt-3 text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5">
+                {passwordSuccess}
+              </div>
+            )}
+            {passwordError && (
+              <div className="mt-3 text-xs text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5">
+                {passwordError}
+              </div>
+            )}
+
+            {showPasswordForm && (
+              <form onSubmit={handleChangePassword} className="mt-4 space-y-3 p-4 bg-gray-50/70 rounded-2xl border border-gray-200/80">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Senha Atual (opcional se não lembrar)</label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Sua senha atual"
+                    className="w-full px-3.5 py-2 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Nova Senha</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Mínimo 6 caracteres"
+                    required
+                    minLength={6}
+                    className="w-full px-3.5 py-2 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Confirmar Nova Senha</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Repita a nova senha"
+                    required
+                    minLength={6}
+                    className="w-full px-3.5 py-2 rounded-xl bg-white border border-gray-200 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-[#E8553D]/40 focus:border-[#E8553D]"
+                  />
+                </div>
+                <div className="pt-1 flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={passwordLoading}
+                    className="text-xs font-semibold text-white px-4 py-2 rounded-xl transition-all hover:opacity-90 disabled:opacity-60"
+                    style={{ backgroundColor: '#E8553D' }}
+                  >
+                    {passwordLoading ? 'Salvando...' : 'Salvar Nova Senha'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordForm(false)}
+                    className="text-xs font-semibold text-gray-600 px-3 py-2 rounded-xl hover:bg-gray-200 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
         </section>
 
         {/* ── Modo prestador ── */}
