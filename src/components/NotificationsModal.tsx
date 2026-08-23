@@ -14,11 +14,20 @@ interface Props {
   isOpen: boolean
   onClose: () => void
   currentUserId: number
+  isProvider?: boolean
+  accountType?: 'client' | 'provider'
 }
 
-export default function NotificationsModal({ isOpen, onClose, currentUserId }: Props) {
+export default function NotificationsModal({
+  isOpen,
+  onClose,
+  currentUserId,
+  isProvider = false,
+  accountType = 'client',
+}: Props) {
   const { t, formatError } = useLanguage()
-  const [tab, setTab] = useState<'received' | 'sent'>('received')
+  const isClientOnly = !isProvider || accountType === 'client'
+  const [tab, setTab] = useState<'received' | 'sent'>(isClientOnly ? 'sent' : 'received')
   const [received, setReceived] = useState<ServiceRequest[]>([])
   const [sent, setSent] = useState<ServiceRequest[]>([])
   const [loading, setLoading] = useState(false)
@@ -53,9 +62,12 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
 
   useEffect(() => {
     if (isOpen) {
+      if (isClientOnly) {
+        setTab('sent')
+      }
       loadRequests()
     }
-  }, [isOpen])
+  }, [isOpen, isClientOnly])
 
   // Load chat messages when activeChatRequest changes
   useEffect(() => {
@@ -87,6 +99,12 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
     try {
       await updateServiceRequestStatus(requestId, status)
       await loadRequests()
+      if (status === 'accepted') {
+        const targetReq = received.find((r) => r.id === requestId)
+        if (targetReq) {
+          setActiveChatRequest({ ...targetReq, status: 'accepted' })
+        }
+      }
     } catch {
       // ignore
     } finally {
@@ -165,14 +183,19 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
             </div>
             <div>
               <h2 className="text-lg font-bold text-gray-900" style={{ fontFamily: "'Fraunces', serif" }}>
-                {activeChatRequest ? `Chat: ${activeChatRequest.service_name}` : 'Notificações & Solicitações'}
+                {activeChatRequest
+                  ? t('notif.chatTitle', { service: activeChatRequest.service_name })
+                  : t('notif.title')}
               </h2>
               <p className="text-xs text-gray-500">
                 {activeChatRequest
-                  ? `Com ${
-                      tab === 'received' ? activeChatRequest.client_name : activeChatRequest.provider_name || 'Prestador'
-                    }`
-                  : 'Gerencie e combine seus pedidos de serviço'}
+                  ? t('notif.chatWith', {
+                      name:
+                        tab === 'received'
+                          ? activeChatRequest.client_name
+                          : activeChatRequest.provider_name || 'Prestador',
+                    })
+                  : t('notif.subtitle')}
               </p>
             </div>
           </div>
@@ -183,7 +206,7 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                 onClick={() => setActiveChatRequest(null)}
                 className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-100 transition-colors"
               >
-                ← Voltar à lista
+                {t('notif.backToList')}
               </button>
             )}
             <button
@@ -209,7 +232,7 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                <span>Recebidas (Prestador)</span>
+                <span>{t('notif.tabReceived')}</span>
                 {pendingCount > 0 && (
                   <span className="px-2 py-0.5 rounded-full text-xs bg-[#E8553D] text-white font-bold">
                     {pendingCount}
@@ -224,7 +247,7 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                <span>Enviadas (Cliente)</span>
+                <span>{t('notif.tabSent')}</span>
                 <span className="px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-600 font-medium">
                   {sent.length}
                 </span>
@@ -242,9 +265,7 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                     Nenhuma solicitação no momento
                   </h3>
                   <p className="text-xs text-gray-500 max-w-sm mx-auto">
-                    {tab === 'received'
-                      ? 'Quando vizinhos solicitarem seus serviços, as notificações aparecerão aqui.'
-                      : 'Suas solicitações enviadas para prestadores aparecerão listadas aqui.'}
+                    {tab === 'received' ? t('notif.emptyReceived') : t('notif.emptySent')}
                   </p>
                 </div>
               ) : (
@@ -276,10 +297,10 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                               }`}
                             >
                               {req.status === 'pending'
-                                ? '● Pendente'
+                                ? `● ${t('notif.statusPending')}`
                                 : req.status === 'accepted'
-                                ? '✓ Aceita'
-                                : '✕ Recusada'}
+                                ? `✓ ${t('notif.statusAccepted')}`
+                                : `✕ ${t('notif.statusRejected')}`}
                             </span>
                           </div>
                           <p className="text-xs text-gray-500 mt-0.5">
@@ -310,6 +331,35 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                         )}
                       </div>
 
+                      {/* Client Notification Status Banner */}
+                      {!isReceived && req.status === 'accepted' && (
+                        <div className="mb-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs font-semibold text-emerald-900 flex items-center justify-between gap-2 shadow-2xs">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">🎉</span>
+                            <span>{t('notif.clientAcceptedBanner')}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setActiveChatRequest(req)}
+                            className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] transition-colors shrink-0"
+                          >
+                            {t('notif.openChat')}
+                          </button>
+                        </div>
+                      )}
+                      {!isReceived && req.status === 'rejected' && (
+                        <div className="mb-3 p-2.5 bg-rose-50 rounded-xl border border-rose-200 text-xs font-medium text-rose-800 flex items-center gap-2">
+                          <span className="text-base">❌</span>
+                          <span>{t('notif.clientRejectedBanner')}</span>
+                        </div>
+                      )}
+                      {!isReceived && req.status === 'pending' && (
+                        <div className="mb-3 p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs font-medium text-amber-800 flex items-center gap-2">
+                          <span className="text-base">⏳</span>
+                          <span>{t('notif.clientPendingBanner')}</span>
+                        </div>
+                      )}
+
                       {/* Details Box */}
                       <div className="bg-white/80 rounded-xl p-3 text-xs text-gray-700 mb-3 border border-gray-100 space-y-1">
                         <p>
@@ -332,9 +382,13 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                         {/* Chat Button */}
                         <button
                           onClick={() => setActiveChatRequest(req)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+                            !isReceived && req.status === 'accepted'
+                              ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-xs'
+                              : 'text-gray-700 bg-white border border-gray-200 hover:bg-gray-50'
+                          }`}
                         >
-                          <span>💬 Abrir Chat</span>
+                          <span>💬 {t('notif.openChat')}</span>
                         </button>
 
                         {/* Provider Accept / Reject buttons */}
@@ -434,7 +488,7 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                 type="text"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Digite sua mensagem para combinar o serviço..."
+                placeholder={t('notif.chatPlaceholder')}
                 className="flex-1 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-800 outline-none focus:bg-white focus:ring-2 focus:ring-[#E8553D]/30 focus:border-[#E8553D]"
               />
               <button
@@ -443,7 +497,7 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
                 className="px-5 py-2.5 rounded-xl text-xs font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: '#E8553D' }}
               >
-                {sendingMessage ? '...' : 'Enviar'}
+                {sendingMessage ? '...' : t('notif.send')}
               </button>
             </form>
           </div>

@@ -72,7 +72,17 @@ export default function App() {
     }
     function checkNotifications() {
       fetchServiceRequests()
-        .then((res) => setPendingRequestsCount(res.pendingCount))
+        .then((res) => {
+          if (authUser.isProvider && authUser.accountType !== 'client') {
+            setPendingRequestsCount(res.pendingCount)
+          } else {
+            // Client notifications: requests accepted or rejected or active updates
+            const clientNotifs = res.sent.filter(
+              (r) => r.status === 'accepted' || r.status === 'rejected'
+            )
+            setPendingRequestsCount(clientNotifs.length)
+          }
+        })
         .catch(() => {})
     }
     checkNotifications()
@@ -569,9 +579,22 @@ export default function App() {
           isOpen={notificationsOpen}
           onClose={() => {
             setNotificationsOpen(false)
-            fetchServiceRequests().then((r) => setPendingRequestsCount(r.pendingCount)).catch(() => {})
+            fetchServiceRequests()
+              .then((r) => {
+                if (authUser.isProvider && authUser.accountType !== 'client') {
+                  setPendingRequestsCount(r.pendingCount)
+                } else {
+                  const clientNotifs = r.sent.filter(
+                    (item) => item.status === 'accepted' || item.status === 'rejected'
+                  )
+                  setPendingRequestsCount(clientNotifs.length)
+                }
+              })
+              .catch(() => {})
           }}
           currentUserId={authUser.id}
+          isProvider={authUser.isProvider}
+          accountType={authUser.accountType}
         />
       )}
     </div>
