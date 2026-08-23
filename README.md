@@ -219,7 +219,7 @@ Este projeto é de uso privado e confidencial.
 - [x] Na foto de serviços do portfólio, deixar a opção de adicionar, editar e remover foto
 - [x] A Bio deixar como obrigatório o preenchimento
 - [x] Nos filtros na aba de explorar refinar as opções de filtro, pois não faz sentido escolher uma nacionalidade Argentina e a opção de cidade ser São Paulo. Melhore isso
-[ ] Adicionar os serviço de: Movers, Massage, Makeup, Cabeleleiro
+- [x] Adicionar os serviço de: Movers, Massage, Makeup, Cabeleleiro
 [ ]
 [ ]
 [ ]

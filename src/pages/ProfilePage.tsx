@@ -24,9 +24,13 @@ const CATEGORIES = [
   { id: 'confeitaria', label: 'Bolos & Salgados', emoji: '🎂' },
   { id: 'faxina', label: 'Faxina', emoji: '🧹' },
   { id: 'helper', label: 'Helpers', emoji: '🔧' },
+  { id: 'movers', label: 'Movers', emoji: '📦' },
+  { id: 'massage', label: 'Massagem', emoji: '💆' },
+  { id: 'makeup', label: 'Makeup', emoji: '💄' },
+  { id: 'cabeleleiro', label: 'Cabeleireiro', emoji: '✂️' },
 ]
 
-const PHOTOS = {
+const PHOTOS: Record<string, string[]> = {
   manicure: [
     'photo-1534528741775-53994a69daeb',
     'photo-1604654894610-df63bc536371',
@@ -39,8 +43,8 @@ const PHOTOS = {
   ],
   confeitaria: [
     'photo-1578985545062-69928b1d9587',
-    'photo-1578985545062-69928b1d9587',
     'photo-1606313564200-e75d5e30476c',
+    'photo-1563729784474-d77dbb933a9e',
   ],
   faxina: [
     'photo-1581578731548-c64695cc6952',
@@ -51,6 +55,26 @@ const PHOTOS = {
     'photo-1581092918056-0c4c3acd3789',
     'photo-1621905251189-08b45d6a269e',
     'photo-1574359411659-15573a27fd0c',
+  ],
+  movers: [
+    'photo-1600585154340-be6161a56a0c',
+    'photo-1581092918056-0c4c3acd3789',
+    'photo-1558618047-3c8c76ca7d13',
+  ],
+  massage: [
+    'photo-1544161515-4ab6ce6db874',
+    'photo-1519823551278-64ac92734fb1',
+    'photo-1540555700478-4be289fbecef',
+  ],
+  makeup: [
+    'photo-1487412720507-e7ab37603c6f',
+    'photo-1522337360788-8b13dee7a37e',
+    'photo-1512496015851-a90fb38ba796',
+  ],
+  cabeleleiro: [
+    'photo-1560066984-138dadb4c035',
+    'photo-1522337360788-8b13dee7a37e',
+    'photo-1562322140-8baeececf3df',
   ],
 }
 

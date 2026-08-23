@@ -33,6 +33,10 @@ const pt = {
   'cat.confeitaria': 'Bolos & Salgados',
   'cat.faxina': 'Faxina',
   'cat.helper': 'Helpers',
+  'cat.movers': 'Movers',
+  'cat.massage': 'Massagem',
+  'cat.makeup': 'Makeup',
+  'cat.cabeleleiro': 'Cabeleireiro',
 
   'home.allProviders': 'Todos os prestadores',
   'home.filters': 'Filtros',
@@ -258,6 +262,10 @@ const en: Record<TranslationKey, string> = {
   'cat.confeitaria': 'Cakes & Snacks',
   'cat.faxina': 'Cleaning',
   'cat.helper': 'Helpers',
+  'cat.movers': 'Movers',
+  'cat.massage': 'Massage',
+  'cat.makeup': 'Makeup',
+  'cat.cabeleleiro': 'Hairdresser',
 
   'home.allProviders': 'All providers',
   'home.filters': 'Filters',

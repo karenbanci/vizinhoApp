@@ -42,6 +42,10 @@ const CATEGORIES = [
   { id: 'confeitaria', label: 'Bolos & Salgados' },
   { id: 'faxina', label: 'Faxina' },
   { id: 'helper', label: 'Helpers' },
+  { id: 'movers', label: 'Movers' },
+  { id: 'massage', label: 'Massagem' },
+  { id: 'makeup', label: 'Makeup' },
+  { id: 'cabeleleiro', label: 'Cabeleleiro' },
 ]
 
 const SAMPLE_PHOTOS = {
@@ -50,6 +54,10 @@ const SAMPLE_PHOTOS = {
   confeitaria: 'photo-1578985545062-69928b1d9587',
   faxina: 'photo-1581578731548-c64695cc6952',
   helper: 'photo-1581092918056-0c4c3acd3789',
+  movers: 'photo-1600585154340-be6161a56a0c',
+  massage: 'photo-1544161515-4ab6ce6db874',
+  makeup: 'photo-1487412720507-e7ab37603c6f',
+  cabeleleiro: 'photo-1560066984-138dadb4c035',
 }
 
 router.patch('/', authRequired, async (req, res) => {

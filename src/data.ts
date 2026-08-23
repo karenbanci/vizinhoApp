@@ -1,4 +1,14 @@
-export type CategoryId = 'all' | 'manicure' | 'dogsitter' | 'confeitaria' | 'faxina' | 'helper'
+export type CategoryId =
+  | 'all'
+  | 'manicure'
+  | 'dogsitter'
+  | 'confeitaria'
+  | 'faxina'
+  | 'helper'
+  | 'movers'
+  | 'massage'
+  | 'makeup'
+  | 'cabeleleiro'
 
 export interface Service {
   name: string
@@ -34,6 +44,7 @@ export interface Provider {
   location: string
   state: string
   city: string
+  country?: string
   description: string
   bio: string
   photoId: string
@@ -54,6 +65,10 @@ export const CATEGORIES: { id: CategoryId; label: string; emoji: string }[] = [
   { id: 'confeitaria', label: 'Bolos & Salgados', emoji: '🎂' },
   { id: 'faxina', label: 'Faxina', emoji: '🧹' },
   { id: 'helper', label: 'Helpers', emoji: '🔧' },
+  { id: 'movers', label: 'Movers', emoji: '📦' },
+  { id: 'massage', label: 'Massagem', emoji: '💆' },
+  { id: 'makeup', label: 'Makeup', emoji: '💄' },
+  { id: 'cabeleleiro', label: 'Cabeleireiro', emoji: '✂️' },
 ]
 
 export const CATEGORY_STYLE: Record<string, { pill: string }> = {
@@ -62,6 +77,10 @@ export const CATEGORY_STYLE: Record<string, { pill: string }> = {
   confeitaria: { pill: 'bg-orange-50 text-orange-700' },
   faxina: { pill: 'bg-teal-50 text-teal-700' },
   helper: { pill: 'bg-blue-50 text-blue-700' },
+  movers: { pill: 'bg-indigo-50 text-indigo-700' },
+  massage: { pill: 'bg-emerald-50 text-emerald-700' },
+  makeup: { pill: 'bg-pink-50 text-pink-700' },
+  cabeleleiro: { pill: 'bg-purple-50 text-purple-700' },
 }
 
 export const PROVIDERS: Provider[] = [
@@ -552,5 +571,175 @@ export const PROVIDERS: Provider[] = [
     availability: 'Próxima vaga: seg',
     availableNow: false,
     deliveryInfo: 'Atendimento presencial. Zona Sul, Centro e Zona Oeste. Data e horário a combinar via chat.',
+  },
+  {
+    id: 10,
+    name: 'Carlos Santos (Movers Pro)',
+    category: 'movers',
+    categoryLabel: 'Movers',
+    nationality: 'BR',
+    country: 'BR',
+    rating: 4.9,
+    reviews: 74,
+    price: 'R$ 220 / viagem',
+    location: 'Pinheiros, SP',
+    state: 'SP',
+    city: 'Pinheiros',
+    description: 'Mudanças residenciais, carretos rápidos e içamentos com equipe e caminhão baú próprio.',
+    bio: 'Trabalho com mudanças e transporte de móveis há mais de 8 anos. Dispomos de caminhão baú higienizado, mantas protetoras, plástico bolha e ajudantes capacitados para carregar e descarregar com total segurança.',
+    photoId: 'photo-1600585154340-be6161a56a0c',
+    portfolioIds: [
+      'photo-1581092918056-0c4c3acd3789',
+      'photo-1558618047-3c8c76ca7d13',
+      'photo-1504148455328-c376907d081c',
+    ],
+    services: [
+      { name: 'Mudança residencial completa', price: 'R$ 650' },
+      { name: 'Carreto rápido', price: 'R$ 220' },
+      { name: 'Montagem/desmontagem de móveis', price: 'R$ 150' },
+      { name: 'Embalagem de itens frágeis', price: 'R$ 120' },
+    ],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Felipe Neves',
+        avatarId: 'photo-1500648767791-00dcc994a43e',
+        rating: 5,
+        date: '14 ago 2026',
+        text: 'Carlos e a equipe foram pontuais, rápidos e cuidadosos demais com os móveis e eletros. Nenhum arranhão!',
+      },
+    ],
+    verified: true,
+    badge: 'Super Mover',
+    availability: 'Disponível hoje',
+    availableNow: true,
+    deliveryInfo: 'Atendimento em toda a Grande São Paulo e interior.',
+  },
+  {
+    id: 11,
+    name: 'Helena Takahashi',
+    category: 'massage',
+    categoryLabel: 'Massagem',
+    nationality: 'BR',
+    country: 'BR',
+    rating: 5.0,
+    reviews: 88,
+    price: 'R$ 140 / sessão',
+    location: 'Moema, SP',
+    state: 'SP',
+    city: 'Moema',
+    description: 'Massoterapia, drenagem linfática, shiatsu e massagem relaxante com maca portátil em domicílio.',
+    bio: 'Massoterapeuta certificada com especialização em Shiatsu e Drenagem Linfática Método Renata França. Levo maca profissional aquecida, óleos essenciais puros e música relaxante até o conforto da sua casa.',
+    photoId: 'photo-1544161515-4ab6ce6db874',
+    portfolioIds: [
+      'photo-1544161515-4ab6ce6db874',
+      'photo-1519823551278-64ac92734fb1',
+    ],
+    services: [
+      { name: 'Massagem Relaxante', price: 'R$ 140' },
+      { name: 'Drenagem Linfática', price: 'R$ 160' },
+      { name: 'Shiatsu Terapêutico', price: 'R$ 150' },
+      { name: 'Ventosaterapia', price: 'R$ 120' },
+    ],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Patrícia Prado',
+        avatarId: 'photo-1534528741775-53994a69daeb',
+        rating: 5,
+        date: '10 ago 2026',
+        text: 'Helena tem mãos mágicas! A sessão em casa foi um alívio imediato para as dores nas costas. Maravilhosa!',
+      },
+    ],
+    verified: true,
+    badge: 'Terapeuta Top',
+    availability: 'Disponível hoje',
+    availableNow: true,
+    deliveryInfo: 'Atendimento a domicílio com maca portátil. Moema, Jardins, Itaim e Vila Mariana.',
+  },
+  {
+    id: 12,
+    name: 'Larissa Beauty Makeup',
+    category: 'makeup',
+    categoryLabel: 'Makeup',
+    nationality: 'BR',
+    country: 'BR',
+    rating: 4.9,
+    reviews: 105,
+    price: 'R$ 180 / make',
+    location: 'Vila Madalena, SP',
+    state: 'SP',
+    city: 'Vila Madalena',
+    description: 'Maquiagem social, noivas, madrinhas e eventos especiais com produtos importados e fixação 24h.',
+    bio: 'Maquiadora profissional formada pela Make Up For Ever Academy. Especialista em pele blindada, noivas e makes glamourosas para festas. Trabalho com produtos de alta performance (MAC, NARS, Dior, Huda Beauty).',
+    photoId: 'photo-1487412720507-e7ab37603c6f',
+    portfolioIds: [
+      'photo-1487412720507-e7ab37603c6f',
+      'photo-1522337360788-8b13dee7a37e',
+      'photo-1512496015851-a90fb38ba796',
+    ],
+    services: [
+      { name: 'Make Social / Festa', price: 'R$ 180' },
+      { name: 'Make Madrinha / Formanda', price: 'R$ 220' },
+      { name: 'Produção Noiva', price: 'R$ 600' },
+      { name: 'Design de Sobrancelhas', price: 'R$ 60' },
+    ],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Juliana Paes',
+        avatarId: 'photo-1438761681033-6461ffad8d80',
+        rating: 5,
+        date: '12 ago 2026',
+        text: 'A make durou o casamento inteiro até as 6 da manhã intacta! Larissa é uma artista.',
+      },
+    ],
+    verified: true,
+    badge: 'Pro Artist',
+    availability: 'Disponível este fds',
+    availableNow: false,
+    deliveryInfo: 'Atendimento a domicílio ou no estúdio em Vila Madalena.',
+  },
+  {
+    id: 13,
+    name: 'Rodrigo Hair Studio',
+    category: 'cabeleleiro',
+    categoryLabel: 'Cabeleireiro',
+    nationality: 'BR',
+    country: 'BR',
+    rating: 4.9,
+    reviews: 130,
+    price: 'R$ 90 / corte',
+    location: 'Perdizes, SP',
+    state: 'SP',
+    city: 'Perdizes',
+    description: 'Cortes masculinos e femininos, coloração, luzes, mechas e tratamentos capilares personalizados.',
+    bio: 'Cabeleireiro visagista com 14 anos de mercado. Especialista em mechas, loiros saudáveis, cortes modernos e terapias capilares de reconstrução e hidratação.',
+    photoId: 'photo-1560066984-138dadb4c035',
+    portfolioIds: [
+      'photo-1560066984-138dadb4c035',
+      'photo-1522337360788-8b13dee7a37e',
+    ],
+    services: [
+      { name: 'Corte Feminino com Escova', price: 'R$ 130' },
+      { name: 'Corte Masculino / Barba', price: 'R$ 90' },
+      { name: 'Mechas / Luzes Glam', price: 'R$ 380' },
+      { name: 'Cronograma Capilar Profundo', price: 'R$ 160' },
+    ],
+    reviewsList: [
+      {
+        id: 1,
+        author: 'Tatiana Barros',
+        avatarId: 'photo-1494790108377-be9c29b29330',
+        rating: 5,
+        date: '15 ago 2026',
+        text: 'Corte perfeito e mechas impecáveis sem danificar o cabelo. O Rodrigo entende exatamente o que a gente quer!',
+      },
+    ],
+    verified: true,
+    badge: 'Master Stylist',
+    availability: 'Disponível hoje',
+    availableNow: true,
+    deliveryInfo: 'Atendimento no salão em Perdizes ou a domicílio sob agendamento.',
   },
 ]
