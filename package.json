@@ -13,7 +13,9 @@
     "db:setup": "node scripts/db-setup.mjs",
     "db:workbench": "node scripts/db-workbench.mjs",
     "server": "node server/index.mjs",
-    "test": "node --test --test-force-exit tests/*.test.mjs"
+    "test": "node --test --test-force-exit tests/*.test.mjs",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -35,6 +37,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.0",
+    "gh-pages": "^6.3.0",
     "oxfmt": "^0.2.0",
     "sharp": "^0.35.3",
     "tailwindcss": "^4.0.0",
