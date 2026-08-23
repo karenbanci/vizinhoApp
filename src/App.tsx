@@ -6,7 +6,8 @@ import AuthModal from './components/AuthModal'
 import ProfilePage from './pages/ProfilePage'
 import ExplorePage from './pages/ExplorePage'
 import AdminPage from './pages/AdminPage'
-import { clearToken, fetchMe, fetchProviders, getToken, type AuthUser } from './api'
+import NotificationsModal from './components/NotificationsModal'
+import { clearToken, fetchMe, fetchProviders, fetchServiceRequests, getToken, type AuthUser } from './api'
 import { useLanguage } from './i18n'
 
 export default function App() {
@@ -19,6 +20,8 @@ export default function App() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [view, setView] = useState<'home' | 'explorar' | 'profile' | 'admin'>('home')
   const [dbProviders, setDbProviders] = useState<Provider[]>([])
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -47,6 +50,21 @@ export default function App() {
       .then(({ providers }) => setDbProviders(providers as Provider[]))
       .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    if (!authUser) {
+      setPendingRequestsCount(0)
+      return
+    }
+    function checkNotifications() {
+      fetchServiceRequests()
+        .then((res) => setPendingRequestsCount(res.pendingCount))
+        .catch(() => {})
+    }
+    checkNotifications()
+    const interval = setInterval(checkNotifications, 5000)
+    return () => clearInterval(interval)
+  }, [authUser])
 
   const allProviders = useMemo(() => [...PROVIDERS, ...dbProviders], [dbProviders])
 
@@ -150,6 +168,28 @@ export default function App() {
 
             {authUser ? (
               <>
+                {/* Notifications Bell */}
+                <button
+                  type="button"
+                  onClick={() => setNotificationsOpen(true)}
+                  className="relative p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                  title="Notificações e Solicitações"
+                  aria-label="Notificações"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                    />
+                  </svg>
+                  {pendingRequestsCount > 0 && (
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-[#E8553D] text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                      {pendingRequestsCount}
+                    </span>
+                  )}
+                </button>
+
                 <button
                   onClick={() => setView('profile')}
                   className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
@@ -481,6 +521,18 @@ export default function App() {
           initialResetToken={resetToken}
           onClose={() => { setAuthModal(null); setResetToken('') }}
           onSuccess={setAuthUser}
+        />
+      )}
+
+      {/* ── Notifications & Service Requests Modal ── */}
+      {authUser && (
+        <NotificationsModal
+          isOpen={notificationsOpen}
+          onClose={() => {
+            setNotificationsOpen(false)
+            fetchServiceRequests().then((r) => setPendingRequestsCount(r.pendingCount)).catch(() => {})
+          }}
+          currentUserId={authUser.id}
         />
       )}
     </div>

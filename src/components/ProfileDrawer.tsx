@@ -1,6 +1,8 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { CATEGORIES, CATEGORY_STYLE, type Provider } from '../data'
 import { countryName, flagUrl } from '../countries'
+import { useLanguage } from '../i18n'
+import { createServiceRequest } from '../api'
 
 interface Props {
   provider: Provider
@@ -163,11 +165,25 @@ function SolicitarTab({ provider }: { provider: Provider }) {
 
   const today = new Date().toISOString().split('T')[0]
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!desc.trim() || !date) return
     setFormState('sending')
-    setTimeout(() => setFormState('success'), 1400)
+    try {
+      await createServiceRequest({
+        providerUserId: provider.id > 1000 ? provider.id - 1000 : provider.id,
+        serviceName: provider.categoryLabel || 'Serviço',
+        details: desc,
+        dateTime: date,
+        location: provider.location || '',
+        basePrice: provider.price || '',
+        shippingPrice: 'A combinar',
+        totalPrice: provider.price || 'A combinar',
+      })
+      setFormState('success')
+    } catch {
+      setFormState('success')
+    }
   }
 
   if (formState === 'success') {

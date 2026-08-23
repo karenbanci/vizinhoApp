@@ -103,7 +103,42 @@ await conn.query(`
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 `)
 
-console.log('→ Tabelas "users", "provider_profiles" e "password_reset_tokens" prontas.')
+await conn.query(`
+  CREATE TABLE IF NOT EXISTS service_requests (
+    id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    provider_user_id   INT UNSIGNED NOT NULL,
+    client_user_id     INT UNSIGNED NOT NULL,
+    client_name        VARCHAR(120) NOT NULL,
+    client_email       VARCHAR(190) NOT NULL,
+    service_name       VARCHAR(120) NOT NULL,
+    details            TEXT NOT NULL,
+    date_time          VARCHAR(120) NOT NULL DEFAULT '',
+    location           VARCHAR(255) NOT NULL DEFAULT '',
+    base_price         VARCHAR(80) NOT NULL DEFAULT '',
+    shipping_price     VARCHAR(80) NOT NULL DEFAULT '',
+    total_price        VARCHAR(80) NOT NULL DEFAULT '',
+    status             ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+    created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_req_provider FOREIGN KEY (provider_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_req_client FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`)
+
+await conn.query(`
+  CREATE TABLE IF NOT EXISTS messages (
+    id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    request_id  INT UNSIGNED NOT NULL,
+    sender_id   INT UNSIGNED NOT NULL,
+    sender_name VARCHAR(120) NOT NULL,
+    message     TEXT NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_msg_request FOREIGN KEY (request_id) REFERENCES service_requests(id) ON DELETE CASCADE,
+    CONSTRAINT fk_msg_sender FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+`)
+
+console.log('→ Tabelas "users", "provider_profiles", "password_reset_tokens", "service_requests" e "messages" prontas.')
 console.log('\n✅ Banco de dados configurado com sucesso!')
 console.log(`   Banco:  ${DB_NAME}`)
 console.log(`   Usuário: ${DB_USER}`)

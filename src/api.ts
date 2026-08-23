@@ -169,6 +169,77 @@ export async function fetchProviders() {
   return request<{ providers: Provider[] }>('/api/providers')
 }
 
+export interface ServiceRequest {
+  id: number
+  provider_user_id: number
+  client_user_id: number
+  client_name: string
+  client_email: string
+  provider_name?: string
+  provider_email?: string
+  service_name: string
+  details: string
+  date_time: string
+  location: string
+  base_price: string
+  shipping_price: string
+  total_price: string
+  status: 'pending' | 'accepted' | 'rejected'
+  created_at: string
+  updated_at: string
+}
+
+export interface ChatMessage {
+  id: number
+  request_id: number
+  sender_id: number
+  sender_name: string
+  message: string
+  created_at: string
+}
+
+export async function createServiceRequest(data: {
+  providerUserId: number
+  serviceName: string
+  details: string
+  dateTime?: string
+  location?: string
+  basePrice?: string
+  shippingPrice?: string
+  totalPrice?: string
+}) {
+  return request<{ ok: boolean; request: ServiceRequest }>('/api/requests', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function fetchServiceRequests() {
+  return request<{
+    received: ServiceRequest[]
+    sent: ServiceRequest[]
+    pendingCount: number
+  }>('/api/requests')
+}
+
+export async function updateServiceRequestStatus(id: number, status: 'accepted' | 'rejected') {
+  return request<{ ok: boolean; request: ServiceRequest }>(`/api/requests/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  })
+}
+
+export async function fetchRequestMessages(requestId: number) {
+  return request<{ messages: ChatMessage[] }>(`/api/requests/${requestId}/messages`)
+}
+
+export async function sendRequestMessage(requestId: number, message: string) {
+  return request<{ ok: boolean; message: ChatMessage }>(`/api/requests/${requestId}/messages`, {
+    method: 'POST',
+    body: JSON.stringify({ message }),
+  })
+}
+
 export interface AdminUser {
   id: number
   name: string

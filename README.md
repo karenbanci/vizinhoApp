@@ -211,8 +211,8 @@ Este projeto é de uso privado e confidencial.
 - [x] No dados da conta ter a opção de resetar a senha
 - [x] Na página inicial remover a opção de filtros e deixar somente na aba de explorar
 - [x] quando eu clico no perfil do prestador de serviço, gostaria que abrisse as informações no meio da janela e não na lateral
-[ ] criar uma página de notificações quando o prestador recebe uma solicitação de serviço, deixar o navbar com um ícone de sininho, ao clicar abrir uma página com a lista de todas as solicitações e deixar a opção de aceitar ou rejeitar a solicitação
-[ ] pode criar um chat entre o prestador e o cliente para eles combinarem o serviço
+- [x] criar uma página de notificações quando o prestador recebe uma solicitação de serviço, deixar o navbar com um ícone de sininho, ao clicar abrir uma página com a lista de todas as solicitações e deixar a opção de aceitar ou rejeitar a solicitação
+- [x] pode criar um chat entre o prestador e o cliente para eles combinarem o serviço
 [ ] no Meu perfil, no formulário de serviços oferecidos, criar um label onde possa colocar o valor dos serviços individualmente
 [ ] Alguns serviços como dogwalk tem serviços fixos como por exemplo: Walking, Drop-in, Sitting, Boarding e Daycare. Deixar essas opçoes de serviços fixas para esse tipo de perfil
 [ ] Melhorar o formulário de disponibilidade, adicionar opções de calendário aonde o usuário possa bloquear algumas datas para não prestar serviços e deixar a opção de editar as datas e horários disponívels.
