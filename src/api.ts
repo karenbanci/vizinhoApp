@@ -108,6 +108,13 @@ export async function register(name: string, email: string, password: string) {
   })
 }
 
+export async function authWithGoogle(payload: { email: string; name?: string; googleId?: string; picture?: string }) {
+  return request<{ user: AuthUser; token: string; message: string }>('/api/auth/google', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
 export async function verifyEmail(payload: { email?: string; code?: string; token?: string }) {
   return request<{ ok: boolean; user: AuthUser; token: string; message: string }>('/api/auth/verify-email', {
     method: 'POST',

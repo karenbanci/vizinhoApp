@@ -209,3 +209,6 @@ Este projeto é de uso privado e confidencial.
 # Bugs
 - [x] quando clico em login as mensagens de erro na página em inglês estão em português, traduzir todas as mensagens de erro em todas as páginas que estiverem em inglês
 - [x] arrumar esse erro Testing domain restriction: The resend.dev domain is for testing and can only send to your own email address. To send to other recipients, verify a domain and update the from address to use it.
+- [x] Ao fazer cadastro gostaria que a o usuário tivesse a opção de vincular a conta do google.
+- [ ] Ao fazer cadastro o usuário tenha a opção de escolher somente a conta de cliente ou a conta de prestador de serviço. Quando escolher a conta prestador de serviço esse usuário seja cliente automaticamente. Mas ao ser cliente não ter a opção de pestador de serviço. Então separar esses dois tipos de perfis
+- [ ] Na página em inglês de explore as mensagem e opções de filtros aparecem em português, traduza tudo para inglês: Explorar prestadores. Encontre todos os profissionais disponíveis de acordo com a sua região.

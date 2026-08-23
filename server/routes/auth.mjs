@@ -84,6 +84,47 @@ router.post('/register', async (req, res) => {
   }
 })
 
+router.post('/google', async (req, res) => {
+  const { email, name, googleId, picture } = req.body ?? {}
+
+  if (!email) {
+    return res.status(400).json({ error: 'E-mail não fornecido pelo Google.' })
+  }
+
+  try {
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanName = (name || cleanEmail.split('@')[0]).trim()
+
+    const [rows] = await pool.execute('SELECT * FROM users WHERE email = ?', [cleanEmail])
+    let userId
+
+    if (rows.length > 0) {
+      userId = rows[0].id
+      await pool.execute('UPDATE users SET email_verified = 1 WHERE id = ?', [userId])
+    } else {
+      const randomPassword = crypto.randomBytes(16).toString('hex')
+      const passwordHash = await bcrypt.hash(randomPassword, 10)
+      const [insertRes] = await pool.execute(
+        'INSERT INTO users (name, email, password_hash, email_verified) VALUES (?, ?, ?, 1)',
+        [cleanName, cleanEmail, passwordHash]
+      )
+      userId = insertRes.insertId
+    }
+
+    const user = await getUserContext(userId)
+    const token = signToken(userId)
+
+    res.json({
+      user,
+      token,
+      message: 'Autenticado com Google com sucesso!',
+    })
+  } catch (err) {
+    console.error('google auth error:', err)
+    res.status(500).json({ error: 'Erro ao autenticar com o Google.' })
+  }
+})
+
 router.post('/verify-email', async (req, res) => {
   const { email, code, token } = req.body ?? {}
 
