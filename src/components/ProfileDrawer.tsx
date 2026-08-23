@@ -326,32 +326,29 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
   ]
 
   return (
-    <>
-      {/* Backdrop */}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
+      style={{ backgroundColor: 'rgba(26, 21, 17, 0.65)' }}
+      onClick={onClose}
+    >
+      {/* Centered Modal Container */}
       <div
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Drawer */}
-      <div
-        className="fixed inset-y-0 right-0 z-50 w-full max-w-md flex flex-col bg-white shadow-2xl"
-        style={{ animation: 'slideIn 0.28s cubic-bezier(0.32, 0.72, 0, 1)' }}
+        className="w-full max-w-2xl max-h-[90vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 relative"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Hero */}
         <div className="relative flex-shrink-0">
           <img
             src={`https://images.unsplash.com/${provider.photoId}?w=800&h=380&fit=crop&auto=format&q=80`}
             alt={provider.name}
-            className="w-full h-52 object-cover bg-gray-100"
+            className="w-full h-48 sm:h-56 object-cover bg-gray-100"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
 
           {/* Close */}
           <button
             onClick={onClose}
-            className="absolute top-4 left-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors z-10"
             aria-label="Fechar perfil"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -366,7 +363,7 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${style.pill} inline-block mb-2`}>
                   {cat?.emoji} {provider.categoryLabel}
                 </span>
-                <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Fraunces', serif" }}>
+                <h2 className="text-xl sm:text-2xl font-bold text-white" style={{ fontFamily: "'Fraunces', serif" }}>
                   {provider.name}
                 </h2>
                 <div className="flex items-center gap-1.5 mt-0.5">
@@ -388,7 +385,7 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-lg font-bold text-white">{provider.price}</div>
+                <div className="text-lg sm:text-xl font-bold text-white">{provider.price}</div>
                 <div className="flex items-center justify-end gap-1 mt-0.5">
                   <div className={`w-1.5 h-1.5 rounded-full ${provider.availableNow ? 'bg-green-400' : 'bg-gray-300'}`} />
                   <span className="text-xs text-white/80">{provider.availability}</span>
@@ -399,8 +396,8 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
         </div>
 
         {/* Bio + Stats row */}
-        <div className="flex-shrink-0 px-5 py-4 border-b border-gray-100">
-          <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-3">{provider.bio}</p>
+        <div className="flex-shrink-0 px-5 sm:px-6 py-3.5 border-b border-gray-100 bg-gray-50/50">
+          <p className="text-sm text-gray-600 mb-2 leading-relaxed">{provider.bio}</p>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
               <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
@@ -426,7 +423,7 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
         </div>
 
         {/* Tabs */}
-        <div className="flex-shrink-0 flex border-b border-gray-100 px-5">
+        <div className="flex-shrink-0 flex border-b border-gray-100 px-5 sm:px-6 bg-white">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -443,7 +440,7 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto pt-5">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6">
           {tab === 'portfolio' && <PortfolioTab provider={provider} />}
           {tab === 'avaliacoes' && <AvaliacoesTab provider={provider} />}
           {tab === 'solicitar' && <SolicitarTab provider={provider} />}
@@ -451,13 +448,13 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
 
         {/* Sticky bottom CTA (visible except on Solicitar tab) */}
         {tab !== 'solicitar' && (
-          <div className="flex-shrink-0 p-4 border-t border-gray-100 bg-white">
+          <div className="flex-shrink-0 p-4 border-t border-gray-100 bg-white flex justify-end">
             <button
               onClick={() => {
                 if (canRequest) setTab('solicitar')
                 else onRequireAuth?.()
               }}
-              className="w-full text-white font-semibold py-3.5 rounded-xl transition-all hover:opacity-90 active:scale-[0.98]"
+              className="w-full sm:w-auto px-8 text-white font-semibold py-3 rounded-xl transition-all hover:opacity-90 active:scale-[0.98] shadow-sm"
               style={{ backgroundColor: '#E8553D' }}
             >
               {canRequest ? 'Solicitar serviço' : 'Entrar para solicitar'}
@@ -465,13 +462,6 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes slideIn {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
-        }
-      `}</style>
-    </>
+    </div>
   )
 }
