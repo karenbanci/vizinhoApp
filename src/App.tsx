@@ -7,8 +7,10 @@ import ProfilePage from './pages/ProfilePage'
 import ExplorePage from './pages/ExplorePage'
 import AdminPage from './pages/AdminPage'
 import { clearToken, fetchMe, fetchProviders, getToken, type AuthUser } from './api'
+import { useLanguage } from './i18n'
 
 export default function App() {
+  const { lang, setLang, t } = useLanguage()
   const [activeCategory, setActiveCategory] = useState<CategoryId>('all')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Provider | null>(null)
@@ -95,8 +97,8 @@ export default function App() {
           </button>
 
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
-            <a href="#" onClick={(e) => { e.preventDefault(); setView('explorar') }} className="hover:text-gray-900 transition-colors font-medium">Explorar</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); goToHowItWorks() }} className="hover:text-gray-900 transition-colors font-medium">Como funciona</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); setView('explorar') }} className="hover:text-gray-900 transition-colors font-medium">{t('nav.explore')}</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); goToHowItWorks() }} className="hover:text-gray-900 transition-colors font-medium">{t('nav.howItWorks')}</a>
             <a
               href="#"
               onClick={(e) => {
@@ -106,7 +108,7 @@ export default function App() {
               }}
               className="hover:text-gray-900 transition-colors font-medium"
             >
-              Seja prestador
+              {t('nav.becomeProvider')}
             </a>
             <a
               href="#"
@@ -121,7 +123,31 @@ export default function App() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Switcher */}
+            <div className="flex items-center rounded-xl bg-gray-100 p-0.5 border border-gray-200 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setLang('pt')}
+                className={`px-2 py-1 rounded-lg transition-all ${
+                  lang === 'pt' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+                }`}
+                title="Português"
+              >
+                🇧🇷 PT
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang('en')}
+                className={`px-2 py-1 rounded-lg transition-all ${
+                  lang === 'en' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+                }`}
+                title="English"
+              >
+                🇺🇸 EN
+              </button>
+            </div>
+
             {authUser ? (
               <>
                 <button
@@ -131,13 +157,13 @@ export default function App() {
                   <span className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: '#E8553D' }}>
                     {authUser.name.slice(0, 1).toUpperCase()}
                   </span>
-                  <span className="hidden sm:block">Olá, {authUser.name.split(' ')[0]}</span>
+                  <span className="hidden sm:block">{t('auth.hello')} {authUser.name.split(' ')[0]}</span>
                 </button>
                 <button
                   onClick={() => { clearToken(); setAuthUser(null); setView('home') }}
                   className="text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  Sair
+                  {t('auth.logout')}
                 </button>
               </>
             ) : (
@@ -146,14 +172,14 @@ export default function App() {
                   onClick={() => setAuthModal('login')}
                   className="text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  Entrar
+                  {t('auth.login')}
                 </button>
                 <button
                   onClick={() => setAuthModal('register')}
                   className="text-sm font-semibold text-white px-4 py-1.5 rounded-lg transition-all hover:opacity-90"
                   style={{ backgroundColor: '#E8553D' }}
                 >
-                  Cadastrar
+                  {t('auth.signup')}
                 </button>
               </>
             )}
@@ -173,12 +199,12 @@ export default function App() {
         <div className="absolute opacity-10 pointer-events-none" style={{ width: 60, height: 60, border: '6px solid #FAF6F0', borderRadius: 4, top: '20%', right: '25%', transform: 'rotate(20deg)' }} />
 
         <div className="relative max-w-3xl mx-auto text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-red-200 mb-3">Serviços perto de você</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-red-200 mb-3">{t('hero.tagline')}</p>
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight" style={{ fontFamily: "'Fraunces', serif" }}>
-            O vizinho certo<br />para o serviço certo
+            {t('hero.title1')}<br />{t('hero.title2')}
           </h1>
           <p className="text-red-100 text-lg mb-8">
-            Manicures, dog sitters, confeiteiros, faxineiras e muito mais — todos verificados e avaliados.
+            {t('hero.subtitle')}
           </p>
 
           <div className="flex gap-2 bg-white rounded-2xl p-2 shadow-xl max-w-xl mx-auto">
@@ -188,7 +214,7 @@ export default function App() {
               </svg>
               <input
                 type="text"
-                placeholder="Buscar serviço ou profissional..."
+                placeholder={t('hero.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1 text-gray-800 placeholder-gray-400 text-sm outline-none bg-transparent"
@@ -202,15 +228,15 @@ export default function App() {
               )}
             </div>
             <button className="text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90 flex-shrink-0" style={{ backgroundColor: '#E8553D' }}>
-              Buscar
+              {t('hero.search')}
             </button>
           </div>
 
           <div className="flex items-center justify-center gap-8 mt-10 text-white/90">
             {[
-              { value: '2.400+', label: 'Prestadores' },
-              { value: '18 mil+', label: 'Avaliações' },
-              { value: '4.9 ★', label: 'Nota média' },
+              { value: '2.400+', label: t('hero.statProviders') },
+              { value: '18 mil+', label: t('hero.statReviews') },
+              { value: '4.9 ★', label: t('hero.statRating') },
             ].map((stat, i, arr) => (
               <div key={stat.label} className="flex items-center gap-8">
                 <div className="text-center">
@@ -231,6 +257,7 @@ export default function App() {
         <div className="flex items-center gap-2 overflow-x-auto pb-1 mb-8">
           {CATEGORIES.map((cat) => {
             const isActive = activeCategory === cat.id
+            const catLabel = cat.id === 'all' ? t('cat.all') : t(`cat.${cat.id}` as any) || cat.label
             return (
               <button
                 key={cat.id}
@@ -241,7 +268,7 @@ export default function App() {
                 style={isActive ? { backgroundColor: '#E8553D' } : {}}
               >
                 <span>{cat.emoji}</span>
-                {cat.label}
+                {catLabel}
               </button>
             )
           })}
@@ -250,7 +277,7 @@ export default function App() {
         {/* Results header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'Fraunces', serif" }}>
-            {activeCategory === 'all' ? 'Todos os prestadores' : activeCat?.label}
+            {activeCategory === 'all' ? t('home.allProviders') : activeCat?.label}
             <span className="text-base font-normal text-gray-400 ml-2">({filtered.length})</span>
           </h2>
           <div className="flex items-center gap-2">
@@ -258,10 +285,10 @@ export default function App() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
-              Filtros
+              {t('home.filters')}
             </button>
             <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 bg-white border border-gray-200 px-3 py-1.5 rounded-lg transition-colors">
-              Melhor avaliados
+              {t('home.bestRated')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
@@ -279,10 +306,10 @@ export default function App() {
         ) : (
           <div className="text-center py-24">
             <div className="text-5xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">Nenhum prestador encontrado</h3>
-            <p className="text-gray-500 mb-5">Tente buscar por outro termo ou categoria.</p>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">{t('home.noResultsTitle')}</h3>
+            <p className="text-gray-500 mb-5">{t('home.noResultsText')}</p>
             <button onClick={() => { setSearch(''); setActiveCategory('all') }} className="text-sm font-semibold hover:underline" style={{ color: '#E8553D' }}>
-              Limpar filtros
+              {t('home.clearFilters')}
             </button>
           </div>
         )}
@@ -293,7 +320,7 @@ export default function App() {
               className="px-8 py-3 rounded-xl border-2 font-semibold transition-all hover:text-white hover:bg-[#E8553D]"
               style={{ borderColor: '#E8553D', color: '#E8553D' }}
             >
-              Ver mais prestadores
+              {t('home.viewMore')}
             </button>
           </div>
         )}
@@ -307,9 +334,9 @@ export default function App() {
         <div className="relative max-w-6xl mx-auto px-6 py-12 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
             <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: "'Fraunces', serif" }}>
-              Você tem um talento?
+              {t('cta.title')}
             </h3>
-            <p className="text-gray-700 max-w-md">Cadastre-se como prestador e comece a ganhar dinheiro na sua vizinhança. É gratuito.</p>
+            <p className="text-gray-700 max-w-md">{t('cta.text')}</p>
           </div>
           <button
             onClick={() => {
@@ -318,7 +345,7 @@ export default function App() {
             }}
             className="flex-shrink-0 bg-gray-900 text-white font-semibold px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors whitespace-nowrap"
           >
-            Quero ser prestador →
+            {t('cta.btn')}
           </button>
         </div>
       </section>
@@ -327,20 +354,18 @@ export default function App() {
       <section id="como-funciona" className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
         <div className="max-w-3xl mx-auto text-center mb-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-3" style={{ fontFamily: "'Fraunces', serif" }}>
-            Como funciona
+            {t('how.title')}
           </h2>
           <p className="text-gray-600 text-base sm:text-lg">
-            O Vizinho conecta você às pessoas talentosas que moram na sua região. Precisa de uma manicure,
-            de alguém para cuidar do seu pet ou de uma faxina? Encontre um vizinho avaliado, combine direto
-            com ele e fortaleça a economia do seu bairro — sem taxas surpresa.
+            {t('how.intro')}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {[
-            { step: '01', icon: '🔍', title: 'Encontre', text: 'Busque pelo serviço que precisa e filtre por categoria, localização e avaliação.', color: '#E8553D' },
-            { step: '02', icon: '💬', title: 'Combine', text: 'Fale direto com o prestador, tire dúvidas e agende no melhor horário para você.', color: '#F4B942' },
-            { step: '03', icon: '⭐', title: 'Avalie', text: 'Após o serviço, deixe sua avaliação e ajude outros vizinhos a escolher bem.', color: '#2B9D8F' },
+            { step: '01', icon: '🔍', title: t('how.s1t'), text: t('how.s1d'), color: '#E8553D' },
+            { step: '02', icon: '💬', title: t('how.s2t'), text: t('how.s2d'), color: '#F4B942' },
+            { step: '03', icon: '⭐', title: t('how.s3t'), text: t('how.s3d'), color: '#2B9D8F' },
           ].map((item) => (
             <div key={item.step} className="bg-white rounded-2xl p-6 shadow-sm text-center">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 text-xl" style={{ backgroundColor: item.color + '18' }}>
@@ -358,46 +383,43 @@ export default function App() {
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
         <div className="text-center mb-10">
           <h2 className="text-2xl font-bold text-gray-900 mb-3" style={{ fontFamily: "'Fraunces', serif" }}>
-            Quem somos
+            {t('about.title')}
           </h2>
           <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
-            Nosso objetivo é simples: tornar a vizinhança um lugar onde ninguém precise procurar ajuda longe
-            de casa. Por trás disso, temos uma missão, uma visão e valores que guiam cada decisão.
+            {t('about.intro')}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div className="bg-white rounded-2xl p-6 shadow-sm border-t-4" style={{ borderTopColor: '#E8553D' }}>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-2xl" style={{ backgroundColor: '#E8553D18' }}>🎯</div>
-            <h3 className="font-bold text-gray-900 text-lg mb-2" style={{ fontFamily: "'Fraunces', serif" }}>Nossa missão</h3>
+            <h3 className="font-bold text-gray-900 text-lg mb-2" style={{ fontFamily: "'Fraunces', serif" }}>{t('about.mission')}</h3>
             <p className="text-sm text-gray-600 leading-relaxed">
-              Conectar vizinhos por meio de serviços de confiança, transformando talentos próximos em soluções
-              do dia a dia e fortalecendo a economia do bairro.
+              {t('about.missionText')}
             </p>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-sm border-t-4" style={{ borderTopColor: '#2B9D8F' }}>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-2xl" style={{ backgroundColor: '#2B9D8F18' }}>🔭</div>
-            <h3 className="font-bold text-gray-900 text-lg mb-2" style={{ fontFamily: "'Fraunces', serif" }}>Nossa visão</h3>
+            <h3 className="font-bold text-gray-900 text-lg mb-2" style={{ fontFamily: "'Fraunces', serif" }}>{t('about.vision')}</h3>
             <p className="text-sm text-gray-600 leading-relaxed">
-              Ser a maior e mais confiável comunidade de serviços locais do Brasil, onde cada vizinho encontra
-              ou oferece ajuda com segurança, justiça e valorização do seu trabalho.
+              {t('about.visionText')}
             </p>
           </div>
         </div>
 
         <div className="text-center mb-6">
           <h3 className="text-xl font-bold text-gray-900" style={{ fontFamily: "'Fraunces', serif" }}>
-            Nossos valores
+            {t('about.values')}
           </h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
-            { icon: '🤝', title: 'Comunidade em primeiro lugar', text: 'Acreditamos que um bom vizinho faz a diferença. Cada contratação fortalece os laços do bairro.', color: '#E8553D' },
-            { icon: '🛡️', title: 'Confiança e transparência', text: 'Perfis verificados, avaliações reais e acordos claros entre quem contrata e quem presta.', color: '#2B9D8F' },
-            { icon: '⭐', title: 'Qualidade com responsabilidade', text: 'Cada serviço é uma chance de superar expectativas. Prestadores se dedicam ao seu melhor.', color: '#F4B942' },
-            { icon: '💰', title: 'Economia local', text: 'O dinheiro fica no seu bairro: apoiamos pequenos negócios e talentos da vizinhança.', color: '#E8553D' },
-            { icon: '🌱', title: 'Crescimento', text: 'Oferecemos aos prestadores uma vitrine gratuita para transformar habilidade em renda.', color: '#2B9D8F' },
-            { icon: '❤️', title: 'Respeito e gentileza', text: 'Tratamos todas as pessoas com respeito, empatia e bom trato em cada interação.', color: '#F4B942' },
+            { icon: '🤝', title: t('about.v1t'), text: t('about.v1d'), color: '#E8553D' },
+            { icon: '🛡️', title: t('about.v2t'), text: t('about.v2d'), color: '#2B9D8F' },
+            { icon: '⭐', title: t('about.v3t'), text: t('about.v3d'), color: '#F4B942' },
+            { icon: '💰', title: t('about.v4t'), text: t('about.v4d'), color: '#E8553D' },
+            { icon: '🌱', title: t('about.v5t'), text: t('about.v5d'), color: '#2B9D8F' },
+            { icon: '❤️', title: t('about.v6t'), text: t('about.v6d'), color: '#F4B942' },
           ].map((v) => (
             <div key={v.title} className="bg-white rounded-2xl p-6 shadow-sm text-center">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 text-xl" style={{ backgroundColor: v.color + '18' }}>
@@ -424,8 +446,13 @@ export default function App() {
             <span>© 2026</span>
           </div>
           <div className="flex items-center gap-6">
-            {['Privacidade', 'Termos', 'Ajuda', 'Blog'].map((link) => (
-              <a key={link} href="#" className="hover:text-gray-700 transition-colors">{link}</a>
+            {[
+              { label: t('footer.privacy'), link: '#' },
+              { label: t('footer.terms'), link: '#' },
+              { label: t('footer.help'), link: '#' },
+              { label: t('footer.blog'), link: '#' },
+            ].map((item) => (
+              <a key={item.label} href={item.link} className="hover:text-gray-700 transition-colors">{item.label}</a>
             ))}
             <a
               href="#"

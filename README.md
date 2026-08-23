@@ -207,9 +207,9 @@ Este projeto é de uso privado e confidencial.
 
 
 # Bugs
-[ ] Fazer página em Inglês e que possa mudar de idioma Port/Eng
-[ ] No dados da conta ter a opção de resetar a senha
-[ ] Na página inicial fazer com o que os filtros funcionem
+- [x] Fazer página em Inglês e que possa mudar de idioma Port/Eng
+- [ ] No dados da conta ter a opção de resetar a senha
+[ ] Na página inicial remover a opção de filtros e deixar somente na aba de explorar
 [ ] quando eu clico no perfil do prestador de serviço, gostaria que abrisse as informações no meio da janela e não na lateral
 [ ] criar uma página de notificações quando o prestador recebe uma solicitação de serviço, deixar o navbar com um ícone de sininho, ao clicar abrir uma página com a lista de todas as solicitações e deixar a opção de aceitar ou rejeitar a solicitação
 [ ] pode criar um chat entre o prestador e o cliente para eles combinarem o serviço
@@ -218,7 +218,7 @@ Este projeto é de uso privado e confidencial.
 [ ] Melhorar o formulário de disponibilidade, adicionar opções de calendário aonde o usuário possa bloquear algumas datas para não prestar serviços e deixar a opção de editar as datas e horários disponívels.
 [ ] Na foto de serviços do portfólio, deixar a opção de adicionar, editar e remover foto
 [ ] A Bio deixar como obrigatório o preenchimento
-[ ]
+[ ] Nos filtros na aba de explorar refinar as opções de filtro, pois não faz sentido escolher uma nacionalidade Argentina e a opção de cidade ser São Paulo. Melhore isso
 [ ]
 [ ]
 [ ]

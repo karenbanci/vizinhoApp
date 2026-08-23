@@ -12,7 +12,8 @@
     "db:stop": "node scripts/db-stop.mjs",
     "db:setup": "node scripts/db-setup.mjs",
     "db:workbench": "node scripts/db-workbench.mjs",
-    "server": "node server/index.mjs"
+    "server": "node server/index.mjs",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
