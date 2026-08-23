@@ -55,16 +55,18 @@ describe('Bug 14: Account Email Verification via Resend', () => {
     await pool.execute('DELETE FROM users WHERE id = ?', [userId])
   })
 
-  it('should test sendVerificationEmail function with Resend config', async () => {
+  it('should test sendVerificationEmail function targeting user registered email', async () => {
+    const userEmail = `user-${Date.now()}@exemplo.com.br`
     const res = await sendVerificationEmail({
-      to: 'delivered@resend.dev',
-      name: 'Resend Test User',
+      to: userEmail,
+      name: 'Usuario Cadastro',
       code: '888999',
       verifyLink: 'http://localhost:8443/?verify_token=sample123',
     })
 
-    // Resend test sandbox will either succeed or provide a message
     assert.ok(typeof res === 'object')
-    assert.ok(res.success !== undefined)
+    assert.strictEqual(res.success, true)
+    assert.strictEqual(res.to, userEmail)
+    assert.strictEqual(res.code, '888999')
   })
 })

@@ -206,16 +206,4 @@ O sistema conta com um painel interno dedicado para suporte ao cliente e redefin
 Este projeto é de uso privado e confidencial.
 
 
-# Bugs
-- [x] quando clico em login as mensagens de erro na página em inglês estão em português, traduzir todas as mensagens de erro em todas as páginas que estiverem em inglês
-- [x] arrumar esse erro Testing domain restriction: The resend.dev domain is for testing and can only send to your own email address. To send to other recipients, verify a domain and update the from address to use it.
-- [x] Ao fazer cadastro gostaria que a o usuário tivesse a opção de vincular a conta do google.
-- [x] Ao fazer cadastro o usuário tenha a opção de escolher somente a conta de cliente ou a conta de prestador de serviço. Quando escolher a conta prestador de serviço esse usuário seja cliente automaticamente. Mas ao ser cliente não ter a opção de pestador de serviço. Então separar esses dois tipos de perfis
-- [x] Na página em inglês de explore as mensagem e opções de filtros aparecem em português, traduza tudo para inglês: Explorar prestadores. Encontre todos os profissionais disponíveis de acordo com a sua região.
-- [x] o botão "continuar com Google" nao está funcionando
-- [x] O email de confirmação do cadastro não está sendo enviado.
-- [x] Colocar o número real de providers; reviews e ratings
-- [x] Algumas fotos de providers não estão carregando
-- [x] Se o usuário estiver no tipo de conta de cliente, as notificações será sobre se o prestador aceitou ou recusou o serviço.
-- [x] Gostaria de abrisse a opção de um chat quando o prestador aceitasse o serviço solicitado do cliente, abrir um chat para conversar sobre
-- [x] O prestador tenha a opção de compartilhar o perfil dele em redes sociais, a opção de copy link ou criar um QR Code para compartilhar o perfil para outras pessoas
+- [x] Os emails enviados para confirmação no cadastro estão sendo enviados para este email delivered@resend.dev. Eu gostaria que enviasse para o email que está se cadastrando, o email que é preenchido no formulário

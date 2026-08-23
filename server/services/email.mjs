@@ -1,11 +1,49 @@
+import nodemailer from 'nodemailer'
+
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_dummy_sample_key'
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || process.env.FROM_EMAIL || 'Vizinho <onboarding@resend.dev>'
 
+// Configuração opcional de SMTP (ex: Gmail, Brevo, SendGrid, Mailgun, Amazon SES ou SMTP próprio)
+const SMTP_HOST = process.env.SMTP_HOST
+const SMTP_PORT = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587
+const SMTP_USER = process.env.SMTP_USER || process.env.GMAIL_USER
+const SMTP_PASS = process.env.SMTP_PASS || process.env.GMAIL_PASS
+const SMTP_SECURE = process.env.SMTP_SECURE === 'true' || SMTP_PORT === 465
+
+function createSmtpTransporter() {
+  if (!SMTP_HOST && !process.env.GMAIL_USER) return null
+
+  if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS,
+      },
+    })
+  }
+
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_SECURE,
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASS,
+    },
+  })
+}
+
 /**
- * Envia e-mail de confirmação de conta com código de 6 dígitos e link direto
- * Trata graciosamente restrições de domínio de teste sandbox do Resend.
+ * Envia e-mail de confirmação de conta para o e-mail exato cadastrado no formulário.
+ * Suporta Resend API e SMTP (Nodemailer) para entrega real em qualquer provedor.
  */
 export async function sendVerificationEmail({ to, name, code, verifyLink }) {
+  const recipientEmail = (to || '').trim().toLowerCase()
+  if (!recipientEmail) {
+    throw new Error('E-mail do destinatário não informado.')
+  }
+
   const subject = `Seu código de confirmação: ${code} · Vizinho`
 
   const html = `
@@ -55,6 +93,24 @@ export async function sendVerificationEmail({ to, name, code, verifyLink }) {
     </html>
   `
 
+  // 1. Tentar SMTP direto se configurado
+  const smtp = createSmtpTransporter()
+  if (smtp) {
+    try {
+      const info = await smtp.sendMail({
+        from: FROM_EMAIL,
+        to: recipientEmail,
+        subject,
+        html,
+      })
+      console.log(`✅ [SMTP] E-mail de confirmação enviado para ${recipientEmail} (ID: ${info.messageId})`)
+      return { success: true, delivered: true, to: recipientEmail, id: info.messageId, code, verifyLink, provider: 'smtp' }
+    } catch (smtpErr) {
+      console.warn('⚠️ Falha no envio SMTP, tentando Resend:', smtpErr.message)
+    }
+  }
+
+  // 2. Enviar via Resend API
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -64,7 +120,7 @@ export async function sendVerificationEmail({ to, name, code, verifyLink }) {
       },
       body: JSON.stringify({
         from: FROM_EMAIL,
-        to: [to],
+        to: [recipientEmail],
         subject,
         html,
       }),
@@ -84,10 +140,10 @@ export async function sendVerificationEmail({ to, name, code, verifyLink }) {
       if (isDomainRestriction) {
         console.warn(
           `\n⚠️ [Resend Sandbox Restriction] O domínio de teste "resend.dev" requer um domínio próprio verificado para enviar e-mails a terceiros.` +
-          `\n   → Destinatário: ${to}` +
+          `\n   → Destinatário preenchido no formulário: ${recipientEmail}` +
           `\n   → Código gerado: ${code}` +
           `\n   → Link de confirmação: ${verifyLink}` +
-          `\n   → Para envio real a qualquer e-mail, adicione seu domínio verificado em RESEND_FROM_EMAIL.\n`
+          `\n   → Para envio real a qualquer e-mail, configure RESEND_FROM_EMAIL com domínio próprio verificado ou adicione SMTP_HOST / GMAIL_USER no .env.\n`
         )
       } else {
         console.warn('Resend API notice:', errorMsg)
@@ -96,6 +152,7 @@ export async function sendVerificationEmail({ to, name, code, verifyLink }) {
       return {
         success: true,
         delivered: false,
+        to: recipientEmail,
         id: 'simulated_' + Date.now(),
         simulated: true,
         isSandboxRestriction: isDomainRestriction,
@@ -107,12 +164,14 @@ export async function sendVerificationEmail({ to, name, code, verifyLink }) {
       }
     }
 
-    return { success: true, delivered: true, id: data.id, code, verifyLink }
+    console.log(`✅ [Resend] E-mail de confirmação enviado para ${recipientEmail} (ID: ${data.id})`)
+    return { success: true, delivered: true, to: recipientEmail, id: data.id, code, verifyLink, provider: 'resend' }
   } catch (err) {
     console.error('Email send error:', err.message)
     return {
       success: true,
       delivered: false,
+      to: recipientEmail,
       id: 'fallback_' + Date.now(),
       simulated: true,
       code,
