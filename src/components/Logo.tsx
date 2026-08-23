@@ -17,8 +17,8 @@ export default function Logo({
   const { t } = useLanguage()
 
   const imgSizes = {
-    xs: 'w-6 h-6 rounded-lg',
-    sm: 'w-7 h-7 rounded-lg',
+    xs: 'w-7 h-7 rounded-lg',
+    sm: 'w-8 h-8 rounded-xl',
     md: 'w-8 h-8 rounded-xl',
     lg: 'w-10 h-10 rounded-2xl',
   }
