@@ -10,6 +10,7 @@ import {
   type ProviderProfile,
 } from '../api'
 import { COUNTRY_CODES, countryName, flagEmoji } from '../countries'
+import { DEFAULT_PHOTO_URL, getPhotoUrl } from '../data'
 import { useLanguage } from '../i18n'
 
 interface Props {
@@ -1092,7 +1093,16 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
                         photoId === id ? 'border-[#E8553D] ring-2 ring-[#E8553D]/30' : 'border-transparent opacity-70 hover:opacity-100'
                       }`}
                     >
-                      <img src={`https://images.unsplash.com/${id}?w=120&h=120&fit=crop&auto=format&q=60`} alt="" className="w-full h-full object-cover" />
+                      <img
+                        src={getPhotoUrl(id, 120, 120)}
+                        alt=""
+                        onError={(e) => {
+                          if (e.currentTarget.src !== DEFAULT_PHOTO_URL) {
+                            e.currentTarget.src = DEFAULT_PHOTO_URL
+                          }
+                        }}
+                        className="w-full h-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>
@@ -1161,13 +1171,20 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                     {portfolioIds.map((pId, idx) => {
-                      const imgUrl = pId.startsWith('http')
-                        ? pId
-                        : `https://images.unsplash.com/${pId}?w=240&h=240&fit=crop&auto=format&q=75`
+                      const imgUrl = getPhotoUrl(pId, 240, 240)
 
                       return (
                         <div key={`${pId}-${idx}`} className="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-100 group">
-                          <img src={imgUrl} alt={`Portfólio ${idx + 1}`} className="w-full aspect-square object-cover" />
+                          <img
+                            src={imgUrl}
+                            alt={`Portfólio ${idx + 1}`}
+                            onError={(e) => {
+                              if (e.currentTarget.src !== DEFAULT_PHOTO_URL) {
+                                e.currentTarget.src = DEFAULT_PHOTO_URL
+                              }
+                            }}
+                            className="w-full aspect-square object-cover"
+                          />
                           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 p-2">
                             <button
                               type="button"

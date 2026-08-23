@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react'
-import { CATEGORIES, CATEGORY_STYLE, type Provider } from '../data'
+import { CATEGORIES, CATEGORY_STYLE, DEFAULT_PHOTO_URL, getPhotoUrl, type Provider } from '../data'
 import { countryName, flagUrl } from '../countries'
 import { useLanguage } from '../i18n'
 import { createServiceRequest } from '../api'
@@ -52,8 +52,13 @@ function PortfolioTab({ provider }: { provider: Provider }) {
         {provider.portfolioIds.map((id, i) => (
           <div key={i} className="aspect-square rounded-xl overflow-hidden bg-gray-100 group cursor-pointer">
             <img
-              src={`https://images.unsplash.com/${id}?w=300&h=300&fit=crop&auto=format&q=75`}
+              src={getPhotoUrl(id, 300, 300)}
               alt={`Trabalho ${i + 1} de ${provider.name}`}
+              onError={(e) => {
+                if (e.currentTarget.src !== DEFAULT_PHOTO_URL) {
+                  e.currentTarget.src = DEFAULT_PHOTO_URL
+                }
+              }}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           </div>
@@ -149,8 +154,13 @@ function AvaliacoesTab({ provider }: { provider: Provider }) {
           <div key={review.id} className="border border-gray-100 rounded-2xl p-4">
             <div className="flex items-start gap-3 mb-2">
               <img
-                src={`https://images.unsplash.com/${review.avatarId}?w=80&h=80&fit=crop&auto=format&q=80`}
+                src={getPhotoUrl(review.avatarId, 80, 80)}
                 alt={review.author}
+                onError={(e) => {
+                  if (e.currentTarget.src !== DEFAULT_PHOTO_URL) {
+                    e.currentTarget.src = DEFAULT_PHOTO_URL
+                  }
+                }}
                 className="w-10 h-10 rounded-full object-cover bg-gray-100 flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
@@ -373,8 +383,13 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
         {/* Hero */}
         <div className="relative flex-shrink-0">
           <img
-            src={`https://images.unsplash.com/${provider.photoId}?w=800&h=380&fit=crop&auto=format&q=80`}
+            src={getPhotoUrl(provider.photoId, 800, 380)}
             alt={provider.name}
+            onError={(e) => {
+              if (e.currentTarget.src !== DEFAULT_PHOTO_URL) {
+                e.currentTarget.src = DEFAULT_PHOTO_URL
+              }
+            }}
             className="w-full h-48 sm:h-56 object-cover bg-gray-100"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />

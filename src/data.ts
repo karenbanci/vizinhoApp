@@ -58,6 +58,25 @@ export interface Provider {
   services: Array<string | Service>
 }
 
+export const DEFAULT_PHOTO_URL =
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=480&h=320&fit=crop&auto=format&q=80'
+
+export function getPhotoUrl(photoIdOrUrl?: string, width = 480, height = 320): string {
+  if (!photoIdOrUrl || typeof photoIdOrUrl !== 'string' || !photoIdOrUrl.trim()) {
+    return `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=${width}&h=${height}&fit=crop&auto=format&q=80`
+  }
+  const clean = photoIdOrUrl.trim()
+  if (
+    clean.startsWith('http://') ||
+    clean.startsWith('https://') ||
+    clean.startsWith('data:') ||
+    clean.startsWith('/')
+  ) {
+    return clean
+  }
+  return `https://images.unsplash.com/${clean}?w=${width}&h=${height}&fit=crop&auto=format&q=80`
+}
+
 export const CATEGORIES: { id: CategoryId; label: string; emoji: string }[] = [
   { id: 'all', label: 'Todos', emoji: '✨' },
   { id: 'manicure', label: 'Manicure', emoji: '💅' },
@@ -101,9 +120,9 @@ export const PROVIDERS: Provider[] = [
     photoId: 'photo-1534528741775-53994a69daeb',
     portfolioIds: [
       'photo-1604654894610-df63bc536371',
-      'photo-1604719312566-8912e9667d9f',
+      'photo-1632345031435-8727f6897d53',
       'photo-1562322140-8baeececf3df',
-      'photo-1570169139493-3cb9dc6be4c3',
+      'photo-1607779097040-26e80aa78e66',
       'photo-1609587312208-cea54be969e7',
       'photo-1586363104862-3a5e2ab60d99',
     ],
@@ -330,7 +349,7 @@ export const PROVIDERS: Provider[] = [
       'photo-1572981779307-38b8cabb2407',
       'photo-1603796846097-bee99e4a601f',
       'photo-1562259949-e8e7689d7828',
-      'photo-1558618047-3c8c76ca7d13',
+      'photo-1581578731548-c64695cc6952',
     ],
     services: ['Montagem de móveis', 'Instalação elétrica simples', 'Pintura', 'Reparos gerais', 'Instalação de ar-condicionado', 'Reforma de banheiro'],
     reviewsList: [
@@ -384,9 +403,9 @@ export const PROVIDERS: Provider[] = [
       'photo-1604654894610-df63bc536371',
       'photo-1562322140-8baeececf3df',
       'photo-1609587312208-cea54be969e7',
-      'photo-1604719312566-8912e9667d9f',
+      'photo-1632345031435-8727f6897d53',
       'photo-1586363104862-3a5e2ab60d99',
-      'photo-1570169139493-3cb9dc6be4c3',
+      'photo-1607779097040-26e80aa78e66',
     ],
     services: ['Manicure simples', 'Pedicure', 'Gel', 'Alongamento', 'Francesinha', 'Esmaltação em gel'],
     reviewsList: [
@@ -590,7 +609,7 @@ export const PROVIDERS: Provider[] = [
     photoId: 'photo-1600585154340-be6161a56a0c',
     portfolioIds: [
       'photo-1581092918056-0c4c3acd3789',
-      'photo-1558618047-3c8c76ca7d13',
+      'photo-1600585154526-990dced4db0d',
       'photo-1504148455328-c376907d081c',
     ],
     services: [

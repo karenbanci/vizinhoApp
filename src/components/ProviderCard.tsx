@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CATEGORIES, CATEGORY_STYLE, type Provider } from '../data'
+import { CATEGORIES, CATEGORY_STYLE, DEFAULT_PHOTO_URL, getPhotoUrl, type Provider } from '../data'
 import { countryName, flagUrl } from '../countries'
 import { useLanguage } from '../i18n'
 
@@ -39,8 +39,13 @@ export default function ProviderCard({
     >
       <div className="relative">
         <img
-          src={`https://images.unsplash.com/${provider.photoId}?w=480&h=320&fit=crop&auto=format&q=80`}
+          src={getPhotoUrl(provider.photoId, 480, 320)}
           alt={`Foto de ${provider.name}`}
+          onError={(e) => {
+            if (e.currentTarget.src !== DEFAULT_PHOTO_URL) {
+              e.currentTarget.src = DEFAULT_PHOTO_URL
+            }
+          }}
           className="w-full h-52 object-cover bg-gray-100"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
