@@ -31,6 +31,26 @@ async function createAndSendEmailVerification(userId, email, name, host) {
   const tokenHash = hashToken(rawToken)
   const expiresAt = new Date(Date.now() + VERIFY_TOKEN_TTL_MS)
 
+  try {
+    await pool.execute(
+      `CREATE TABLE IF NOT EXISTS email_verification_tokens (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        code VARCHAR(10) NOT NULL,
+        token_hash VARCHAR(64) NOT NULL,
+        expires_at DATETIME NOT NULL,
+        used_at DATETIME NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX (email),
+        INDEX (code),
+        INDEX (token_hash)
+      )`
+    )
+  } catch {
+    // Table already exists
+  }
+
   await pool.execute(
     'INSERT INTO email_verification_tokens (user_id, email, code, token_hash, expires_at) VALUES (?, ?, ?, ?, ?)',
     [userId, email, code, tokenHash, expiresAt]
@@ -39,21 +59,34 @@ async function createAndSendEmailVerification(userId, email, name, host) {
   const origin = host?.includes('8443') || host?.includes('localhost') ? 'http://localhost:8443' : `https://${host}`
   const verifyLink = `${origin}/?verify_token=${rawToken}`
 
-  console.log(`\n📧 [Resend] Código de verificação para ${email}: ${code}`)
-  console.log(`🔗 Link de verificação: ${verifyLink}\n`)
+  console.log(`\n📧 [Código de verificação para ${email}]: ${code}`)
+  console.log(`🔗 Link de confirmação: ${verifyLink}\n`)
 
-  const emailRes = await sendVerificationEmail({ to: email, name, code, verifyLink })
+  let emailRes = { delivered: false, to: email, code, verifyLink }
+  try {
+    emailRes = await sendVerificationEmail({ to: email, name, code, verifyLink })
+  } catch (mailErr) {
+    console.warn('⚠️ [Email Service] Falha ao disparar e-mail:', mailErr?.message || mailErr)
+    emailRes = { delivered: false, to: email, code, verifyLink, error: mailErr?.message }
+  }
+
   return { code, rawToken, emailRes }
 }
 
 router.post('/register', async (req, res) => {
   const { name, email, password, accountType = 'client' } = req.body ?? {}
 
-  if (!name || !email || !password) {
+  const cleanName = (name || '').trim()
+  const cleanEmail = (email || '').trim().toLowerCase()
+
+  if (!cleanName || !cleanEmail || !password) {
     return res.status(400).json({ error: 'Preencha nome, e-mail e senha.' })
   }
   if (typeof password !== 'string' || password.length < 6) {
     return res.status(400).json({ error: 'A senha precisa ter pelo menos 6 caracteres.' })
+  }
+  if (!cleanEmail.includes('@') || cleanEmail.length < 5) {
+    return res.status(400).json({ error: 'Informe um endereço de e-mail válido.' })
   }
 
   try {
@@ -63,7 +96,7 @@ router.post('/register', async (req, res) => {
       // Column exists
     }
 
-    const [existing] = await pool.execute('SELECT id, email_verified FROM users WHERE email = ?', [email])
+    const [existing] = await pool.execute('SELECT id, email_verified FROM users WHERE email = ?', [cleanEmail])
     if (existing.length > 0) {
       return res.status(409).json({ error: 'Este e-mail já está cadastrado.' })
     }
@@ -75,11 +108,11 @@ router.post('/register', async (req, res) => {
 
     const [result] = await pool.execute(
       'INSERT INTO users (name, email, password_hash, email_verified, is_provider, account_type) VALUES (?, ?, ?, 0, ?, ?)',
-      [name, email, password_hash, isProvider, resolvedAccountType]
+      [cleanName, cleanEmail, password_hash, isProvider, resolvedAccountType]
     )
 
     const userId = result.insertId
-    const { code, rawToken, emailRes } = await createAndSendEmailVerification(userId, email, name, req.get('host'))
+    const { code, rawToken, emailRes } = await createAndSendEmailVerification(userId, cleanEmail, cleanName, req.get('host'))
 
     const origin = req.get('host')?.includes('8443') || req.get('host')?.includes('localhost')
       ? 'http://localhost:8443'
@@ -88,8 +121,8 @@ router.post('/register', async (req, res) => {
 
     const user = {
       id: userId,
-      name,
-      email,
+      name: cleanName,
+      email: cleanEmail,
       isProvider: isProviderAccount,
       accountType: resolvedAccountType,
       emailVerified: false,
@@ -97,7 +130,7 @@ router.post('/register', async (req, res) => {
     }
     res.status(201).json({
       pendingVerification: true,
-      email,
+      email: cleanEmail,
       user,
       code,
       verifyUrl,
@@ -105,8 +138,8 @@ router.post('/register', async (req, res) => {
       message: 'Código de confirmação enviado para seu e-mail!',
     })
   } catch (err) {
-    console.error('register:', err)
-    res.status(500).json({ error: 'Erro ao cadastrar usuário.' })
+    console.error('register error:', err)
+    res.status(500).json({ error: 'Erro ao cadastrar usuário. Tente novamente.' })
   }
 })
 
@@ -205,12 +238,13 @@ router.post('/verify-email', async (req, res) => {
 
 router.post('/resend-verification', async (req, res) => {
   const { email } = req.body ?? {}
-  if (!email) {
+  const cleanEmail = (email || '').trim().toLowerCase()
+  if (!cleanEmail) {
     return res.status(400).json({ error: 'Informe seu e-mail.' })
   }
 
   try {
-    const [rows] = await pool.execute('SELECT id, name, email_verified FROM users WHERE email = ?', [email])
+    const [rows] = await pool.execute('SELECT id, name, email_verified FROM users WHERE email = ?', [cleanEmail])
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Usuário não encontrado.' })
     }
@@ -220,7 +254,7 @@ router.post('/resend-verification', async (req, res) => {
       return res.status(400).json({ error: 'Este e-mail já está confirmado.' })
     }
 
-    const { code, rawToken, emailRes } = await createAndSendEmailVerification(row.id, email, row.name, req.get('host'))
+    const { code, rawToken, emailRes } = await createAndSendEmailVerification(row.id, cleanEmail, row.name, req.get('host'))
     const origin = req.get('host')?.includes('8443') || req.get('host')?.includes('localhost')
       ? 'http://localhost:8443'
       : `https://${req.get('host')}`

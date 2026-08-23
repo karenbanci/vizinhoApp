@@ -42,9 +42,9 @@ describe('Bug 31: Confirmation Email Sent Directly to User Registered Email', ()
     )
   })
 
-  it('should verify auth.mjs passes req.body.email to createAndSendEmailVerification and sendVerificationEmail', () => {
+  it('should verify auth.mjs passes cleanEmail to createAndSendEmailVerification and sendVerificationEmail', () => {
     const authCode = fs.readFileSync(path.resolve('server/routes/auth.mjs'), 'utf8')
-    assert.ok(authCode.includes('sendVerificationEmail({ to: email, name, code, verifyLink })'))
-    assert.ok(authCode.includes('createAndSendEmailVerification(userId, email, name, req.get(\'host\'))'))
+    assert.ok(authCode.includes('sendVerificationEmail({ to: email, name, code, verifyLink })') || authCode.includes('sendVerificationEmail({ to: cleanEmail, name: cleanName, code, verifyLink })'))
+    assert.ok(authCode.includes('createAndSendEmailVerification(userId, cleanEmail, cleanName, req.get(\'host\'))'))
   })
 })
