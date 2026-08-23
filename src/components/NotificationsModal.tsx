@@ -8,6 +8,7 @@ import {
   type ChatMessage,
   type ServiceRequest,
 } from '../api'
+import { useLanguage } from '../i18n'
 
 interface Props {
   isOpen: boolean
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function NotificationsModal({ isOpen, onClose, currentUserId }: Props) {
+  const { t, formatError } = useLanguage()
   const [tab, setTab] = useState<'received' | 'sent'>('received')
   const [received, setReceived] = useState<ServiceRequest[]>([])
   const [sent, setSent] = useState<ServiceRequest[]>([])
@@ -130,7 +132,7 @@ export default function NotificationsModal({ isOpen, onClose, currentUserId }: P
         setCardName('')
       }, 1500)
     } catch (err) {
-      setPaymentError(err instanceof Error ? err.message : 'Erro ao processar pagamento.')
+      setPaymentError(formatError(err))
     } finally {
       setPayingLoading(false)
     }

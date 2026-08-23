@@ -508,10 +508,54 @@ const en: Record<TranslationKey, string> = {
   'profile.removeService': 'Remove {name}',
 }
 
+const ERROR_MAP_EN: Array<{ pattern: RegExp | string; translation: string }> = [
+  { pattern: /e-mail ou senha incorretos/i, translation: 'Invalid email or password.' },
+  { pattern: /confirme seu e-mail para ativar sua conta/i, translation: 'Please confirm your email to activate your account before logging in.' },
+  { pattern: /código ou link de confirmação inválido ou expirado/i, translation: 'Invalid or expired confirmation code or link.' },
+  { pattern: /já está cadastrado/i, translation: 'This email is already registered.' },
+  { pattern: /já está confirmado/i, translation: 'This email is already confirmed.' },
+  { pattern: /usuário não encontrado/i, translation: 'User not found.' },
+  { pattern: /pelo menos 6 caracteres/i, translation: 'Password must be at least 6 characters.' },
+  { pattern: /não coincidem|não confere/i, translation: 'Passwords do not match.' },
+  { pattern: /código de 6 dígitos/i, translation: 'Please enter the 6-digit code.' },
+  { pattern: /informe e-mail e senha/i, translation: 'Please enter email and password.' },
+  { pattern: /informe seu e-mail/i, translation: 'Please enter your email.' },
+  { pattern: /erro ao cadastrar/i, translation: 'Error registering user.' },
+  { pattern: /erro ao fazer login/i, translation: 'Error logging in.' },
+  { pattern: /erro ao verificar e-mail/i, translation: 'Error verifying email.' },
+  { pattern: /erro ao reenviar/i, translation: 'Error resending confirmation.' },
+  { pattern: /erro ao redefinir/i, translation: 'Error resetting password.' },
+  { pattern: /erro ao salvar/i, translation: 'Error saving.' },
+  { pattern: /preencha a sua bio/i, translation: 'Please fill in your bio (required).' },
+  { pattern: /preencha todos os campos/i, translation: 'Please fill in all required fields.' },
+  { pattern: /apenas o cliente solicitante/i, translation: 'Only the requesting client can make the payment.' },
+  { pattern: /já foi paga via stripe/i, translation: 'This request has already been paid via Stripe.' },
+  { pattern: /solicitação não encontrada/i, translation: 'Request not found.' },
+  { pattern: /erro ao processar pagamento/i, translation: 'Error processing payment.' },
+  { pattern: /prestador não especificado/i, translation: 'Provider not specified.' },
+  { pattern: /preencha o serviço e os detalhes/i, translation: 'Please fill in the service and request details.' },
+  { pattern: /algo deu errado/i, translation: 'Something went wrong. Please try again.' },
+]
+
+export function translateError(error: unknown, lang: Language): string {
+  if (!error) return ''
+  const msg = error instanceof Error ? error.message : typeof error === 'string' ? error : String(error)
+  if (lang === 'pt') return msg
+
+  for (const { pattern, translation } of ERROR_MAP_EN) {
+    if (typeof pattern === 'string' ? msg.toLowerCase().includes(pattern.toLowerCase()) : pattern.test(msg)) {
+      return translation
+    }
+  }
+
+  return msg
+}
+
 interface LangContextValue {
   lang: Language
   setLang: (l: Language) => void
   t: (key: TranslationKey, params?: Record<string, string | number>) => string
+  formatError: (error: unknown) => string
 }
 
 const LangContext = createContext<LangContextValue | null>(null)
@@ -545,6 +589,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         }
         return s
       },
+      formatError: (err) => translateError(err, lang),
     }),
     [lang]
   )

@@ -207,21 +207,5 @@ Este projeto é de uso privado e confidencial.
 
 
 # Bugs
-- [x] Fazer página em Inglês e que possa mudar de idioma Port/Eng
-- [x] No dados da conta ter a opção de resetar a senha
-- [x] Na página inicial remover a opção de filtros e deixar somente na aba de explorar
-- [x] quando eu clico no perfil do prestador de serviço, gostaria que abrisse as informações no meio da janela e não na lateral
-- [x] criar uma página de notificações quando o prestador recebe uma solicitação de serviço, deixar o navbar com um ícone de sininho, ao clicar abrir uma página com a lista de todas as solicitações e deixar a opção de aceitar ou rejeitar a solicitação
-- [x] pode criar um chat entre o prestador e o cliente para eles combinarem o serviço
-- [x] no Meu perfil, no formulário de serviços oferecidos, criar um label onde possa colocar o valor dos serviços individualmente
-- [x] Alguns serviços como dogwalk tem serviços fixos como por exemplo: Walking, Drop-in, Sitting, Boarding e Daycare. Deixar essas opçoes de serviços fixas para esse tipo de perfil
-- [x] Melhorar o formulário de disponibilidade, adicionar opções de calendário aonde o usuário possa bloquear algumas datas para não prestar serviços e deixar a opção de editar as datas e horários disponívels.
-- [x] Na foto de serviços do portfólio, deixar a opção de adicionar, editar e remover foto
-- [x] A Bio deixar como obrigatório o preenchimento
-- [x] Nos filtros na aba de explorar refinar as opções de filtro, pois não faz sentido escolher uma nacionalidade Argentina e a opção de cidade ser São Paulo. Melhore isso
-- [x] Adicionar os serviço de: Movers, Massage, Makeup, Cabeleleiro
-- [x] Gostaria de que os novos usuários na hora do cadastro receba um email para confirmar a conta, enviar um link e código de confirmação de email. Conectar com o Resend: API: re_dummy_sample_key
-- [x] Gostaria que o pagamento fosse feito através do Stripe, então as transações entre clientes fossem feitas dentro.
-- [x] Quando clico em Dogsitter e depois em outro serviço em baixo do serviços oferecidos os serviços de dogsitter aparecem selecionados, eu gostaria de selecionar manualmente e se a caso eu clique em outro tipo de serviço sem ser dogsitter, os serviços de dogsitter sejam removidos automaticamente. Pois o perfil terá que ter somente um tipo de serviço.
-- [x] o login e criar conta nao estão traduzidos para o ingles
-- [x] o usuário está conseguindo fazer login sem confirmação de email na hora do cadastro, não permitir que isso aconteça
+- [x] quando clico em login as mensagens de erro na página em inglês estão em português, traduzir todas as mensagens de erro em todas as páginas que estiverem em inglês
+[ ] arrumar esse erro Testing domain restriction: The resend.dev domain is for testing and can only send to your own email address. To send to other recipients, verify a domain and update the from address to use it.

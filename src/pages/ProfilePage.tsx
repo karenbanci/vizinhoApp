@@ -10,6 +10,7 @@ import {
   type ProviderProfile,
 } from '../api'
 import { COUNTRY_CODES, countryName, flagEmoji } from '../countries'
+import { useLanguage } from '../i18n'
 
 interface Props {
   user: AuthUser
@@ -141,6 +142,7 @@ function normalizeServices(
 }
 
 export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider }: Props) {
+  const { t, formatError } = useLanguage()
   const profile = user.providerProfile
 
   const [name, setName] = useState(user.name)
@@ -246,12 +248,22 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
     setState(user.providerProfile.state)
     setCity(user.providerProfile.city)
     setDescription(user.providerProfile.description)
-    setBio(user.providerProfile.bio)
+    setBio(user.providerProfile.bio || '')
     setPrice(user.providerProfile.price)
     setAvailability(user.providerProfile.availability)
     setAvailableNow(user.providerProfile.availableNow)
     setPhotoId(user.providerProfile.photoId)
+    setPortfolioIds(user.providerProfile.portfolioIds || [])
     setServices(normalizeServices(user.providerProfile.services, user.providerProfile.category))
+    if (user.providerProfile.availabilitySchedule) {
+      const sched = user.providerProfile.availabilitySchedule
+      if (sched.days && sched.days.length > 0) setWorkDays(sched.days)
+      if (sched.startTime) setStartTime(sched.startTime)
+      if (sched.endTime) setEndTime(sched.endTime)
+    }
+    if (user.providerProfile.blockedDates && user.providerProfile.blockedDates.length > 0) {
+      setBlockedDates(user.providerProfile.blockedDates)
+    }
   }, [user.providerProfile])
 
   // If category changes to dogsitter, switch to fixed services
@@ -323,7 +335,7 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
       onUpdateUser(updated)
       setSaved(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao salvar.')
+      setError(formatError(err))
     }
   }
 
@@ -332,11 +344,11 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
     setPasswordError('')
     setPasswordSuccess('')
     if (newPassword.length < 6) {
-      setPasswordError('A nova senha precisa ter pelo menos 6 caracteres.')
+      setPasswordError(formatError('A nova senha precisa ter pelo menos 6 caracteres.'))
       return
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError('A confirmação de senha não confere.')
+      setPasswordError(formatError('A confirmação de senha não confere.'))
       return
     }
     setPasswordLoading(true)
@@ -351,7 +363,7 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
       setConfirmPassword('')
       setShowPasswordForm(false)
     } catch (err) {
-      setPasswordError(err instanceof Error ? err.message : 'Erro ao alterar a senha.')
+      setPasswordError(formatError(err))
     } finally {
       setPasswordLoading(false)
     }
@@ -365,7 +377,7 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
       const { user: updated } = await activateProvider(newCat)
       onUpdateUser(updated)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao ativar.')
+      setError(formatError(err))
     }
   }
 
@@ -375,7 +387,7 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
     setSaved(false)
 
     if (!bio.trim() || bio.trim().length < 5) {
-      setError('O preenchimento da Bio é obrigatório (mínimo de 5 caracteres).')
+      setError(formatError('O preenchimento da Bio é obrigatório (mínimo de 5 caracteres).'))
       return
     }
 
@@ -398,7 +410,7 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
       onUpdateUser(updated)
       setSaved(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao salvar perfil de prestador.')
+      setError(formatError(err))
     }
   }
 
@@ -409,7 +421,7 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
       const { user: updated } = await deactivateProvider()
       onUpdateUser(updated)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao desativar.')
+      setError(formatError(err))
     }
   }
 

@@ -28,7 +28,7 @@ export default function AuthModal({
   onClose,
   onSuccess,
 }: Props) {
-  const { t } = useLanguage()
+  const { t, formatError } = useLanguage()
   const [mode, setMode] = useState<Mode>(initialMode)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -60,7 +60,7 @@ export default function AuthModal({
       const res = await resendVerificationEmail(email)
       setInfo(res.message)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao reenviar.')
+      setError(formatError(err))
     } finally {
       setResending(false)
     }
@@ -111,14 +111,14 @@ export default function AuthModal({
           const msg = loginErr instanceof Error ? loginErr.message : ''
           if (msg.includes('confirme seu e-mail') || msg.includes('verificado') || msg.includes('confirm your email')) {
             setMode('verify')
-            setError(msg)
+            setError(formatError(msg))
             return
           }
           throw loginErr
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Algo deu errado. Tente novamente.')
+      setError(formatError(err))
     } finally {
       setLoading(false)
     }

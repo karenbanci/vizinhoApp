@@ -32,14 +32,16 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md
 }
 
 function PortfolioTab({ provider }: { provider: Provider }) {
+  const { t } = useLanguage()
+
   if (provider.portfolioIds.length === 0) {
     return (
       <div className="px-5 pb-6 text-center py-10">
         <div className="text-4xl mb-3">📸</div>
         <h3 className="text-lg font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
-          Portfólio em breve
+          {t('drawer.portfolioEmptyTitle')}
         </h3>
-        <p className="text-sm text-gray-500">O prestador ainda não adicionou fotos dos seus trabalhos.</p>
+        <p className="text-sm text-gray-500">{t('drawer.portfolioEmptyText')}</p>
       </div>
     )
   }
@@ -60,7 +62,7 @@ function PortfolioTab({ provider }: { provider: Provider }) {
 
       <div className="mb-4">
         <h3 className="text-sm font-bold text-gray-900 mb-3" style={{ fontFamily: "'Fraunces', serif" }}>
-          Serviços oferecidos & Valores
+          {t('drawer.servicesTitle')}
         </h3>
         {provider.services.length === 0 ? (
           <p className="text-xs text-gray-400">Nenhum serviço individual listado.</p>
@@ -89,6 +91,7 @@ function PortfolioTab({ provider }: { provider: Provider }) {
 }
 
 function AvaliacoesTab({ provider }: { provider: Provider }) {
+  const { t } = useLanguage()
   const empty = provider.reviewsList.length === 0
   const ratingDist = empty
     ? []
@@ -103,9 +106,9 @@ function AvaliacoesTab({ provider }: { provider: Provider }) {
       <div className="px-5 pb-6 text-center py-10">
         <div className="text-4xl mb-3">⭐</div>
         <h3 className="text-lg font-bold text-gray-900 mb-1" style={{ fontFamily: "'Fraunces', serif" }}>
-          Ainda sem avaliações
+          {t('drawer.noReviewsTitle')}
         </h3>
-        <p className="text-sm text-gray-500">Este prestador ainda não recebeu avaliações. Seja o primeiro a contratar!</p>
+        <p className="text-sm text-gray-500">{t('drawer.noReviewsText')}</p>
       </div>
     )
   }
@@ -119,7 +122,7 @@ function AvaliacoesTab({ provider }: { provider: Provider }) {
             {provider.rating.toFixed(1)}
           </div>
           <StarRating rating={provider.rating} size="md" />
-          <div className="text-xs text-gray-500 mt-1">{provider.reviews} avaliações</div>
+          <div className="text-xs text-gray-500 mt-1">{provider.reviews} {t('drawer.reviewsCount')}</div>
         </div>
         <div className="flex-1 space-y-1.5">
           {ratingDist.map(({ star, pct }) => (
@@ -169,6 +172,7 @@ function AvaliacoesTab({ provider }: { provider: Provider }) {
 type FormState = 'idle' | 'sending' | 'success'
 
 function SolicitarTab({ provider }: { provider: Provider }) {
+  const { t } = useLanguage()
   const [desc, setDesc] = useState('')
   const [date, setDate] = useState('')
   const [formState, setFormState] = useState<FormState>('idle')
@@ -187,8 +191,8 @@ function SolicitarTab({ provider }: { provider: Provider }) {
         dateTime: date,
         location: provider.location || '',
         basePrice: provider.price || '',
-        shippingPrice: 'A combinar',
-        totalPrice: provider.price || 'A combinar',
+        shippingPrice: t('drawer.toCombine'),
+        totalPrice: provider.price || t('drawer.toCombine'),
       })
       setFormState('success')
     } catch {
@@ -206,21 +210,25 @@ function SolicitarTab({ provider }: { provider: Provider }) {
           ✅
         </div>
         <h3 className="text-xl font-bold text-gray-900 mb-2" style={{ fontFamily: "'Fraunces', serif" }}>
-          Solicitação enviada!
+          {t('drawer.sentTitle')}
         </h3>
         <p className="text-gray-600 text-sm max-w-xs">
-          <strong>{provider.name}</strong> receberá sua mensagem e entrará em contato em breve para confirmar os detalhes.
+          {t('drawer.sentText', { name: provider.name })}
         </p>
         <div className="mt-6 p-4 rounded-2xl text-left w-full" style={{ backgroundColor: '#F4B94215', border: '1px solid #F4B94240' }}>
-          <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#B8860B' }}>Próximos passos</p>
-          <p className="text-sm text-gray-700">Combine prazo, local de entrega e forma de pagamento diretamente pelo chat com o prestador.</p>
+          <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#B8860B' }}>
+            {t('drawer.nextSteps')}
+          </p>
+          <p className="text-sm text-gray-700">
+            {t('drawer.nextStepsText')}
+          </p>
         </div>
         <button
           onClick={() => setFormState('idle')}
           className="mt-4 text-sm font-semibold hover:underline"
           style={{ color: '#E8553D' }}
         >
-          Enviar outra solicitação
+          {t('drawer.sendAnother')}
         </button>
       </div>
     )
@@ -236,21 +244,21 @@ function SolicitarTab({ provider }: { provider: Provider }) {
         <span className="text-xl flex-shrink-0">🤝</span>
         <div>
           <p className="text-xs font-bold uppercase tracking-widest mb-0.5" style={{ color: '#2B9D8F' }}>
-            Entrega combinada
+            {t('drawer.deliveryCombinada')}
           </p>
-          <p className="text-sm text-gray-700">{provider.deliveryInfo}</p>
+          <p className="text-sm text-gray-700">{provider.deliveryInfo || t('drawer.toCombine')}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-            O que você precisa?
+            {t('drawer.whatYouNeed')}
           </label>
           <textarea
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
-            placeholder={`Descreva o serviço que precisa de ${provider.name.split(' ')[0]}...`}
+            placeholder={t('drawer.describePlaceholder', { name: provider.name.split(' ')[0] })}
             rows={4}
             className="w-full text-sm text-gray-800 placeholder-gray-400 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-gray-400 resize-none transition-colors"
             required
@@ -259,7 +267,7 @@ function SolicitarTab({ provider }: { provider: Provider }) {
 
         <div>
           <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-            Quando você precisa?
+            {t('drawer.whenYouNeed')}
           </label>
           <input
             type="date"
@@ -273,12 +281,12 @@ function SolicitarTab({ provider }: { provider: Provider }) {
 
         <div>
           <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-            Local de entrega / atendimento
+            {t('drawer.deliveryLocation')}
           </label>
           <div className="relative">
             <input
               type="text"
-              placeholder="Seu endereço ou bairro"
+              placeholder={t('drawer.addressPlaceholder')}
               className="w-full text-sm text-gray-800 placeholder-gray-400 border border-gray-200 rounded-xl px-4 py-3 pl-10 outline-none focus:border-gray-400 transition-colors"
             />
             <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -287,23 +295,23 @@ function SolicitarTab({ provider }: { provider: Provider }) {
             </svg>
           </div>
           <p className="text-xs text-gray-400 mt-1.5">
-            📍 O local exato será combinado diretamente com o prestador.
+            {t('drawer.exactLocation')}
           </p>
         </div>
 
         {/* Price summary */}
         <div className="rounded-xl border border-gray-100 p-4 bg-gray-50">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Preço base</span>
+            <span className="text-sm text-gray-600">{t('drawer.basePrice')}</span>
             <span className="text-sm font-semibold text-gray-900">{provider.price}</span>
           </div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Frete / deslocamento</span>
-            <span className="text-sm font-medium text-teal-600">A combinar</span>
+            <span className="text-sm text-gray-600">{t('drawer.shipping')}</span>
+            <span className="text-sm font-medium text-teal-600">{t('drawer.toCombine')}</span>
           </div>
           <div className="border-t border-gray-200 mt-2 pt-2 flex items-center justify-between">
-            <span className="text-sm font-bold text-gray-900">Total</span>
-            <span className="text-sm font-bold text-gray-900">A combinar</span>
+            <span className="text-sm font-bold text-gray-900">{t('drawer.total')}</span>
+            <span className="text-sm font-bold text-gray-900">{t('drawer.toCombine')}</span>
           </div>
         </div>
 
@@ -319,10 +327,10 @@ function SolicitarTab({ provider }: { provider: Provider }) {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
-              Enviando...
+              <span>{t('drawer.sending')}</span>
             </>
           ) : (
-            'Enviar Solicitação'
+            t('drawer.sendBtn')
           )}
         </button>
       </form>
