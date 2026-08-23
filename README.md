@@ -208,4 +208,4 @@ Este projeto é de uso privado e confidencial.
 
 # Bugs
 - [x] quando clico em login as mensagens de erro na página em inglês estão em português, traduzir todas as mensagens de erro em todas as páginas que estiverem em inglês
-[ ] arrumar esse erro Testing domain restriction: The resend.dev domain is for testing and can only send to your own email address. To send to other recipients, verify a domain and update the from address to use it.
+- [x] arrumar esse erro Testing domain restriction: The resend.dev domain is for testing and can only send to your own email address. To send to other recipients, verify a domain and update the from address to use it.

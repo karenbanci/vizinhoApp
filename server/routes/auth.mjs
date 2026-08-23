@@ -42,8 +42,8 @@ async function createAndSendEmailVerification(userId, email, name, host) {
   console.log(`\n📧 [Resend] Código de verificação para ${email}: ${code}`)
   console.log(`🔗 Link de verificação: ${verifyLink}\n`)
 
-  await sendVerificationEmail({ to: email, name, code, verifyLink })
-  return { code, rawToken }
+  const emailRes = await sendVerificationEmail({ to: email, name, code, verifyLink })
+  return { code, rawToken, emailRes }
 }
 
 router.post('/register', async (req, res) => {
@@ -69,7 +69,7 @@ router.post('/register', async (req, res) => {
     )
 
     const userId = result.insertId
-    await createAndSendEmailVerification(userId, email, name, req.get('host'))
+    const { emailRes } = await createAndSendEmailVerification(userId, email, name, req.get('host'))
 
     const user = { id: userId, name, email, isProvider: false, emailVerified: false, providerProfile: null }
     res.status(201).json({
