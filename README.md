@@ -212,3 +212,4 @@ Este projeto é de uso privado e confidencial.
 - [x] substituir o logo por essa imagem: src/images/logo.png
 - [x] deixar o logo visível 8px por 8px
 - [x] as contas verificada, criar uma condição que será verificada depois de 10 serviços prestados
+- [ ] quando cadastra conta nova aparece esse erro: Failed to load resource: the server responded with a status of 502 (Bad Gateway)

@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer'
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_dummy_sample_key'
+const RESEND_API_KEY = process.env.RESEND_API_KEY || ''
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || process.env.FROM_EMAIL || 'Vizinho <onboarding@resend.dev>'
 
 // Configuração opcional de SMTP (ex: Gmail, Brevo, SendGrid, Mailgun, Amazon SES ou SMTP próprio)
