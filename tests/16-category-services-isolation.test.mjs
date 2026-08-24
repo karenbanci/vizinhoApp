@@ -67,7 +67,11 @@ describe('Bug 16: Category Services Isolation and Manual Dogsitter Selection', (
 
     const [p1] = await pool.execute('SELECT category, services FROM provider_profiles WHERE user_id = ?', [userId])
     assert.strictEqual(p1[0].category, 'dogsitter')
-    const parsed1 = typeof p1[0].services === 'string' ? JSON.parse(p1[0].services) : p1[0].services
+    const parsed1 = Array.isArray(p1[0].services)
+      ? p1[0].services
+      : typeof p1[0].services === 'string'
+        ? (p1[0].services.startsWith('[') || p1[0].services.startsWith('{') ? JSON.parse(p1[0].services) : [])
+        : (p1[0].services || [])
     assert.strictEqual(parsed1.length, 2)
 
     // 2. Switch category to 'cleaner' with new isolated services (dogsitter removed)
@@ -79,7 +83,11 @@ describe('Bug 16: Category Services Isolation and Manual Dogsitter Selection', (
 
     const [p2] = await pool.execute('SELECT category, services FROM provider_profiles WHERE user_id = ?', [userId])
     assert.strictEqual(p2[0].category, 'cleaner')
-    const parsedServices = typeof p2[0].services === 'string' ? JSON.parse(p2[0].services) : p2[0].services
+    const parsedServices = Array.isArray(p2[0].services)
+      ? p2[0].services
+      : typeof p2[0].services === 'string'
+        ? (p2[0].services.startsWith('[') || p2[0].services.startsWith('{') ? JSON.parse(p2[0].services) : [])
+        : (p2[0].services || [])
     assert.strictEqual(parsedServices.length, 1)
     assert.strictEqual(parsedServices[0].name, 'Limpeza Pesada')
 
