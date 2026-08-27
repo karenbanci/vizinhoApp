@@ -1,0 +1,10 @@
+{
+  "description": "Connect with local service providers for manicures, dog sitting, baked goods, and more, making it easy to find trusted help in your community.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
