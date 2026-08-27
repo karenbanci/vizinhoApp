@@ -338,16 +338,24 @@ export default function AuthModal({
           </p>
 
           {success && (
-            <div className="text-sm text-gray-700 bg-green-50 border border-green-100 rounded-xl px-4 py-3 mb-4 space-y-2">
+            <div className="text-sm text-gray-700 bg-green-50 border border-green-100 rounded-xl px-4 py-3 mb-4 space-y-2.5">
               <div>{info}</div>
               {resetUrl && (
-                <a
-                  href={resetUrl}
-                  className="block font-semibold text-xs break-all underline"
-                  style={{ color: '#2B9D8F' }}
-                >
-                  {resetUrl}
-                </a>
+                <div className="pt-1 space-y-2">
+                  <a
+                    href={resetUrl}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-white text-xs font-semibold shadow-sm transition-all hover:opacity-90 active:scale-95"
+                    style={{ backgroundColor: '#2B9D8F' }}
+                  >
+                    <span>🔑</span> {t('auth.resetPasswordNow')}
+                  </a>
+                  <a
+                    href={resetUrl}
+                    className="block font-semibold text-[11px] break-all underline text-gray-500 hover:text-gray-700"
+                  >
+                    {resetUrl}
+                  </a>
+                </div>
               )}
             </div>
           )}

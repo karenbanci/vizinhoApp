@@ -212,6 +212,7 @@ const pt = {
   'auth.verifyCodeSent': 'Código de confirmação enviado para seu e-mail!',
   'auth.forgotBtn': 'Enviar link',
   'auth.resetBtn': 'Redefinir senha',
+  'auth.resetPasswordNow': 'Redefinir senha agora',
   'auth.goToLogin': 'Ir para o login',
 
   'auth.noAccount': 'Não tem conta?',
@@ -525,6 +526,7 @@ const en: Record<TranslationKey, string> = {
   'auth.verifyCodeSent': 'Confirmation code sent to your email!',
   'auth.forgotBtn': 'Send link',
   'auth.resetBtn': 'Reset password',
+  'auth.resetPasswordNow': 'Reset password now',
   'auth.goToLogin': 'Go to log in',
 
   'auth.noAccount': 'Don\'t have an account?',

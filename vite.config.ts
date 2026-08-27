@@ -35,7 +35,18 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       watch: { ignored: ['**/.figma/**'] },
       proxy: {
-        '/api': 'http://127.0.0.1:3001',
+        '/api': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          configure: (proxy) => {
+            proxy.on('error', (_err, _req, res) => {
+              if ('writeHead' in res && typeof res.writeHead === 'function' && !res.headersSent) {
+                res.writeHead(502, { 'Content-Type': 'application/json' })
+                res.end(JSON.stringify({ error: 'Backend offline', fallback: true }))
+              }
+            })
+          },
+        },
       },
     },
     preview: {

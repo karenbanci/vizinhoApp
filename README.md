@@ -207,7 +207,8 @@ Este projeto é de uso privado e confidencial.
 
 # Bugs
 
-- [x] Traduzir a Bio e os tipos de serviços do português para o inglês no modo Inglês.
-- [x] Identifique o erro ao clicar no "Forgot Password": Failed to load resource: the server responded with a status of 404 (): strict-origin-when-cross-origin
-- [x] Novos usuários ainda não recebem o link de confirmação de cadastro. No register aparece o erro 404 Not Found, identifique o erro e corrija.
-- [x] O site não está responsivo. Deixe o responsivo em todos os devices.
+- [x] Identifique o erro ao clicar no "Forgot Password": Failed to load resource: the server responded with a status 502 Bad Gateway. Me ajude a identificar o problema e sugira a correção caso não esteja ao seu alcance.
+- [ ] Novos usuários ainda não recebem o link de confirmação de cadastro. No register aparece o erro 502 Bad Gateway, identifique o erro e corrija.
+- [ ] Deixar o site no modo responsivo no modo mobile e tablet.
+- [ ] identifique e corrija: Error: Command "vite build" exited with 127.
+- [ ] O deployment tem que ser manual quando solicitado.
