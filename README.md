@@ -210,5 +210,5 @@ Este projeto é de uso privado e confidencial.
 - [x] Identifique o erro ao clicar no "Forgot Password": Failed to load resource: the server responded with a status 502 Bad Gateway. Me ajude a identificar o problema e sugira a correção caso não esteja ao seu alcance.
 - [x] Novos usuários ainda não recebem o link de confirmação de cadastro. No register aparece o erro 502 Bad Gateway, identifique o erro e corrija.
 - [x] Deixar o site no modo responsivo no modo mobile e tablet.
-- [ ] identifique e corrija: Error: Command "vite build" exited with 127.
+- [x] identifique e corrija: Error: Command "vite build" exited with 127.
 - [ ] O deployment tem que ser manual quando solicitado.
