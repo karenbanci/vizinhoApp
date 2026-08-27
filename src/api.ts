@@ -342,6 +342,48 @@ function handleApiFallback<T>(path: string, options: RequestInit): T | null {
       } as unknown as T
     }
 
+    if (path === '/api/auth/forgot-password' && method === 'POST') {
+      const { email } = body
+      const cleanEmail = String(email || '').trim().toLowerCase()
+      const resetToken = 'rst_' + Math.random().toString(36).substring(2) + Date.now().toString(36)
+      const resetUrl =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}${window.location.pathname}?reset=${resetToken}`
+          : ''
+      return {
+        message: 'Se o e-mail existir, você receberá um link para redefinir sua senha.',
+        resetUrl,
+      } as unknown as T
+    }
+
+    if (path === '/api/auth/reset-password' && method === 'POST') {
+      const { token, password } = body
+      if (!password || String(password).length < 6) {
+        throw new Error('A senha precisa ter pelo menos 6 caracteres.')
+      }
+      return {
+        message: 'Senha redefinida com sucesso! Você já pode fazer login com a nova senha.',
+      } as unknown as T
+    }
+
+    if (path === '/api/auth/resend-verification' && method === 'POST') {
+      const { email } = body
+      const cleanEmail = String(email || '').trim().toLowerCase()
+      const mockCode = '123456'
+      const mockToken = 'verify_' + Math.random().toString(36).substring(2)
+      const verifyUrl =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}${window.location.pathname}?verify_token=${mockToken}`
+          : ''
+      return {
+        ok: true,
+        message: 'Código de confirmação reenviado para seu e-mail!',
+        code: mockCode,
+        verifyUrl,
+        delivered: false,
+      } as unknown as T
+    }
+
     if (path === '/api/auth/me' && method === 'GET') {
       const current = getFallbackCurrentUser()
       if (current) {

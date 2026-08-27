@@ -208,6 +208,6 @@ Este projeto é de uso privado e confidencial.
 # Bugs
 
 - [x] Na versão inglês as descrições do serviço e da Bio não foram traduzidos para o inglês, traduzir qualquer palavra de português para o modo inglês.
-- [ ] Quando eu clico forgot password, aparece mensagem de erro: Something went wrong. Please try again. Identifique o problema e arrume.
+- [x] Quando eu clico forgot password, aparece mensagem de erro: Something went wrong. Please try again. Identifique o problema e arrume.
 - [ ] Novos usuários ainda não recebem o link de confirmação de cadastro.
 - [ ] O site não está responsivo.
