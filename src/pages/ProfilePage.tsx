@@ -306,13 +306,22 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
     setPortfolioIds(user.providerProfile.portfolioIds || [])
     setServices(normalizeServices(user.providerProfile.services, user.providerProfile.category))
     if (user.providerProfile.availabilitySchedule) {
-      const sched = user.providerProfile.availabilitySchedule
-      if (sched.days && sched.days.length > 0) setWorkDays(sched.days)
-      if (sched.startTime) setStartTime(sched.startTime)
-      if (sched.endTime) setEndTime(sched.endTime)
+      try {
+        const rawSched = user.providerProfile.availabilitySchedule
+        const sched = typeof rawSched === 'string' ? JSON.parse(rawSched) : rawSched
+        if (sched && Array.isArray(sched.days) && sched.days.length > 0) setWorkDays(sched.days)
+        if (sched && typeof sched.startTime === 'string') setStartTime(sched.startTime)
+        if (sched && typeof sched.endTime === 'string') setEndTime(sched.endTime)
+      } catch {}
     }
-    if (user.providerProfile.blockedDates && user.providerProfile.blockedDates.length > 0) {
-      setBlockedDates(user.providerProfile.blockedDates)
+    if (user.providerProfile.blockedDates) {
+      try {
+        const rawBlocked = user.providerProfile.blockedDates
+        const blocked = typeof rawBlocked === 'string' ? JSON.parse(rawBlocked) : rawBlocked
+        if (Array.isArray(blocked) && blocked.length > 0) {
+          setBlockedDates(blocked)
+        }
+      } catch {}
     }
   }, [user.providerProfile])
 
@@ -1200,7 +1209,7 @@ export default function ProfilePage({ user, onUpdateUser, onBack, onViewProvider
                     <button
                       type="button"
                       key={id}
-                      onClick={() => handlePhotoOption(id)}
+                      onClick={() => setPhotoId(id)}
                       className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
                         photoId === id ? 'border-[#E8553D] ring-2 ring-[#E8553D]/30' : 'border-transparent opacity-70 hover:opacity-100'
                       }`}

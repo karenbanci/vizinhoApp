@@ -71,10 +71,11 @@ export default function App() {
       setPendingRequestsCount(0)
       return
     }
+    const userSnapshot = authUser
     function checkNotifications() {
       fetchServiceRequests()
         .then((res) => {
-          if (authUser.isProvider && authUser.accountType !== 'client') {
+          if (userSnapshot.isProvider && userSnapshot.accountType !== 'client') {
             setPendingRequestsCount(res.pendingCount)
           } else {
             // Client notifications: requests accepted or rejected or active updates
@@ -157,13 +158,6 @@ export default function App() {
       {/* ── Main View Switcher ── */}
       {view === 'admin' ? (
         <AdminPage onBack={() => setView('home')} />
-      ) : view === 'explorar' ? (
-        <ExplorePage
-          providers={allProviders}
-          onViewProvider={(p) => setSelected(p)}
-          canRequest={Boolean(authUser)}
-          onRequireAuth={() => setAuthModal('register')}
-        />
       ) : view === 'profile' && authUser ? (
         <ProfilePage
           user={authUser}

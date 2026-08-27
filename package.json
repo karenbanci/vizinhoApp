@@ -14,7 +14,7 @@
     "db:workbench": "node scripts/db-workbench.mjs",
     "server": "node server/index.mjs",
     "test": "node --test --test-force-exit tests/*.test.mjs",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build && node -e \"import('node:fs').then(fs => fs.copyFileSync('dist/index.html', 'dist/404.html'))\"",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {

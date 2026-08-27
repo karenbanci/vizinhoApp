@@ -31,6 +31,8 @@ export interface ProviderProfile {
   availableNow: boolean
   photoId: string
   portfolioIds?: string[]
+  availabilitySchedule?: string | Record<string, unknown>
+  blockedDates?: string[] | string
   services: Array<string | ProviderService>
 }
 
@@ -57,6 +59,8 @@ export interface Provider {
   availability: string
   availableNow: boolean
   deliveryInfo: string
+  availabilitySchedule?: string | Record<string, unknown>
+  blockedDates?: string[] | string
   services: Array<string | ProviderService>
 }
 
