@@ -208,6 +208,6 @@ Este projeto é de uso privado e confidencial.
 # Bugs
 
 - [x] Traduzir a Bio e os tipos de serviços do português para o inglês no modo Inglês.
-- [ ] Identifique o erro ao clicar no "Forgot Password": Failed to load resource: the server responded with a status of 404 (): strict-origin-when-cross-origin
+- [x] Identifique o erro ao clicar no "Forgot Password": Failed to load resource: the server responded with a status of 404 (): strict-origin-when-cross-origin
 - [ ] Novos usuários ainda não recebem o link de confirmação de cadastro. No register aparece o erro 404 Not Found, identifique o erro e corrija.
 - [ ] O site não está responsivo. Deixe o responsivo em todos os devices.

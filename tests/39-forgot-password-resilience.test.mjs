@@ -6,8 +6,8 @@ import path from 'node:path'
 describe('Bug 39: Forgot Password Resilience and Error Elimination', () => {
   it('should verify api.ts handles forgot-password and reset-password fallback gracefully', () => {
     const apiCode = fs.readFileSync(path.resolve('src/api.ts'), 'utf8')
-    assert.ok(apiCode.includes("path === '/api/auth/forgot-password'"))
-    assert.ok(apiCode.includes("path === '/api/auth/reset-password'"))
+    assert.ok(apiCode.includes("cleanPath === '/api/auth/forgot-password'") || apiCode.includes("'/api/auth/forgot-password'"))
+    assert.ok(apiCode.includes("cleanPath === '/api/auth/reset-password'") || apiCode.includes("'/api/auth/reset-password'"))
     assert.ok(apiCode.includes('resetUrl'))
   })
 

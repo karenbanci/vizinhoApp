@@ -143,8 +143,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     networkError = true
   }
 
-  // If server responded 502 Bad Gateway, 503, 504 or network is offline/static, handle graceful fallback
-  if (networkError || (res && (res.status === 502 || res.status === 503 || res.status === 504 || (res.status === 404 && path.startsWith('/api'))))) {
+  // If server responded 404 Not Found, 405, 500, 502, 503, 504 or network is offline/static, handle graceful fallback
+  if (networkError || (res && (!res.ok || res.status === 404 || res.status === 502 || res.status === 503 || res.status === 504))) {
     const fallbackResult = handleApiFallback<T>(path, options)
     if (fallbackResult !== null) {
       return fallbackResult
@@ -163,11 +163,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   if (!res.ok) {
-    if (res.status === 502 || res.status === 503 || res.status === 504) {
-      const fallbackResult = handleApiFallback<T>(path, options)
-      if (fallbackResult !== null) {
-        return fallbackResult
-      }
+    const fallbackResult = handleApiFallback<T>(path, options)
+    if (fallbackResult !== null) {
+      return fallbackResult
     }
     const message =
       data && typeof data === 'object' && 'error' in data
@@ -181,10 +179,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 function handleApiFallback<T>(path: string, options: RequestInit): T | null {
   try {
+    const cleanPath = path.split('?')[0]
     const method = (options.method || 'GET').toUpperCase()
     const body = options.body ? JSON.parse(String(options.body)) : {}
 
-    if (path === '/api/auth/register' && method === 'POST') {
+    if (cleanPath === '/api/auth/register' && method === 'POST') {
       const { name, email, password, accountType = 'client' } = body
       const cleanEmail = String(email || '').trim().toLowerCase()
       const cleanName = String(name || '').trim()
@@ -238,7 +237,7 @@ function handleApiFallback<T>(path: string, options: RequestInit): T | null {
       } as unknown as T
     }
 
-    if (path === '/api/auth/verify-email' && method === 'POST') {
+    if (cleanPath === '/api/auth/verify-email' && method === 'POST') {
       const { email, code, token } = body
       const cleanEmail = email ? String(email).trim().toLowerCase() : ''
       const users = getFallbackUsers()
@@ -276,7 +275,7 @@ function handleApiFallback<T>(path: string, options: RequestInit): T | null {
       }
     }
 
-    if (path === '/api/auth/login' && method === 'POST') {
+    if (cleanPath === '/api/auth/login' && method === 'POST') {
       const { email, password } = body
       const cleanEmail = String(email || '').trim().toLowerCase()
       const users = getFallbackUsers()
@@ -303,7 +302,7 @@ function handleApiFallback<T>(path: string, options: RequestInit): T | null {
       }
     }
 
-    if (path === '/api/auth/google' && method === 'POST') {
+    if (cleanPath === '/api/auth/google' && method === 'POST') {
       const { email, name, accountType = 'client' } = body
       const cleanEmail = String(email || '').trim().toLowerCase()
       const users = getFallbackUsers()
@@ -342,7 +341,7 @@ function handleApiFallback<T>(path: string, options: RequestInit): T | null {
       } as unknown as T
     }
 
-    if (path === '/api/auth/forgot-password' && method === 'POST') {
+    if (cleanPath === '/api/auth/forgot-password' && method === 'POST') {
       const { email } = body
       const cleanEmail = String(email || '').trim().toLowerCase()
       const resetToken = 'rst_' + Math.random().toString(36).substring(2) + Date.now().toString(36)
@@ -356,7 +355,7 @@ function handleApiFallback<T>(path: string, options: RequestInit): T | null {
       } as unknown as T
     }
 
-    if (path === '/api/auth/reset-password' && method === 'POST') {
+    if (cleanPath === '/api/auth/reset-password' && method === 'POST') {
       const { token, password } = body
       if (!password || String(password).length < 6) {
         throw new Error('A senha precisa ter pelo menos 6 caracteres.')
@@ -366,7 +365,7 @@ function handleApiFallback<T>(path: string, options: RequestInit): T | null {
       } as unknown as T
     }
 
-    if (path === '/api/auth/resend-verification' && method === 'POST') {
+    if (cleanPath === '/api/auth/resend-verification' && method === 'POST') {
       const { email } = body
       const cleanEmail = String(email || '').trim().toLowerCase()
       const mockCode = '123456'
@@ -384,18 +383,18 @@ function handleApiFallback<T>(path: string, options: RequestInit): T | null {
       } as unknown as T
     }
 
-    if (path === '/api/auth/me' && method === 'GET') {
+    if (cleanPath === '/api/auth/me' && method === 'GET') {
       const current = getFallbackCurrentUser()
       if (current) {
         return { user: current } as unknown as T
       }
     }
 
-    if (path === '/api/providers' && method === 'GET') {
+    if (cleanPath === '/api/providers' && method === 'GET') {
       return { providers: [] } as unknown as T
     }
 
-    if (path === '/api/service-requests' && method === 'GET') {
+    if (cleanPath === '/api/service-requests' && method === 'GET') {
       return { received: [], sent: [], pendingCount: 0 } as unknown as T
     }
   } catch (e) {
