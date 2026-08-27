@@ -212,3 +212,5 @@ Este projeto é de uso privado e confidencial.
 - [x] Deixar o site no modo responsivo no modo mobile e tablet.
 - [x] identifique e corrija: Error: Command "vite build" exited with 127.
 - [x] O deployment tem que ser manual quando solicitado.
+- [ ] Os cards na página inicial não estão responsivos;
+- [ ] Retire o top provider,super host e best seller.

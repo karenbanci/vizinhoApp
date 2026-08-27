@@ -75,13 +75,68 @@ export interface FallbackUser extends AuthUser {
   verificationToken?: string
 }
 
+const DEFAULT_FALLBACK_USERS: FallbackUser[] = [
+  {
+    id: 1,
+    name: 'Ana Carolina Silva',
+    email: 'ana@exemplo.com',
+    password: 'password123',
+    isProvider: true,
+    accountType: 'provider',
+    emailVerified: true,
+    createdAt: new Date().toISOString(),
+    providerProfile: {
+      id: 1,
+      userId: 1,
+      category: 'manicure',
+      categoryLabel: 'Manicure & Pedicure',
+      nationality: 'BR',
+      country: 'BR',
+      state: 'SP',
+      city: 'São Paulo',
+      description: 'Especialista em unhas de gel, fibra de vidro e nail art.',
+      bio: 'Atendo com produtos esterilizados em autoclave e horário flexível.',
+      price: 'R$ 60',
+      location: 'Vila Mariana, São Paulo',
+      availability: 'Disponível hoje',
+      availableNow: true,
+      photoId: 'photo-1560066984-138dadb4c035',
+      services: [{ name: 'Manicure Completa', price: 'R$ 45' }, { name: 'Pedicure', price: 'R$ 50' }],
+    },
+  },
+  {
+    id: 2,
+    name: 'Carlos Eduardo Santos',
+    email: 'carlos@exemplo.com',
+    password: 'password123',
+    isProvider: true,
+    accountType: 'provider',
+    emailVerified: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 3,
+    name: 'Mariana Costa',
+    email: 'mariana@exemplo.com',
+    password: 'password123',
+    isProvider: false,
+    accountType: 'client',
+    emailVerified: true,
+    createdAt: new Date().toISOString(),
+  },
+]
+
 function getFallbackUsers(): FallbackUser[] {
   try {
-    if (typeof localStorage === 'undefined') return []
+    if (typeof localStorage === 'undefined') return DEFAULT_FALLBACK_USERS
     const raw = localStorage.getItem(FALLBACK_USERS_KEY)
-    return raw ? JSON.parse(raw) : []
+    if (!raw) {
+      localStorage.setItem(FALLBACK_USERS_KEY, JSON.stringify(DEFAULT_FALLBACK_USERS))
+      return DEFAULT_FALLBACK_USERS
+    }
+    return JSON.parse(raw)
   } catch {
-    return []
+    return DEFAULT_FALLBACK_USERS
   }
 }
 
@@ -392,6 +447,140 @@ function handleApiFallback<T>(path: string, options: RequestInit): T | null {
       if (current) {
         return { user: current } as unknown as T
       }
+    }
+
+    if (cleanPath === '/api/me' && method === 'PATCH') {
+      const current = getFallbackCurrentUser()
+      if (current) {
+        if (body.name) current.name = body.name
+        if (body.email) current.email = body.email
+        setFallbackCurrentUser(current)
+        const users = getFallbackUsers()
+        const idx = users.findIndex((u) => u.id === current.id)
+        if (idx >= 0) {
+          users[idx] = { ...users[idx], ...current }
+          saveFallbackUsers(users)
+        }
+        return { user: current } as unknown as T
+      }
+    }
+
+    if (cleanPath === '/api/me/password' && method === 'POST') {
+      return { ok: true, message: 'Senha alterada com sucesso!' } as unknown as T
+    }
+
+    if (cleanPath === '/api/me/provider' && method === 'POST') {
+      const current = getFallbackCurrentUser()
+      if (current) {
+        current.isProvider = true
+        current.accountType = 'provider'
+        current.providerProfile = {
+          id: current.id,
+          userId: current.id,
+          category: body.category || 'outros',
+          categoryLabel: 'Outros Serviços',
+          nationality: 'BR',
+          country: 'BR',
+          state: 'SP',
+          city: 'São Paulo',
+          description: 'Atendimento de qualidade na sua região.',
+          bio: 'Sou especialista e atendo com pontualidade.',
+          price: 'A combinar',
+          location: 'São Paulo, SP',
+          availability: 'Disponível hoje',
+          availableNow: true,
+          photoId: 'photo-1544005313-94ddf0286df2',
+          services: [],
+        }
+        setFallbackCurrentUser(current)
+        return { user: current, providerProfile: current.providerProfile } as unknown as T
+      }
+    }
+
+    if (cleanPath === '/api/me/provider' && method === 'PATCH') {
+      const current = getFallbackCurrentUser()
+      if (current) {
+        current.providerProfile = {
+          ...(current.providerProfile || {
+            id: current.id,
+            userId: current.id,
+            category: 'outros',
+            categoryLabel: 'Outros Serviços',
+            nationality: 'BR',
+            country: 'BR',
+            state: 'SP',
+            city: 'São Paulo',
+            description: '',
+            bio: '',
+            price: 'A combinar',
+            location: 'São Paulo, SP',
+            availability: 'Disponível hoje',
+            availableNow: true,
+            photoId: 'photo-1544005313-94ddf0286df2',
+            services: [],
+          }),
+          ...body,
+        }
+        setFallbackCurrentUser(current)
+        return { user: current, providerProfile: current.providerProfile } as unknown as T
+      }
+    }
+
+    if (cleanPath === '/api/me/provider' && method === 'DELETE') {
+      const current = getFallbackCurrentUser()
+      if (current) {
+        current.isProvider = false
+        current.providerProfile = null
+        setFallbackCurrentUser(current)
+        return { user: current } as unknown as T
+      }
+    }
+
+    if (cleanPath === '/api/admin/users' && method === 'GET') {
+      const users = getFallbackUsers()
+      return {
+        users: users.map((u) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          isProvider: u.isProvider,
+          emailVerified: Boolean(u.emailVerified),
+          createdAt: u.createdAt || new Date().toISOString(),
+          providerStatus: u.isProvider ? 'active' : 'inactive',
+        })),
+      } as unknown as T
+    }
+
+    if (cleanPath === '/api/admin/stats' && method === 'GET') {
+      const users = getFallbackUsers()
+      return {
+        totalUsers: Math.max(users.length, 13),
+        totalProviders: users.filter((u) => u.isProvider).length || 8,
+        totalClients: users.filter((u) => !u.isProvider).length || 5,
+        verifiedUsers: users.filter((u) => u.emailVerified).length || 13,
+      } as unknown as T
+    }
+
+    if (cleanPath === '/api/admin/tokens' && method === 'GET') {
+      return { tokens: [] } as unknown as T
+    }
+
+    if (cleanPath === '/api/admin/users/reset-password' && method === 'POST') {
+      return { ok: true, message: 'Senha atualizada com sucesso pelo administrador!' } as unknown as T
+    }
+
+    if (cleanPath === '/api/admin/users/generate-reset-link' && method === 'POST') {
+      const token = 'rst_' + Math.random().toString(36).substring(2) + Date.now().toString(36)
+      const resetUrl =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}${window.location.pathname}?reset=${token}`
+          : ''
+      return {
+        user: { id: 1, name: 'Usuário', email: body.email || '' },
+        resetUrl,
+        token,
+        expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      } as unknown as T
     }
 
     if (cleanPath === '/api/providers' && method === 'GET') {
