@@ -105,6 +105,7 @@ export default function App() {
     }
   }, [allProviders])
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const totalProvidersCount = allProviders.length
   const totalReviewsCount = useMemo(
     () => allProviders.reduce((acc, p) => acc + (p.reviews || 0), 0),
@@ -173,11 +174,27 @@ export default function App() {
       ) : (
         <>
       {/* ── Header ── */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-          <button onClick={() => { setView('home'); setSelected(null); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center cursor-pointer">
-            <Logo size="md" />
-          </button>
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 flex items-center justify-between h-16">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-1.5 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              aria-label="Abrir menu"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+            <button onClick={() => { setView('home'); setSelected(null); window.scrollTo({ top: 0, behavior: 'smooth' }) }} className="flex items-center cursor-pointer">
+              <Logo size="md" />
+            </button>
+          </div>
 
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-600">
             <a href="#" onClick={(e) => { e.preventDefault(); setView('explorar') }} className="hover:text-gray-900 transition-colors font-medium">{t('nav.explore')}</a>
@@ -206,13 +223,13 @@ export default function App() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             {/* Language Switcher */}
             <div className="flex items-center rounded-xl bg-gray-100 p-0.5 border border-gray-200 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setLang('pt')}
-                className={`px-2 py-1 rounded-lg transition-all ${
+                className={`px-1.5 sm:px-2 py-1 rounded-lg transition-all text-[11px] sm:text-xs ${
                   lang === 'pt' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
                 }`}
                 title="Português"
@@ -222,7 +239,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setLang('en')}
-                className={`px-2 py-1 rounded-lg transition-all ${
+                className={`px-1.5 sm:px-2 py-1 rounded-lg transition-all text-[11px] sm:text-xs ${
                   lang === 'en' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
                 }`}
                 title="English"
@@ -237,7 +254,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setNotificationsOpen(true)}
-                  className="relative p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                  className="relative p-1.5 sm:p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
                   title="Notificações e Solicitações"
                   aria-label="Notificações"
                 >
@@ -257,16 +274,16 @@ export default function App() {
 
                 <button
                   onClick={() => setView('profile')}
-                  className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  <span className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: '#E8553D' }}>
+                  <span className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ backgroundColor: '#E8553D' }}>
                     {authUser.name.slice(0, 1).toUpperCase()}
                   </span>
-                  <span className="hidden sm:block">{t('auth.hello')} {authUser.name.split(' ')[0]}</span>
+                  <span className="hidden sm:block truncate max-w-[100px]">{authUser.name.split(' ')[0]}</span>
                 </button>
                 <button
                   onClick={() => { clearToken(); setAuthUser(null); setView('home') }}
-                  className="text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   {t('auth.logout')}
                 </button>
@@ -275,13 +292,13 @@ export default function App() {
               <>
                 <button
                   onClick={() => setAuthModal('login')}
-                  className="text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   {t('auth.login')}
                 </button>
                 <button
                   onClick={() => setAuthModal('register')}
-                  className="text-sm font-semibold text-white px-4 py-1.5 rounded-lg transition-all hover:opacity-90"
+                  className="text-xs sm:text-sm font-semibold text-white px-3 sm:px-4 py-1.5 rounded-lg transition-all hover:opacity-90 shrink-0"
                   style={{ backgroundColor: '#E8553D' }}
                 >
                   {t('auth.signup')}
@@ -290,6 +307,40 @@ export default function App() {
             )}
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md px-4 py-3 space-y-1 animate-in slide-in-from-top-2 duration-150 shadow-lg">
+            <button
+              onClick={() => { setView('explorar'); setMobileMenuOpen(false) }}
+              className="w-full text-left py-2.5 px-3 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#E8553D] flex items-center gap-2"
+            >
+              <span>🔍</span> {t('nav.explore')}
+            </button>
+            <button
+              onClick={() => { goToHowItWorks(); setMobileMenuOpen(false) }}
+              className="w-full text-left py-2.5 px-3 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#E8553D] flex items-center gap-2"
+            >
+              <span>💡</span> {t('nav.howItWorks')}
+            </button>
+            <button
+              onClick={() => {
+                if (authUser) setView('profile')
+                else setAuthModal('register')
+                setMobileMenuOpen(false)
+              }}
+              className="w-full text-left py-2.5 px-3 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#E8553D] flex items-center gap-2"
+            >
+              <span>⭐</span> {t('nav.becomeProvider')}
+            </button>
+            <button
+              onClick={() => { setView('admin'); setMobileMenuOpen(false) }}
+              className="w-full text-left py-2.5 px-3 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+            >
+              <span>🛡️</span> Admin
+            </button>
+          </div>
+        )}
       </header>
 
       {view === 'explorar' ? (
@@ -297,7 +348,7 @@ export default function App() {
       ) : (
         <>
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden py-16 sm:py-20 px-4 sm:px-6" style={{ backgroundColor: '#E8553D' }}>
+      <section className="relative overflow-hidden py-12 sm:py-20 px-4 sm:px-6" style={{ backgroundColor: '#E8553D' }}>
         <div className="absolute rounded-full opacity-25 pointer-events-none" style={{ width: 320, height: 320, backgroundColor: '#F4B942', top: '-80px', right: '-60px' }} />
         <div className="absolute rounded-full opacity-20 pointer-events-none" style={{ width: 200, height: 200, backgroundColor: '#2B9D8F', bottom: '-60px', left: '-40px' }} />
         <div className="absolute rounded-full opacity-10 pointer-events-none" style={{ width: 100, height: 100, backgroundColor: '#FAF6F0', top: '40%', left: '20%' }} />
@@ -305,15 +356,15 @@ export default function App() {
 
         <div className="relative max-w-3xl mx-auto text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-red-200 mb-3">{t('hero.tagline')}</p>
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight" style={{ fontFamily: "'Fraunces', serif" }}>
+          <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4 leading-tight" style={{ fontFamily: "'Fraunces', serif" }}>
             {t('hero.title1')}<br />{t('hero.title2')}
           </h1>
-          <p className="text-red-100 text-lg mb-8">
+          <p className="text-red-100 text-base sm:text-lg mb-8 max-w-xl mx-auto">
             {t('hero.subtitle')}
           </p>
 
-          <div className="flex gap-2 bg-white rounded-2xl p-2 shadow-xl max-w-xl mx-auto">
-            <div className="flex-1 flex items-center gap-2 px-3">
+          <div className="flex flex-col sm:flex-row gap-2 bg-white rounded-2xl p-2 shadow-xl max-w-xl mx-auto">
+            <div className="flex-1 flex items-center gap-2 px-3 py-1 sm:py-0">
               <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -322,22 +373,22 @@ export default function App() {
                 placeholder={t('hero.searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="flex-1 text-gray-800 placeholder-gray-400 text-sm outline-none bg-transparent"
+                className="w-full text-gray-800 placeholder-gray-400 text-sm outline-none bg-transparent py-1"
               />
               {search && (
-                <button onClick={() => setSearch('')} className="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Limpar busca">
+                <button onClick={() => setSearch('')} className="text-gray-400 hover:text-gray-600 transition-colors p-1" aria-label="Limpar busca">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               )}
             </div>
-            <button className="text-sm font-semibold text-white px-5 py-2.5 rounded-xl transition-all hover:opacity-90 flex-shrink-0" style={{ backgroundColor: '#E8553D' }}>
+            <button className="text-sm font-semibold text-white px-5 py-3 sm:py-2.5 rounded-xl transition-all hover:opacity-90 flex-shrink-0 w-full sm:w-auto" style={{ backgroundColor: '#E8553D' }}>
               {t('hero.search')}
             </button>
           </div>
 
-          <div className="flex items-center justify-center gap-8 mt-10 text-white/90">
+          <div className="grid grid-cols-3 gap-2 sm:gap-8 mt-10 text-white/90 max-w-lg mx-auto">
             {[
               { value: `${totalProvidersCount}`, label: t('hero.statProviders') },
               {
@@ -348,13 +399,10 @@ export default function App() {
                 label: t('hero.statReviews'),
               },
               { value: `${averageRating} ★`, label: t('hero.statRating') },
-            ].map((stat, i, arr) => (
-              <div key={stat.label} className="flex items-center gap-8">
-                <div className="text-center">
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <div className="text-red-200 text-xs mt-0.5">{stat.label}</div>
-                </div>
-                {i < arr.length - 1 && <div className="w-px h-8 bg-white/20" />}
+            ].map((stat) => (
+              <div key={stat.label} className="text-center p-2 rounded-xl bg-white/10 sm:bg-transparent">
+                <div className="text-xl sm:text-2xl font-bold">{stat.value}</div>
+                <div className="text-red-100 text-[11px] sm:text-xs mt-0.5">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -547,7 +595,7 @@ export default function App() {
             <span className="text-gray-300">·</span>
             <span>© 2026</span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-6 gap-y-2 text-xs sm:text-sm">
             {[
               { label: t('footer.privacy'), link: '#' },
               { label: t('footer.terms'), link: '#' },

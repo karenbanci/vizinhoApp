@@ -333,7 +333,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
           <select
             value={filterCountry}
             onChange={(e) => { setFilterCountry(e.target.value); setFilterState(''); setFilterCity('') }}
-            className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer"
+            className="w-full sm:w-auto px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer"
           >
             <option value="">{t('explore.countryAll')}</option>
             {countryOptions.map(({ code, count }) => (
@@ -347,7 +347,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             value={filterState}
             onChange={(e) => { setFilterState(e.target.value); setFilterCity('') }}
             disabled={stateOptions.length === 0}
-            className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer disabled:opacity-50"
+            className="w-full sm:w-auto px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer disabled:opacity-50"
           >
             <option value="">{t('explore.stateAll')}</option>
             {stateOptions.map(({ state, count }) => (
@@ -361,7 +361,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             value={filterCity}
             onChange={(e) => setFilterCity(e.target.value)}
             disabled={cityOptions.length === 0}
-            className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer disabled:opacity-50"
+            className="w-full sm:w-auto px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer disabled:opacity-50"
           >
             <option value="">{t('explore.cityAll')}</option>
             {cityOptions.map(({ city, count }) => (
@@ -371,7 +371,7 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             ))}
           </select>
 
-          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer px-2 py-2">
+          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer px-2 py-2 w-full sm:w-auto">
             <input
               type="checkbox"
               checked={onlyAvailableNow}
@@ -381,12 +381,12 @@ export default function ExplorePage({ providers, onViewProvider }: Props) {
             {t('explore.availableNow')}
           </label>
 
-          <div className="flex-1" />
+          <div className="hidden sm:block sm:flex-1" />
 
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer"
+            className="w-full sm:w-auto px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#E8553D]/40 cursor-pointer"
           >
             <option value="relevance">{t('explore.relevance')}</option>
             <option value="rating">{t('explore.bestRated')}</option>

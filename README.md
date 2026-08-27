@@ -210,4 +210,4 @@ Este projeto é de uso privado e confidencial.
 - [x] Na versão inglês as descrições do serviço e da Bio não foram traduzidos para o inglês, traduzir qualquer palavra de português para o modo inglês.
 - [x] Quando eu clico forgot password, aparece mensagem de erro: Something went wrong. Please try again. Identifique o problema e arrume.
 - [x] Novos usuários ainda não recebem o link de confirmação de cadastro.
-- [ ] O site não está responsivo. Deixe o responsivo em todos os devices.
+- [x] O site não está responsivo. Deixe o responsivo em todos os devices.
