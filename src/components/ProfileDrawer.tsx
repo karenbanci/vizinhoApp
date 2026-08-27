@@ -1,5 +1,19 @@
 import { useState, useEffect, type FormEvent } from 'react'
-import { CATEGORIES, CATEGORY_STYLE, DEFAULT_PHOTO_URL, getPhotoUrl, isProviderVerified, type Provider } from '../data'
+import {
+  CATEGORIES,
+  CATEGORY_STYLE,
+  DEFAULT_PHOTO_URL,
+  getPhotoUrl,
+  isProviderVerified,
+  getLocalizedBio,
+  getLocalizedServices,
+  getLocalizedAvailability,
+  getLocalizedDeliveryInfo,
+  getLocalizedPrice,
+  getLocalizedBadge,
+  getLocalizedReviewText,
+  type Provider,
+} from '../data'
 import { countryName, flagUrl } from '../countries'
 import { useLanguage } from '../i18n'
 import { createServiceRequest } from '../api'
@@ -33,7 +47,8 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md
 }
 
 function PortfolioTab({ provider }: { provider: Provider }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
+  const services = getLocalizedServices(provider, lang)
 
   if (provider.portfolioIds.length === 0) {
     return (
@@ -70,11 +85,11 @@ function PortfolioTab({ provider }: { provider: Provider }) {
         <h3 className="text-sm font-bold text-gray-900 mb-3" style={{ fontFamily: "'Fraunces', serif" }}>
           {t('drawer.servicesTitle')}
         </h3>
-        {provider.services.length === 0 ? (
+        {services.length === 0 ? (
           <p className="text-xs text-gray-400">Nenhum serviço individual listado.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {provider.services.map((s, idx) => {
+            {services.map((s, idx) => {
               const name = typeof s === 'string' ? s : s.name
               const price = typeof s === 'string' ? '' : s.price
               const key = typeof s === 'string' ? `${s}-${idx}` : `${s.name}-${idx}`
@@ -97,7 +112,7 @@ function PortfolioTab({ provider }: { provider: Provider }) {
 }
 
 function AvaliacoesTab({ provider }: { provider: Provider }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const empty = provider.reviewsList.length === 0
   const ratingDist = empty
     ? []
@@ -172,7 +187,7 @@ function AvaliacoesTab({ provider }: { provider: Provider }) {
                 <StarRating rating={review.rating} />
               </div>
             </div>
-            <p className="text-sm text-gray-700 leading-relaxed">{review.text}</p>
+            <p className="text-sm text-gray-700 leading-relaxed">{getLocalizedReviewText(review, lang)}</p>
           </div>
         ))}
       </div>
@@ -183,12 +198,14 @@ function AvaliacoesTab({ provider }: { provider: Provider }) {
 type FormState = 'idle' | 'sending' | 'success'
 
 function SolicitarTab({ provider }: { provider: Provider }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const [desc, setDesc] = useState('')
   const [date, setDate] = useState('')
   const [formState, setFormState] = useState<FormState>('idle')
 
   const today = new Date().toISOString().split('T')[0]
+  const deliveryInfo = getLocalizedDeliveryInfo(provider, lang)
+  const price = getLocalizedPrice(provider, lang)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -197,13 +214,13 @@ function SolicitarTab({ provider }: { provider: Provider }) {
     try {
       await createServiceRequest({
         providerUserId: provider.id > 1000 ? provider.id - 1000 : provider.id,
-        serviceName: provider.categoryLabel || 'Serviço',
+        serviceName: (lang === 'en' && provider.categoryLabelEn ? provider.categoryLabelEn : provider.categoryLabel) || 'Serviço',
         details: desc,
         dateTime: date,
         location: provider.location || '',
-        basePrice: provider.price || '',
+        basePrice: price || '',
         shippingPrice: t('drawer.toCombine'),
-        totalPrice: provider.price || t('drawer.toCombine'),
+        totalPrice: price || t('drawer.toCombine'),
       })
       setFormState('success')
     } catch {
@@ -257,7 +274,7 @@ function SolicitarTab({ provider }: { provider: Provider }) {
           <p className="text-xs font-bold uppercase tracking-widest mb-0.5" style={{ color: '#2B9D8F' }}>
             {t('drawer.deliveryCombinada')}
           </p>
-          <p className="text-sm text-gray-700">{provider.deliveryInfo || t('drawer.toCombine')}</p>
+          <p className="text-sm text-gray-700">{deliveryInfo || t('drawer.toCombine')}</p>
         </div>
       </div>
 
@@ -314,7 +331,7 @@ function SolicitarTab({ provider }: { provider: Provider }) {
         <div className="rounded-xl border border-gray-100 p-4 bg-gray-50">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">{t('drawer.basePrice')}</span>
-            <span className="text-sm font-semibold text-gray-900">{provider.price}</span>
+            <span className="text-sm font-semibold text-gray-900">{price}</span>
           </div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-gray-600">{t('drawer.shipping')}</span>
@@ -335,7 +352,7 @@ function SolicitarTab({ provider }: { provider: Provider }) {
           {formState === 'sending' ? (
             <>
               <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4} />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
               <span>{t('drawer.sending')}</span>
@@ -350,11 +367,16 @@ function SolicitarTab({ provider }: { provider: Provider }) {
 }
 
 export default function ProfileDrawer({ provider, canRequest = true, onRequireAuth, onClose }: Props) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const [tab, setTab] = useState<Tab>('portfolio')
   const [shareOpen, setShareOpen] = useState(false)
   const cat = CATEGORIES.find((c) => c.id === provider.category)
   const style = CATEGORY_STYLE[provider.category]
+  const badge = getLocalizedBadge(provider, lang)
+  const bio = getLocalizedBio(provider, lang)
+  const price = getLocalizedPrice(provider, lang)
+  const availability = getLocalizedAvailability(provider, lang)
+  const categoryLabel = lang === 'en' && provider.categoryLabelEn ? provider.categoryLabelEn : provider.categoryLabel
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -367,9 +389,9 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
   }, [onClose])
 
   const TABS: { id: Tab; label: string }[] = [
-    { id: 'portfolio', label: 'Portfólio' },
-    { id: 'avaliacoes', label: 'Avaliações' },
-    { id: 'solicitar', label: 'Solicitar' },
+    { id: 'portfolio', label: t('drawer.portfolio') },
+    { id: 'avaliacoes', label: t('drawer.reviews') },
+    { id: 'solicitar', label: t('drawer.request') },
   ]
 
   return (
@@ -414,7 +436,7 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
             <button
               onClick={onClose}
               className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 transition-colors"
-              aria-label="Fechar perfil"
+              aria-label={t('drawer.close')}
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -427,7 +449,7 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
             <div className="flex items-end justify-between">
               <div>
                 <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${style.pill} inline-block mb-2`}>
-                  {cat?.emoji} {provider.categoryLabel}
+                  {cat?.emoji} {categoryLabel}
                 </span>
                 <h2 className="text-xl sm:text-2xl font-bold text-white" style={{ fontFamily: "'Fraunces', serif" }}>
                   {provider.name}
@@ -439,10 +461,10 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
                   <span className="text-xs text-white/80">{provider.location}</span>
                   {provider.nationality && (
                     <span className="flex items-center gap-1 text-xs text-white/80">
-                      · {countryName(provider.nationality)}
+                      · {countryName(provider.nationality, lang as 'pt' | 'en')}
                       <img
                         src={flagUrl(provider.nationality)}
-                        alt={`Bandeira de ${countryName(provider.nationality)}`}
+                        alt={`Bandeira de ${countryName(provider.nationality, lang as 'pt' | 'en')}`}
                         className="w-3.5 h-3.5 rounded-sm object-cover ring-1 ring-black/20"
                         loading="lazy"
                       />
@@ -451,10 +473,10 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-lg sm:text-xl font-bold text-white">{provider.price}</div>
+                <div className="text-lg sm:text-xl font-bold text-white">{price}</div>
                 <div className="flex items-center justify-end gap-1 mt-0.5">
                   <div className={`w-1.5 h-1.5 rounded-full ${provider.availableNow ? 'bg-green-400' : 'bg-gray-300'}`} />
-                  <span className="text-xs text-white/80">{provider.availability}</span>
+                  <span className="text-xs text-white/80">{availability}</span>
                 </div>
               </div>
             </div>
@@ -463,14 +485,14 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
 
         {/* Bio + Stats row */}
         <div className="flex-shrink-0 px-5 sm:px-6 py-3.5 border-b border-gray-100 bg-gray-50/50">
-          <p className="text-sm text-gray-600 mb-2 leading-relaxed">{provider.bio}</p>
+          <p className="text-sm text-gray-600 mb-2 leading-relaxed">{bio}</p>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
               <svg className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
               <span className="text-sm font-bold text-gray-900">{provider.rating.toFixed(1)}</span>
-              <span className="text-xs text-gray-500">({provider.reviews} avaliações)</span>
+              <span className="text-xs text-gray-500">({provider.reviews} {t('drawer.reviewsCount')})</span>
             </div>
             {isProviderVerified(provider) && (
               <div className="flex items-center gap-1 text-teal-600">
@@ -480,9 +502,9 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
                 <span className="text-xs font-semibold">{t('card.verified')}</span>
               </div>
             )}
-            {provider.badge && (
+            {badge && (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">
-                ★ {provider.badge}
+                ★ {badge}
               </span>
             )}
           </div>
@@ -523,7 +545,7 @@ export default function ProfileDrawer({ provider, canRequest = true, onRequireAu
               className="w-full sm:w-auto px-8 text-white font-semibold py-3 rounded-xl transition-all hover:opacity-90 active:scale-[0.98] shadow-sm"
               style={{ backgroundColor: '#E8553D' }}
             >
-              {canRequest ? 'Solicitar serviço' : 'Entrar para solicitar'}
+              {canRequest ? t('drawer.requestBtn') : t('drawer.loginToRequest')}
             </button>
           </div>
         )}

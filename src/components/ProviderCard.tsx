@@ -1,5 +1,16 @@
 import { useState } from 'react'
-import { CATEGORIES, CATEGORY_STYLE, DEFAULT_PHOTO_URL, getPhotoUrl, isProviderVerified, type Provider } from '../data'
+import {
+  CATEGORIES,
+  CATEGORY_STYLE,
+  DEFAULT_PHOTO_URL,
+  getPhotoUrl,
+  isProviderVerified,
+  getLocalizedDescription,
+  getLocalizedPrice,
+  getLocalizedAvailability,
+  getLocalizedBadge,
+  type Provider,
+} from '../data'
 import { countryName, flagUrl } from '../countries'
 import { useLanguage } from '../i18n'
 
@@ -27,10 +38,15 @@ export default function ProviderCard({
   provider: Provider
   onOpen: (p: Provider) => void
 }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const [liked, setLiked] = useState(false)
   const style = CATEGORY_STYLE[provider.category]
   const cat = CATEGORIES.find((c) => c.id === provider.category)
+  const badge = getLocalizedBadge(provider, lang)
+  const description = getLocalizedDescription(provider, lang)
+  const price = getLocalizedPrice(provider, lang)
+  const availability = getLocalizedAvailability(provider, lang)
+  const categoryLabel = lang === 'en' && provider.categoryLabelEn ? provider.categoryLabelEn : provider.categoryLabel
 
   return (
     <div
@@ -66,23 +82,23 @@ export default function ProviderCard({
           </svg>
         </button>
 
-        {provider.badge && (
+        {badge && (
           <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-xs font-semibold px-2.5 py-1 rounded-full text-gray-800">
-            ★ {provider.badge}
+            ★ {badge}
           </div>
         )}
 
         <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
           <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${style.pill}`}>
-            {cat?.emoji} {provider.categoryLabel}
+            {cat?.emoji} {categoryLabel}
           </span>
           <span
             className="text-xs font-semibold px-2 py-1 rounded-full bg-white/90 backdrop-blur-sm text-gray-700 flex items-center gap-1.5"
-            title={countryName(provider.nationality)}
+            title={countryName(provider.nationality, lang as 'pt' | 'en')}
           >
             <img
               src={flagUrl(provider.nationality)}
-              alt={`Bandeira de ${countryName(provider.nationality)}`}
+              alt={`Bandeira de ${countryName(provider.nationality, lang as 'pt' | 'en')}`}
               className="w-4 h-4 rounded-sm object-cover ring-1 ring-black/5"
               loading="lazy"
             />
@@ -101,7 +117,7 @@ export default function ProviderCard({
               </svg>
               <span className="text-xs text-gray-500">{provider.location}</span>
               {provider.nationality && (
-                <span className="text-xs text-gray-400">· {countryName(provider.nationality)}</span>
+                <span className="text-xs text-gray-400">· {countryName(provider.nationality, lang as 'pt' | 'en')}</span>
               )}
             </div>
           </div>
@@ -121,14 +137,14 @@ export default function ProviderCard({
           <span className="text-xs text-gray-400">({provider.reviews})</span>
         </div>
 
-        <p className="text-sm text-gray-600 line-clamp-2 mb-3 flex-1">{provider.description}</p>
+        <p className="text-sm text-gray-600 line-clamp-2 mb-3 flex-1">{description}</p>
 
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div>
-            <p className="text-base font-bold text-gray-900">{provider.price}</p>
+            <p className="text-base font-bold text-gray-900">{price}</p>
             <div className="flex items-center gap-1 mt-0.5">
               <div className={`w-1.5 h-1.5 rounded-full ${provider.availableNow ? 'bg-green-400' : 'bg-gray-300'}`} />
-              <span className="text-xs text-gray-500">{provider.availability}</span>
+              <span className="text-xs text-gray-500">{availability}</span>
             </div>
           </div>
           <button
