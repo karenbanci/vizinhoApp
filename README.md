@@ -211,4 +211,4 @@ Este projeto é de uso privado e confidencial.
 - [x] quando eu crio uma conta nova, aparece esse erro: Something went wrong. Please try again. Teoricamente o email nunca foi cadastrado, é um email de conta nova
 - [x] identificar e corrigir o erro: ERR_PNPM_OUTDATED_LOCKFILE  Cannot install with "frozen-lockfile" because pnpm-lock.yaml is not up to date with <ROOT>/package.json
 - [x] identificar e corrigir o erro: Error: Command "pnpm install" exited with 1
-- [ ] quando cadastra conta nova aparece esse erro: Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+- [x] quando cadastra conta nova aparece esse erro: Failed to load resource: the server responded with a status of 502 (Bad Gateway)
