@@ -86,7 +86,7 @@ function PortfolioTab({ provider }: { provider: Provider }) {
           {t('drawer.servicesTitle')}
         </h3>
         {services.length === 0 ? (
-          <p className="text-xs text-gray-400">Nenhum serviço individual listado.</p>
+          <p className="text-xs text-gray-400">{t('drawer.noIndividualServices')}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {services.map((s, idx) => {
