@@ -211,4 +211,4 @@ Este projeto é de uso privado e confidencial.
 - [x] Novos usuários ainda não recebem o link de confirmação de cadastro. No register aparece o erro 502 Bad Gateway, identifique o erro e corrija.
 - [x] Deixar o site no modo responsivo no modo mobile e tablet.
 - [x] identifique e corrija: Error: Command "vite build" exited with 127.
-- [ ] O deployment tem que ser manual quando solicitado.
+- [x] O deployment tem que ser manual quando solicitado.
